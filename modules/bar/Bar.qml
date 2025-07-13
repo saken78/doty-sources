@@ -1,8 +1,10 @@
 import QtQuick
 import Quickshell
 import Quickshell.Hyprland
-import "../workspaces/"
+import "../workspaces"
+import "../launcher/"
 import "../theme"
+import "../clock"
 
 PanelWindow {
     id: panel
@@ -26,7 +28,11 @@ PanelWindow {
         border.color: "#333333"
         border.width: 0
 
-        Workspaces {}
+        Workspaces {
+            bar: QtObject {
+                property var screen: panel.screen
+            }
+        }
 
         Text {
             visible: Hyprland.workspaces.length === 0
@@ -35,30 +41,11 @@ PanelWindow {
             font.pixelSize: 12
         }
     }
-
-    Text {
-        id: timeDisplay
+    Clock {
         anchors {
             right: parent.right
             verticalCenter: parent.verticalCenter
             rightMargin: 16
-        }
-
-        property string currentTime: ""
-
-        text: currentTime
-        color: "#ffffff"
-        font.pixelSize: 12
-        font.family: "Iosevka Nerd Font"
-
-        Timer {
-            interval: 1000
-            running: true
-            repeat: true
-            onTriggered: {
-                var now = new Date();
-                timeDisplay.currentTime = Qt.formatDateTime(now, "hh:mm:ss");
-            }
         }
     }
 }
