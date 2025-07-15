@@ -45,9 +45,9 @@ MouseArea {
         id: trayIcon
         source: root.item.icon
         anchors.centerIn: parent
-        anchors.margins: 2
-        width: parent.width - 4
-        height: parent.height - 4
+        anchors.margins: 0
+        width: parent.width
+        height: parent.height
         smooth: true
     }
 }

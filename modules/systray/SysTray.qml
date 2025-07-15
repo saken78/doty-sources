@@ -12,13 +12,13 @@ Rectangle {
     implicitWidth: rowLayout.implicitWidth
     implicitHeight: 32
     color: Colors.surfaceBright
-    radius: 8
+    radius: 16
 
     RowLayout {
         id: rowLayout
 
         anchors.fill: parent
-        spacing: 8
+        spacing: 4
         anchors.margins: 4
 
         Repeater {
