@@ -13,9 +13,9 @@ Rectangle {
     signal itemSelected
 
     implicitWidth: 500
-    implicitHeight: mainLayout.implicitHeight + 16
+    implicitHeight: mainLayout.implicitHeight + 32
     color: Colors.surface
-    radius: 24
+    radius: 32
     border.color: Colors.outline
     border.width: 0
 
@@ -29,7 +29,7 @@ Rectangle {
     ColumnLayout {
         id: mainLayout
         anchors.fill: parent
-        anchors.margins: 8
+        anchors.margins: 16
         spacing: 8
 
         // Search input
@@ -37,7 +37,7 @@ Rectangle {
             id: searchInputContainer
             Layout.fillWidth: true
             implicitHeight: 48
-            color: Colors.surfaceContainerLowest
+            color: Colors.surfaceContainerHigh
             radius: 16
             border.color: searchInput.activeFocus ? Colors.primary : Colors.outline
             border.width: 0
@@ -200,7 +200,7 @@ Rectangle {
                 visible: root.selectedIndex >= 0
             }
 
-            highlightMoveDuration: 50
+            highlightMoveDuration: 100
             highlightMoveVelocity: -1
         }
     }
