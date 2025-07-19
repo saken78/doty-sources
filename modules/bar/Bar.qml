@@ -48,13 +48,6 @@ PanelWindow {
                 }
             }
 
-            Text {
-                visible: Hyprland.workspaces.length === 0
-                text: "No workspaces"
-                color: Colors.foreground
-                font.pixelSize: 12
-            }
-
             Item {
                 Layout.fillWidth: true
             }
