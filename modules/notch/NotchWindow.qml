@@ -1,6 +1,7 @@
 import Qt5Compat.GraphicalEffects
 import QtQuick
 import Quickshell
+import Quickshell.Io
 import Quickshell.Wayland
 import "../globals"
 import "../theme"
@@ -33,6 +34,19 @@ PanelWindow {
             width: userHostText.implicitWidth + 24
             height: 28
 
+            Process {
+                id: hostnameProcess
+                command: ["hostname"]
+                running: true
+
+                stdout: StdioCollector {
+                    id: hostnameCollector
+                    waitForEnd: true
+
+                    onStreamFinished: {}
+                }
+            }
+
             MouseArea {
                 id: userHostArea
                 anchors.fill: parent
@@ -59,7 +73,7 @@ PanelWindow {
             Text {
                 id: userHostText
                 anchors.centerIn: parent
-                text: `${Quickshell.env("USER")}@${Quickshell.env("HOSTNAME")}`
+                text: `${Quickshell.env("USER")}@${hostnameCollector.text.trim()}`
                 color: userHostArea.pressed ? Colors.foreground : (userHostArea.containsMouse ? Colors.primary : Colors.foreground)
                 font.family: Styling.defaultFont
                 font.pixelSize: 14
