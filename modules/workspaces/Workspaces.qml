@@ -100,29 +100,38 @@ Item {
                 z: 1
                 implicitWidth: workspaceButtonWidth
                 implicitHeight: workspaceButtonWidth
-                radius: Appearance.rounding.full
+                radius: 12
                 property var leftOccupied: (workspaceOccupied[index - 1] && !(!activeWindow?.activated && monitor?.activeWorkspace?.id === index))
                 property var rightOccupied: (workspaceOccupied[index + 1] && !(!activeWindow?.activated && monitor?.activeWorkspace?.id === index + 2))
-                property var radiusLeft: leftOccupied ? 0 : Appearance.rounding.full
-                property var radiusRight: rightOccupied ? 0 : Appearance.rounding.full
+                property var radiusLeft: leftOccupied ? 0 : 12
+                property var radiusRight: rightOccupied ? 0 : 12
 
                 topLeftRadius: radiusLeft
                 bottomLeftRadius: radiusLeft
                 topRightRadius: radiusRight
                 bottomRightRadius: radiusRight
 
-                color: ColorUtils.transparentize(Appearance.m3colors.m3secondaryContainer, 0.4)
+                color: ColorUtils.transparentize(Colors.adapter.outline, 0.4)
                 opacity: (workspaceOccupied[index] && !(!activeWindow?.activated && monitor?.activeWorkspace?.id === index + 1)) ? 1 : 0
 
                 Behavior on opacity {
-                    animation: Appearance.animation.elementMove.numberAnimation.createObject(this)
+                    NumberAnimation {
+                        duration: 200
+                        easing.type: Easing.OutQuad
+                    }
                 }
                 Behavior on radiusLeft {
-                    animation: Appearance.animation.elementMove.numberAnimation.createObject(this)
+                    NumberAnimation {
+                        duration: 200
+                        easing.type: Easing.OutQuad
+                    }
                 }
 
                 Behavior on radiusRight {
-                    animation: Appearance.animation.elementMove.numberAnimation.createObject(this)
+                    NumberAnimation {
+                        duration: 200
+                        easing.type: Easing.OutQuad
+                    }
                 }
             }
         }
@@ -132,8 +141,8 @@ Item {
         z: 2
         property real activeWorkspaceMargin: 2
         implicitHeight: workspaceButtonWidth - activeWorkspaceMargin * 2
-        radius: Appearance.rounding.full
-        color: Appearance.colors.colPrimary
+        radius: 12
+        color: Colors.adapter.primary
         anchors.verticalCenter: parent.verticalCenter
 
         property real idx1: workspaceIndexInGroup
@@ -142,7 +151,10 @@ Item {
         implicitWidth: Math.abs(idx1 - idx2) * workspaceButtonWidth + workspaceButtonWidth - activeWorkspaceMargin * 2
 
         Behavior on activeWorkspaceMargin {
-            animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+            NumberAnimation {
+                duration: 150
+                easing.type: Easing.OutQuad
+            }
         }
         Behavior on idx1 {
             NumberAnimation {
@@ -191,20 +203,24 @@ Item {
                     }
                     property var mainAppIconSource: Quickshell.iconPath(AppSearch.guessIcon(biggestWindow?.class), "image-missing")
 
-                    StyledText {
+                    Text {
                         opacity: GlobalStates.workspaceShowNumbers || ((ConfigOptions?.bar.workspaces.alwaysShowNumbers && (!ConfigOptions?.bar.workspaces.showAppIcons || !workspaceButtonBackground.biggestWindow || GlobalStates.workspaceShowNumbers)) || (GlobalStates.workspaceShowNumbers && !ConfigOptions?.bar.workspaces.showAppIcons)) ? 1 : 0
                         z: 3
 
                         anchors.centerIn: parent
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
-                        font.pixelSize: Appearance.font.pixelSize.small - ((text.length - 1) * (text !== "10") * 2)
+                        font.family: Styling.defaultFont
+                        font.pixelSize: Styling.fontSize.small - ((text.length - 1) * (text !== "10") * 2)
                         text: `${button.workspaceValue}`
                         elide: Text.ElideRight
-                        color: (monitor?.activeWorkspace?.id == button.workspaceValue) ? Appearance.m3colors.m3onPrimary : (workspaceOccupied[index] ? Appearance.m3colors.m3onSecondaryContainer : Appearance.colors.colOnLayer1Inactive)
+                        color: (monitor?.activeWorkspace?.id == button.workspaceValue) ? Colors.background : (workspaceOccupied[index] ? Colors.adapter.overBackground : Colors.adapter.surfaceBright)
 
                         Behavior on opacity {
-                            animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+                            NumberAnimation {
+                                duration: 150
+                                easing.type: Easing.OutQuad
+                            }
                         }
                     }
                     StyledContainer {
@@ -214,10 +230,13 @@ Item {
                         width: workspaceButtonWidth * 0.18
                         height: width
                         radius: width / 2
-                        color: (monitor?.activeWorkspace?.id == button.workspaceValue) ? Appearance.m3colors.m3onPrimary : (workspaceOccupied[index] ? Appearance.m3colors.m3onSecondaryContainer : Appearance.colors.colOnLayer1Inactive)
+                        color: (monitor?.activeWorkspace?.id == button.workspaceValue) ? Colors.background : (workspaceOccupied[index] ? Colors.adapter.overBackground : Colors.adapter.surfaceBright)
 
                         Behavior on opacity {
-                            animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+                            NumberAnimation {
+                                duration: 150
+                                easing.type: Easing.OutQuad
+                            }
                         }
                     }
                     Item {
@@ -237,16 +256,28 @@ Item {
                             implicitSize: (!GlobalStates.workspaceShowNumbers && ConfigOptions?.bar.workspaces.showAppIcons) ? workspaceIconSize : workspaceIconSizeShrinked
 
                             Behavior on opacity {
-                                animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+                                NumberAnimation {
+                                    duration: 150
+                                    easing.type: Easing.OutQuad
+                                }
                             }
                             Behavior on anchors.bottomMargin {
-                                animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+                                NumberAnimation {
+                                    duration: 150
+                                    easing.type: Easing.OutQuad
+                                }
                             }
                             Behavior on anchors.rightMargin {
-                                animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+                                NumberAnimation {
+                                    duration: 150
+                                    easing.type: Easing.OutQuad
+                                }
                             }
                             Behavior on implicitSize {
-                                animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+                                NumberAnimation {
+                                    duration: 150
+                                    easing.type: Easing.OutQuad
+                                }
                             }
                         }
                     }
