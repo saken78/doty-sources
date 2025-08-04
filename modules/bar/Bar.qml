@@ -81,6 +81,10 @@ PanelWindow {
                     property var screen: panel.screen
                 }
             }
+
+            OverviewButton {
+                id: overviewButton
+            }
         }
 
         // Right side of bar

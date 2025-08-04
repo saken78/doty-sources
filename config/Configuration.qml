@@ -26,9 +26,12 @@ Singleton {
             property JsonObject bar: JsonObject {
                 property bool bottom: false
                 property bool borderless: false
-                property string launcherNerdIcon: ""
-                property string launcherTablerIcon: "f1fd"
-                property string launcherPhosphorIcon: ""
+                property string launcherNerdIcon: ""
+                property string launcherTablerIcon: "&#xec2c;"
+                property string launcherPhosphorIcon: ""
+                property string overviewNerdIcon: ""
+                property string overviewTablerIcon: "&#xefe6;"
+                property string overviewPhosphorIcon: ""
                 property bool showBackground: true
                 property bool verbose: true
                 property list<string> screenList: []
@@ -60,6 +63,7 @@ Singleton {
     // Bar configuration
     property QtObject bar: loader.adapter.bar
     property string launcherIcon: iconFont === "nerd" ? loader.adapter.bar.launcherNerdIcon : iconFont === "tabler" ? loader.adapter.bar.launcherTablerIcon : iconFont === "phosphor" ? loader.adapter.bar.launcherPhosphorIcon : loader.adapter.bar.launcherIcon
+    property string overviewIcon: iconFont === "nerd" ? loader.adapter.bar.overviewNerdIcon : iconFont === "tabler" ? loader.adapter.bar.overviewTablerIcon : iconFont === "phosphor" ? loader.adapter.bar.overviewPhosphorIcon : "󰕰"
 
     // Workspace configuration
     property QtObject workspaces: loader.adapter.workspaces

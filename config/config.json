@@ -2,7 +2,7 @@
   "theme": {
     "oledMode": false,
     "roundness": 16,
-    "iconFont": "nerd",
+    "iconFont": "phosphor",
     "defaultFont": "Roboto Condensed",
     "animDuration": 300
   },
@@ -11,7 +11,7 @@
     "borderless": false,
     "launcherNerdIcon": "",
     "launcherTablerIcon": "&#xec2c;",
-    "launcherPhosphorIcon": "",
+    "launcherPhosphorIcon": "",
     "showBackground": false,
     "verbose": true,
     "screenList": []
