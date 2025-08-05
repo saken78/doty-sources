@@ -27,6 +27,7 @@ Item {
     readonly property var windowByAddress: HyprlandData.windowByAddress
     readonly property var monitors: HyprlandData.monitors
     readonly property var monitorData: monitors.find(m => m.id === monitor?.id)
+    readonly property var toplevels: ToplevelManager.toplevels
 
     property real workspaceImplicitWidth: (monitorData?.transform % 2 === 1) ? ((monitor?.height || 1920) * scale) : ((monitor?.width || 1080) * scale)
     property real workspaceImplicitHeight: (monitorData?.transform % 2 === 1) ? ((monitor?.width || 1080) * scale) : ((monitor?.height || 1920) * scale)
@@ -138,16 +139,24 @@ Item {
             implicitHeight: workspaceColumnLayout.implicitHeight
 
             Repeater {
-                model: overviewRoot.windowList.filter(win => {
-                    const inWorkspaceGroup = (overviewRoot.workspaceGroup * overviewRoot.workspacesShown < win?.workspace?.id && win?.workspace?.id <= (overviewRoot.workspaceGroup + 1) * overviewRoot.workspacesShown);
-                    const inMonitor = overviewRoot.monitor?.id === win.monitor;
-                    return inWorkspaceGroup && inMonitor;
-                })
+                model: ScriptModel {
+                    values: {
+                        return ToplevelManager.toplevels.values.filter((toplevel) => {
+                            const address = `0x${toplevel.HyprlandToplevel.address}`
+                            var win = overviewRoot.windowByAddress[address]
+                            const inWorkspaceGroup = (overviewRoot.workspaceGroup * overviewRoot.workspacesShown < win?.workspace?.id && win?.workspace?.id <= (overviewRoot.workspaceGroup + 1) * overviewRoot.workspacesShown)
+                            const inMonitor = overviewRoot.monitor?.id === win.monitor
+                            return inWorkspaceGroup && inMonitor
+                        })
+                    }
+                }
 
                 delegate: OverviewWindow {
                     id: window
                     required property var modelData
-                    windowData: modelData
+                    property var address: `0x${modelData.HyprlandToplevel.address}`
+                    windowData: overviewRoot.windowByAddress[address]
+                    toplevel: modelData
                     scale: overviewRoot.scale
                     availableWorkspaceWidth: overviewRoot.workspaceImplicitWidth
                     availableWorkspaceHeight: overviewRoot.workspaceImplicitHeight
