@@ -40,14 +40,11 @@ Rectangle {
         spacing: 8
 
         // Search input
-        Rectangle {
+        PaneRect {
             id: searchInputContainer
             Layout.fillWidth: true
             implicitHeight: 48
-            color: Colors.adapter.surfaceContainerHighest
             radius: Config.roundness > 0 ? Config.roundness + 4 : 0
-            border.color: searchInput.activeFocus ? Colors.adapter.primary : Colors.adapter.outline
-            border.width: 0
 
             RowLayout {
                 anchors.fill: parent

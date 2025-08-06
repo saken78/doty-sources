@@ -16,9 +16,7 @@ Button {
     implicitWidth: 36
     implicitHeight: 36
 
-    background: StyledContainer {
-        color: root.pressed ? Colors.adapter.primary : (root.hovered ? Colors.adapter.surfaceBright : Colors.background)
-
+    background: BgRect {
         Behavior on color {
             ColorAnimation {
                 duration: Config.animDuration / 2

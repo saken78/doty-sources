@@ -104,5 +104,22 @@ FileView {
         property string yellowValue: ""
         property string sourceColor: ""
     }
-    property string background: Config.oledMode ? "#000000" : adapter.background
+
+    function applyOpacity(hexColor) {
+        var c = Qt.color(hexColor);
+        return Qt.rgba(c.r, c.g, c.b, Config.opacity);
+    }
+
+    property color background: Config.oledMode ? Qt.rgba(0, 0, 0, Config.opacity) : applyOpacity(adapter.background)
+
+    property color surface: applyOpacity(adapter.surface)
+    property color surfaceBright: applyOpacity(adapter.surfaceBright)
+    property color surfaceContainer: applyOpacity(adapter.surfaceContainer)
+    property color surfaceContainerHigh: applyOpacity(adapter.surfaceContainerHigh)
+    property color surfaceContainerHighest: applyOpacity(adapter.surfaceContainerHighest)
+    property color surfaceContainerLow: applyOpacity(adapter.surfaceContainerLow)
+    property color surfaceContainerLowest: applyOpacity(adapter.surfaceContainerLowest)
+    property color surfaceDim: applyOpacity(adapter.surfaceDim)
+    property color surfaceTint: applyOpacity(adapter.surfaceTint)
+    property color surfaceVariant: applyOpacity(adapter.surfaceVariant)
 }

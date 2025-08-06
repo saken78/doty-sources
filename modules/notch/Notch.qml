@@ -22,7 +22,7 @@ Item {
     readonly property bool screenNotchOpen: visibilities ? (visibilities.launcher || visibilities.dashboard || visibilities.overview) : false
 
     implicitWidth: screenNotchOpen ? Math.max(stackContainer.width + 40, 290) : 290
-    implicitHeight: screenNotchOpen ? Math.max(stackContainer.height, 40) : 40
+    implicitHeight: Config.bar.showBackground ? (screenNotchOpen ? Math.max(stackContainer.height, 44) : 44) : (screenNotchOpen ? Math.max(stackContainer.height, 40) : 40)
 
     Behavior on implicitWidth {
         NumberAnimation {
@@ -49,13 +49,13 @@ Item {
         color: Colors.background
     }
 
-    Rectangle {
+    BgRect {
         id: notchRect
         anchors.centerIn: parent
         width: parent.implicitWidth - 40
         height: parent.implicitHeight
+        layer.enabled: false
 
-        color: Colors.background
         topLeftRadius: 0
         topRightRadius: 0
         bottomLeftRadius: Config.roundness > 0 ? (screenNotchOpen ? Config.roundness + 20 : Config.roundness + 4) : 0

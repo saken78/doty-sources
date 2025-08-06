@@ -1,13 +1,13 @@
 {
   "theme": {
     "oledMode": false,
+    "opacity": 0.5,
     "roundness": 16,
     "defaultFont": "Roboto Condensed",
     "animDuration": 300
   },
   "bar": {
     "bottom": false,
-    "borderless": false,
     "launcherIcon": "",
     "overviewIcon": "",
     "showBackground": false,

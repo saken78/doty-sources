@@ -15,7 +15,6 @@ import qs.config
 Item {
     id: workspacesWidget
     required property var bar
-    property bool borderless: Config.bar.borderless
     readonly property HyprlandMonitor monitor: Hyprland.monitorFor(bar.screen)
     readonly property Toplevel activeWindow: ToplevelManager.activeToplevel
 
@@ -61,7 +60,7 @@ Item {
     implicitWidth: rowLayout.implicitWidth + widgetPadding * 2
     implicitHeight: rowLayout.implicitHeight + widgetPadding * 2
 
-    StyledContainer {
+    BgRect {
         anchors.fill: parent
     }
 
@@ -113,7 +112,7 @@ Item {
                 bottomRightRadius: radiusRight
 
                 color: Colors.adapter.surfaceContainerHighest
-                opacity: (workspaceOccupied[index] && !(!activeWindow?.activated && monitor?.activeWorkspace?.id === index + 1)) ? 1 : 0
+                opacity: (workspaceOccupied[index] && !(!activeWindow?.activated && monitor?.activeWorkspace?.id === index + 1)) ? Config.opacity : 0
 
                 Behavior on opacity {
                     NumberAnimation {

@@ -44,7 +44,7 @@ NotchAnimationBehavior {
                     implicitWidth: (tabs.width - tabs.spacing * 3) / 4
 
                     background: Rectangle {
-                        color: root.state.currentTab === index ? Colors.adapter.surfaceContainer : "transparent"
+                        color: root.state.currentTab === index ? Qt.rgba(Qt.color(Colors.adapter.surfaceContainer).r, Qt.color(Colors.adapter.surfaceContainer).g, Qt.color(Colors.adapter.surfaceContainer).b, Math.max(0.1, Config.opacity)) : "transparent"
                         radius: Config.roundness > 0 ? Config.roundness + 4 : 0
 
                         Behavior on color {
@@ -94,17 +94,16 @@ NotchAnimationBehavior {
         }
 
         // Content area
-        Rectangle {
+        PaneRect {
             id: viewWrapper
 
             width: parent.width
             height: parent.height - tabs.height - 8 // Adjust height to fit below tabs
 
             radius: Config.roundness > 0 ? Config.roundness + 4 : 0
-            color: Colors.adapter.surfaceContainer
             clip: true
 
-            layer.enabled: true
+            layer.enabled: false
             layer.samples: 4
 
             SwipeView {

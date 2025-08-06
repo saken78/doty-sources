@@ -3,7 +3,7 @@ import QtQuick.Layouts
 import Quickshell.Services.SystemTray
 import qs.modules.theme
 
-StyledContainer {
+BgRect {
     id: root
 
     required property var bar

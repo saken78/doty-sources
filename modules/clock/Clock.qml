@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import qs.modules.theme
 
-StyledContainer {
+BgRect {
     id: clockContainer
 
     property string currentTime: ""

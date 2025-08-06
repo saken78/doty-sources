@@ -17,14 +17,14 @@ Singleton {
         adapter: JsonAdapter {
             property JsonObject theme: JsonObject {
                 property bool oledMode: false
+                property real opacity: 1.0
                 property int roundness: 16
                 property string defaultFont: "Roboto Condensed"
                 property int animDuration: 300
             }
 
             property JsonObject bar: JsonObject {
-                property bool bottom: false
-                property bool borderless: false
+                property string position: "top"
                 property string launcherIcon: ""
                 property string overviewIcon: ""
                 property bool showBackground: false
@@ -50,6 +50,7 @@ Singleton {
 
     // Theme configuration
     property bool oledMode: loader.adapter.theme.oledMode
+    property real opacity: Math.min(Math.max(loader.adapter.theme.opacity, 0.1), 1.0)
     property int roundness: loader.adapter.theme.roundness
     property string defaultFont: loader.adapter.theme.defaultFont
     property int animDuration: loader.adapter.theme.animDuration
