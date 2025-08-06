@@ -13,8 +13,6 @@ import "./overview"
 PanelWindow {
     id: notchPanel
 
-    required property ShellScreen screen
-
     anchors {
         top: true
         bottom: true
