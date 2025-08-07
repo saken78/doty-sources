@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Effects
 import QtQuick.Layouts
 import qs.modules.theme
 import qs.modules.globals
@@ -275,9 +276,6 @@ NotchAnimationBehavior {
 
         property string searchText: ""
         readonly property int gridColumns: 3
-        readonly property int wallpaperHeight: height / 3 // 1/3 de la altura del contenedor
-        readonly property int wallpaperWidth: wallpaperHeight  // Mantener cuadrados
-        readonly property int gridWidth: wallpaperWidth * gridColumns
 
         property var filteredWallpapers: {
             if (!GlobalStates.wallpaperManager)
@@ -298,7 +296,7 @@ NotchAnimationBehavior {
 
             // Sidebar izquierdo con search y opciones
             Column {
-                width: parent.width - gridWidth - 16  // Expandir para llenar el espacio restante
+                width: parent.width - wallpaperGridContainer.width - 16  // Expandir para llenar el espacio restante
                 height: parent.height
                 spacing: 12
 
@@ -366,28 +364,40 @@ NotchAnimationBehavior {
             }
 
             // Grid de wallpapers a la derecha
-            Column {
-                width: gridWidth
+            Rectangle {
+                id: wallpaperGridContainer
+                width: wallpaperGridContainer.height
                 height: parent.height
-                spacing: 0
+                color: Colors.surfaceContainer
+                radius: Config.roundness > 0 ? Config.roundness : 0
+                border.color: Colors.adapter.outline
+                border.width: 0
+                clip: true
+
+                readonly property int wallpaperHeight: height / 3  // 1/3 de la altura del contenedor
+                readonly property int wallpaperWidth: wallpaperHeight  // Mantener cuadrados
 
                 ScrollView {
-                    width: parent.width
-                    height: parent.height
+                    anchors.fill: parent
+
+                    layer.enabled: true
+                    layer.effect: MultiEffect {
+                        maskEnabled: true
+                        maskSource: parent
+                    }
 
                     GridView {
                         id: wallpaperGrid
                         width: parent.width
-                        cellWidth: wallpaperWidth
-                        cellHeight: wallpaperHeight
+                        cellWidth: wallpaperGridContainer.wallpaperWidth
+                        cellHeight: wallpaperGridContainer.wallpaperHeight
                         model: filteredWallpapers
 
                         delegate: Rectangle {
-                            width: wallpaperWidth
-                            height: wallpaperHeight
-                            // radius: Config.roundness > 0 ? Config.roundness : 0
+                            width: wallpaperGridContainer.wallpaperWidth
+                            height: wallpaperGridContainer.wallpaperHeight
                             color: Colors.surface
-                            border.color: isCurrentWallpaper ? Colors.adapter.primary : Colors.adapter.outline
+                            border.color: isCurrentWallpaper ? Colors.adapter.primary : "transparent"
                             border.width: isCurrentWallpaper ? 2 : 0
 
                             property bool isCurrentWallpaper: {
@@ -405,12 +415,10 @@ NotchAnimationBehavior {
 
                             Image {
                                 anchors.fill: parent
-                                anchors.margins: 4
                                 source: "file://" + modelData
                                 fillMode: Image.PreserveAspectCrop
                                 asynchronous: true
                                 smooth: true
-                                clip: true
                             }
 
                             MouseArea {
