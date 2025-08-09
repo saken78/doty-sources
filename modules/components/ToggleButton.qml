@@ -23,7 +23,7 @@ Button {
     contentItem: Text {
         text: root.buttonIcon
         textFormat: Text.RichText
-        font.family: Styling.iconFont
+        font.family: Icons.font
         font.pixelSize: 20
         color: root.pressed ? Colors.background : Colors.adapter.primary
         horizontalAlignment: Text.AlignHCenter

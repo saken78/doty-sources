@@ -27,7 +27,6 @@ Singleton {
             property JsonObject bar: JsonObject {
                 property string position: "top"
                 property string launcherIcon: ""
-                property string overviewIcon: ""
                 property bool showBackground: false
                 property real bgOpacity: 0.75
                 property bool verbose: true

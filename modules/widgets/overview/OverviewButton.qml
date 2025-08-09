@@ -3,9 +3,10 @@ import qs.modules.globals
 import qs.modules.services
 import qs.config
 import qs.modules.components
+import qs.modules.theme
 
 ToggleButton {
-    buttonIcon: Config.bar.overviewIcon
+    buttonIcon: Icons.overview
     tooltipText: "Open Window Overview"
 
     onToggle: function () {
