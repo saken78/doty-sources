@@ -52,9 +52,9 @@ PanelWindow {
         if (currentWallpaper && initialLoadCompleted) {
             console.log("Wallpaper changed to:", currentWallpaper);
 
-            // Usar directamente el archivo para Matugen
-            matugenProcess.command = ["matugen", "image", currentWallpaper, "-c", Qt.resolvedUrl("../../../assets/matugen/config.toml").toString().replace("file://", "")];
-            matugenProcess.running = true;
+            // Ejecutar matugen con configuración específica
+            matugenProcessWithConfig.command = ["matugen", "image", currentWallpaper, "-c", Qt.resolvedUrl("../../../assets/matugen/config.toml").toString().replace("file://", "")];
+            matugenProcessWithConfig.running = true;
         }
     }
 
@@ -168,14 +168,14 @@ PanelWindow {
     }
 
     Process {
-        id: matugenProcess
+        id: matugenProcessWithConfig
         running: false
         command: []
 
         stdout: StdioCollector {
             onStreamFinished: {
                 if (text.length > 0) {
-                    console.log("Matugen output:", text);
+                    console.log("Matugen (with config) output:", text);
                 }
             }
         }
@@ -183,9 +183,42 @@ PanelWindow {
         stderr: StdioCollector {
             onStreamFinished: {
                 if (text.length > 0) {
-                    console.warn("Matugen error:", text);
+                    console.warn("Matugen (with config) error:", text);
                 }
             }
+        }
+
+        onExited: {
+            // Cuando termina el primer proceso, ejecutar el segundo sin configuración
+            console.log("Matugen with config finished, running normal matugen...");
+            matugenProcessNormal.command = ["matugen", "image", currentWallpaper];
+            matugenProcessNormal.running = true;
+        }
+    }
+
+    Process {
+        id: matugenProcessNormal
+        running: false
+        command: []
+
+        stdout: StdioCollector {
+            onStreamFinished: {
+                if (text.length > 0) {
+                    console.log("Matugen (normal) output:", text);
+                }
+            }
+        }
+
+        stderr: StdioCollector {
+            onStreamFinished: {
+                if (text.length > 0) {
+                    console.warn("Matugen (normal) error:", text);
+                }
+            }
+        }
+
+        onExited: {
+            console.log("Both matugen processes completed");
         }
     }
 
