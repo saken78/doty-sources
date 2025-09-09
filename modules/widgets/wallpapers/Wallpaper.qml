@@ -45,7 +45,6 @@ PanelWindow {
 
     function getThumbnailPath(filePath) {
         var fileName = filePath.split('/').pop();
-        var baseName = fileName.substring(0, fileName.lastIndexOf('.'));
         var fileType = getFileType(filePath);
         var cacheDir = "";
         
@@ -59,7 +58,10 @@ PanelWindow {
             return ""; // Unknown type
         }
         
-        return Quickshell.env("HOME") + "/.cache/quickshell/" + cacheDir + "/" + baseName + ".jpg";
+        // Include original extension in thumbnail name to avoid collisions
+        // Format: originalname.ext.jpg (e.g., fire-skull.png.jpg)
+        var thumbnailName = fileName + ".jpg";
+        return Quickshell.env("HOME") + "/.cache/quickshell/" + cacheDir + "/" + thumbnailName;
     }
 
     function getDisplaySource(filePath) {

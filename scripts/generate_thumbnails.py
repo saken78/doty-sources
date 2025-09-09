@@ -111,7 +111,8 @@ class ThumbnailGenerator:
     
     def get_thumbnail_path(self, file_path: Path, file_type: str) -> Path:
         """Get thumbnail path for a media file."""
-        thumbnail_name = file_path.stem + '.jpg'
+        # Include original extension in thumbnail name to avoid collisions
+        thumbnail_name = file_path.name.replace(file_path.suffix, '') + file_path.suffix + '.jpg'
         
         if file_type == 'video':
             if self.video_cache_dir is None:
