@@ -307,7 +307,12 @@ Item {
 
     Component {
         id: tmuxComponent
-        LauncherTmuxTab {}
+        LauncherTmuxTab {
+            onItemSelected: {
+                GlobalStates.clearLauncherState();
+                Visibilities.setActiveModule("");
+            }
+        }
     }
 
     Component {
