@@ -26,6 +26,8 @@ Rectangle {
     property var textItems: []
     property bool isImageSectionFocused: false
     property bool hasNavigatedFromSearch: false
+    property bool clearButtonFocused: false
+    property bool clearButtonConfirmState: false
 
     property int imgSize: 78
 
@@ -47,8 +49,22 @@ Rectangle {
         selectedImageIndex = -1;
         isImageSectionFocused = false;
         hasNavigatedFromSearch = false;
+        clearButtonFocused = false;
+        clearButtonConfirmState = false;
         searchInput.focusInput();
         updateFilteredItems();
+    }
+
+    function resetClearButton() {
+        clearButtonConfirmState = false;
+    }
+
+    function clearClipboardHistory() {
+        // Aquí irá la llamada al servicio para limpiar el historial
+        ClipboardService.clear();
+        clearButtonConfirmState = false;
+        clearButtonFocused = false;
+        searchInput.focusInput();
     }
 
     function focusSearchInput() {
@@ -82,6 +98,85 @@ Rectangle {
             selectedIndex = -1;
             selectedImageIndex = -1;
             textResultsList.currentIndex = -1;
+        }
+    }
+
+    function onDownPressed() {
+        if (!root.hasNavigatedFromSearch) {
+            // Primera vez presionando down desde search
+            root.hasNavigatedFromSearch = true;
+            if (root.imageItems.length > 0 && root.searchText.length === 0) {
+                // Ir primero a la sección de imágenes si hay imágenes y no hay búsqueda
+                root.isImageSectionFocused = true;
+                root.selectedIndex = -1;
+                textResultsList.currentIndex = -1;
+                if (root.selectedImageIndex === -1) {
+                    root.selectedImageIndex = 0;
+                }
+                imageResultsList.currentIndex = root.selectedImageIndex;
+            } else if (textResultsList.count > 0) {
+                // Si no hay imágenes o hay búsqueda, ir directo a textos
+                root.isImageSectionFocused = false;
+                if (root.selectedIndex === -1) {
+                    root.selectedIndex = 0;
+                    textResultsList.currentIndex = 0;
+                }
+            }
+        } else {
+            // Ya navegamos desde search, ahora navegamos dentro de secciones
+            if (root.isImageSectionFocused) {
+                // Cambiar de sección de imágenes a textos
+                root.isImageSectionFocused = false;
+                if (root.textItems.length > 0) {
+                    root.selectedIndex = 0;
+                    textResultsList.currentIndex = 0;
+                }
+            } else if (textResultsList.count > 0 && root.selectedIndex >= 0) {
+                if (root.selectedIndex < textResultsList.count - 1) {
+                    root.selectedIndex++;
+                    textResultsList.currentIndex = root.selectedIndex;
+                }
+            }
+        }
+    }
+
+    function onUpPressed() {
+        if (root.isImageSectionFocused) {
+            // Al estar en imágenes y presionar up, regresar al search
+            root.isImageSectionFocused = false;
+            root.selectedImageIndex = -1;
+            root.hasNavigatedFromSearch = false;
+            imageResultsList.currentIndex = -1;
+        } else if (root.selectedIndex > 0) {
+            root.selectedIndex--;
+            textResultsList.currentIndex = root.selectedIndex;
+        } else if (root.selectedIndex === 0 && root.imageItems.length > 0 && root.searchText.length === 0) {
+            // Cambiar de textos a imágenes solo si no hay búsqueda
+            root.isImageSectionFocused = true;
+            root.selectedIndex = -1;
+            textResultsList.currentIndex = -1;
+            if (root.selectedImageIndex === -1) {
+                root.selectedImageIndex = 0;
+            }
+        } else if (root.selectedIndex === 0) {
+            // Regresar al search
+            root.selectedIndex = -1;
+            root.hasNavigatedFromSearch = false;
+            textResultsList.currentIndex = -1;
+        }
+    }
+
+    function onLeftPressed() {
+        if (root.isImageSectionFocused && root.selectedImageIndex > 0) {
+            root.selectedImageIndex--;
+            imageResultsList.currentIndex = root.selectedImageIndex;
+        }
+    }
+
+    function onRightPressed() {
+        if (root.isImageSectionFocused && root.selectedImageIndex < root.imageItems.length - 1) {
+            root.selectedImageIndex++;
+            imageResultsList.currentIndex = root.selectedImageIndex;
         }
     }
 
@@ -130,108 +225,179 @@ Rectangle {
         anchors.fill: parent
         spacing: 8
 
-        // Barra de búsqueda
-        SearchInput {
-            id: searchInput
+        // Barra de búsqueda con botón de limpiar
+        RowLayout {
             Layout.fillWidth: true
-            text: root.searchText
-            placeholderText: "Search clipboard history..."
-            iconText: ""
+            spacing: 8
 
-            onSearchTextChanged: text => {
-                root.searchText = text;
-            }
+            SearchInput {
+                id: searchInput
+                Layout.fillWidth: true
+                text: root.searchText
+                placeholderText: "Search clipboard history..."
+                iconText: ""
 
-            onAccepted: {
-                if (root.isImageSectionFocused && root.selectedImageIndex >= 0 && root.selectedImageIndex < root.imageItems.length) {
-                    var selectedImage = root.imageItems[root.selectedImageIndex];
-                    root.copyToClipboard(selectedImage.id);
-                } else if (!root.isImageSectionFocused && root.selectedIndex >= 0 && root.selectedIndex < root.textItems.length) {
-                    var selectedText = root.textItems[root.selectedIndex];
-                    root.copyToClipboard(selectedText.id);
+                onSearchTextChanged: text => {
+                    root.searchText = text;
                 }
-            }
 
-            onEscapePressed: {
-                root.itemSelected();
-            }
-
-            onDownPressed: {
-                if (!root.hasNavigatedFromSearch) {
-                    // Primera vez presionando down desde search
-                    root.hasNavigatedFromSearch = true;
-                    if (root.imageItems.length > 0) {
-                        // Ir primero a la sección de imágenes si hay imágenes
-                        root.isImageSectionFocused = true;
-                        root.selectedIndex = -1;
-                        textResultsList.currentIndex = -1;
-                        if (root.selectedImageIndex === -1) {
-                            root.selectedImageIndex = 0;
-                        }
-                        imageResultsList.currentIndex = root.selectedImageIndex;
-                    } else if (textResultsList.count > 0) {
-                        // Si no hay imágenes, ir directo a textos
-                        root.isImageSectionFocused = false;
-                        if (root.selectedIndex === -1) {
-                            root.selectedIndex = 0;
-                            textResultsList.currentIndex = 0;
-                        }
+                onAccepted: {
+                    if (root.isImageSectionFocused && root.selectedImageIndex >= 0 && root.selectedImageIndex < root.imageItems.length) {
+                        var selectedImage = root.imageItems[root.selectedImageIndex];
+                        root.copyToClipboard(selectedImage.id);
+                    } else if (!root.isImageSectionFocused && root.selectedIndex >= 0 && root.selectedIndex < root.textItems.length) {
+                        var selectedText = root.textItems[root.selectedIndex];
+                        root.copyToClipboard(selectedText.id);
                     }
-                } else {
-                    // Ya navegamos desde search, ahora navegamos dentro de secciones
-                    if (root.isImageSectionFocused) {
-                        // Cambiar de sección de imágenes a textos
-                        root.isImageSectionFocused = false;
-                        if (root.textItems.length > 0) {
-                            root.selectedIndex = 0;
-                            textResultsList.currentIndex = 0;
-                        }
-                    } else if (textResultsList.count > 0 && root.selectedIndex >= 0) {
-                        if (root.selectedIndex < textResultsList.count - 1) {
-                            root.selectedIndex++;
-                            textResultsList.currentIndex = root.selectedIndex;
-                        }
+                }
+
+                onEscapePressed: {
+                    if (root.clearButtonConfirmState) {
+                        root.resetClearButton();
+                    } else {
+                        root.itemSelected();
+                    }
+                }
+
+                onDownPressed: {
+                    root.onDownPressed();
+                }
+
+                onUpPressed: {
+                    root.onUpPressed();
+                }
+
+                onLeftPressed: {
+                    root.onLeftPressed();
+                }
+
+                onRightPressed: {
+                    root.onRightPressed();
+                }
+
+                Keys.onPressed: event => {
+                    if (event.key === Qt.Key_Tab && !(event.modifiers & Qt.ShiftModifier)) {
+                        root.clearButtonFocused = true;
+                        clearButton.forceActiveFocus();
+                        event.accepted = true;
                     }
                 }
             }
 
-            onUpPressed: {
-                if (root.isImageSectionFocused) {
-                    // Al estar en imágenes y presionar up, regresar al search
-                    root.isImageSectionFocused = false;
-                    root.selectedImageIndex = -1;
-                    root.hasNavigatedFromSearch = false;
-                    imageResultsList.currentIndex = -1;
-                } else if (root.selectedIndex > 0) {
-                    root.selectedIndex--;
-                    textResultsList.currentIndex = root.selectedIndex;
-                } else if (root.selectedIndex === 0 && root.imageItems.length > 0) {
-                    // Cambiar de textos a imágenes
-                    root.isImageSectionFocused = true;
-                    root.selectedIndex = -1;
-                    textResultsList.currentIndex = -1;
-                    if (root.selectedImageIndex === -1) {
-                        root.selectedImageIndex = 0;
+            // Botón de limpiar historial
+            Rectangle {
+                id: clearButton
+                Layout.preferredWidth: root.clearButtonConfirmState ? 130 : 48
+                Layout.preferredHeight: 48
+                radius: searchInput.radius
+                color: {
+                    if (root.clearButtonConfirmState) {
+                        return Colors.adapter.error;
+                    } else if (root.clearButtonFocused || clearButtonMouseArea.containsMouse) {
+                        return Colors.surfaceBright;
+                    } else {
+                        return Colors.surface;
                     }
-                } else if (root.selectedIndex === 0 && root.imageItems.length === 0) {
-                    // No hay imágenes, regresar al search
-                    root.selectedIndex = -1;
-                    root.hasNavigatedFromSearch = false;
-                    textResultsList.currentIndex = -1;
                 }
-            }
+                focus: root.clearButtonFocused
+                activeFocusOnTab: true
 
-            onLeftPressed: {
-                if (root.isImageSectionFocused && root.selectedImageIndex > 0) {
-                    root.selectedImageIndex--;
-                    imageResultsList.currentIndex = root.selectedImageIndex;
+                Behavior on color {
+                    ColorAnimation {
+                        duration: Config.animDuration / 2
+                        easing.type: Easing.OutQuart
+                    }
                 }
-            }
 
-            onRightPressed: {
-                if (root.isImageSectionFocused && root.selectedImageIndex < root.imageItems.length - 1) {
-                    root.selectedImageIndex++;
-                    imageResultsList.currentIndex = root.selectedImageIndex;
+                Behavior on Layout.preferredWidth {
+                    NumberAnimation {
+                        duration: Config.animDuration
+                        easing.type: Easing.OutQuart
+                    }
+                }
+
+                onActiveFocusChanged: {
+                    if (activeFocus) {
+                        root.clearButtonFocused = true;
+                    } else {
+                        root.clearButtonFocused = false;
+                        root.resetClearButton();
+                    }
+                }
+
+                MouseArea {
+                    id: clearButtonMouseArea
+                    anchors.fill: parent
+                    hoverEnabled: true
+
+                    onClicked: {
+                        if (root.clearButtonConfirmState) {
+                            root.clearClipboardHistory();
+                        } else {
+                            root.clearButtonConfirmState = true;
+                        }
+                    }
+                }
+
+                RowLayout {
+                    anchors.fill: parent
+                    anchors.margins: 8
+                    spacing: 8
+
+                    Text {
+                        Layout.preferredWidth: 32
+                        text: root.clearButtonConfirmState ? Icons.alert : Icons.trash
+                        font.family: Icons.font
+                        font.pixelSize: 20
+                        color: root.clearButtonConfirmState ? Colors.adapter.overError : Colors.adapter.primary
+                        horizontalAlignment: Text.AlignHCenter
+
+                        Behavior on color {
+                            ColorAnimation {
+                                duration: Config.animDuration / 2
+                                easing.type: Easing.OutQuart
+                            }
+                        }
+                    }
+
+                    Text {
+                        Layout.fillWidth: true
+                        text: "Clear all?"
+                        font.family: Config.theme.font
+                        font.weight: Font.Bold
+                        font.pixelSize: Config.theme.fontSize
+                        color: Colors.adapter.overError
+                        opacity: root.clearButtonConfirmState ? 1.0 : 0.0
+                        visible: opacity > 0
+
+                        Behavior on opacity {
+                            NumberAnimation {
+                                duration: Config.animDuration / 2
+                                easing.type: Easing.OutQuart
+                            }
+                        }
+                    }
+                }
+
+                Keys.onPressed: event => {
+                    if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+                        if (root.clearButtonConfirmState) {
+                            root.clearClipboardHistory();
+                        } else {
+                            root.clearButtonConfirmState = true;
+                        }
+                        event.accepted = true;
+                    } else if (event.key === Qt.Key_Escape) {
+                        root.resetClearButton();
+                        root.clearButtonFocused = false;
+                        searchInput.focusInput();
+                        event.accepted = true;
+                    } else if (event.key === Qt.Key_Tab && (event.modifiers & Qt.ShiftModifier)) {
+                        root.resetClearButton();
+                        root.clearButtonFocused = false;
+                        searchInput.focusInput();
+                        event.accepted = true;
+                    }
                 }
             }
         }
