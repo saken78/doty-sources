@@ -128,6 +128,24 @@ QtObject {
         }
     }
 
+    property Process clearProcess: Process {
+        command: ["cliphist", "wipe"]
+        running: false
+
+        onExited: function(code) {
+            if (code === 0) {
+                // Limpiar el cache local
+                root.items = [];
+                root.imageDataById = {};
+                root.revision++;
+                console.log("ClipboardService: Clipboard history cleared");
+                root.listCompleted();
+            } else {
+                console.log("ClipboardService: Failed to clear clipboard history");
+            }
+        }
+    }
+
     function checkCliphistAvailability() {
         dependencyCheckProcess.running = true;
     }
@@ -135,6 +153,11 @@ QtObject {
     function list() {
         if (!active) return;
         listProcess.running = true;
+    }
+
+    function clear() {
+        if (!active) return;
+        clearProcess.running = true;
     }
 
     function isImageData(content) {

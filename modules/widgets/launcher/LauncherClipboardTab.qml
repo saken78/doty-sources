@@ -717,7 +717,7 @@ Rectangle {
         // Mensaje cuando no hay elementos
         Item {
             Layout.fillWidth: true
-            Layout.preferredHeight: 200
+            Layout.preferredHeight: 5 * 48
             visible: ClipboardService.items.length === 0
 
             Column {
@@ -728,8 +728,7 @@ Rectangle {
                     text: Icons.clipboard
                     font.family: Icons.font
                     font.pixelSize: 48
-                    color: Colors.adapter.overBackground
-                    opacity: 0.6
+                    color: Colors.surfaceBright
                     anchors.horizontalCenter: parent.horizontalCenter
                 }
 
@@ -746,8 +745,7 @@ Rectangle {
                     text: "Copy something to get started"
                     font.family: Config.theme.font
                     font.pixelSize: Config.theme.fontSize
-                    color: Colors.adapter.overBackground
-                    opacity: 0.7
+                    color: Colors.surfaceBright
                     anchors.horizontalCenter: parent.horizontalCenter
                 }
             }
