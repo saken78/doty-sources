@@ -178,7 +178,7 @@ QtObject {
     function deleteItem(id) {
         if (!active) return;
         deleteProcess.itemId = id;
-        deleteProcess.command = ["cliphist", "delete-query", id];
+        deleteProcess.command = ["bash", "-c", `echo "${id}" | cliphist delete`];
         deleteProcess.running = true;
     }
 

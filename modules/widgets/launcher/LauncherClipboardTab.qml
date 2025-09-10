@@ -274,72 +274,127 @@ Rectangle {
             Layout.fillWidth: true
             spacing: 8
 
-            SearchInput {
-                id: searchInput
-                Layout.fillWidth: true
-                text: root.searchText
-                placeholderText: "Search clipboard history..."
-                iconText: ""
+        SearchInput {
+            id: searchInput
+            Layout.fillWidth: true
+            text: root.searchText
+            placeholderText: "Search clipboard history..."
+            iconText: Icons.clipboard
 
-                onSearchTextChanged: text => {
-                    root.searchText = text;
-                }
+            onSearchTextChanged: text => {
+                root.searchText = text;
+            }
 
-                onAccepted: {
-                    if (root.isImageSectionFocused && root.selectedImageIndex >= 0 && root.selectedImageIndex < root.imageItems.length) {
-                        var selectedImage = root.imageItems[root.selectedImageIndex];
-                        root.copyToClipboard(selectedImage.id);
-                    } else if (!root.isImageSectionFocused && root.selectedIndex >= 0 && root.selectedIndex < root.textItems.length) {
-                        var selectedText = root.textItems[root.selectedIndex];
-                        root.copyToClipboard(selectedText.id);
-                    }
-                }
+            onAccepted: {
+                if (root.deleteMode) {
+                    // En modo eliminar, Enter equivale a cancelar
+                    console.log("DEBUG: Enter in delete mode - canceling");
+                    root.cancelDeleteMode();
+                } else {
+                    console.log("DEBUG: Enter pressed! searchText:", root.searchText, "selectedIndex:", root.selectedIndex);
 
-                onEscapePressed: {
-                    if (root.clearButtonConfirmState) {
-                        root.resetClearButton();
-                    } else if (!root.deleteMode) {
-                        // Solo cerrar el notch si NO estamos en modo eliminar
-                        root.itemSelected();
-                    }
-                    // Si estamos en modo eliminar, no hacer nada aquí
-                    // El handler global del root se encargará
-                }
-
-                onDownPressed: {
-                    root.onDownPressed();
-                }
-
-                onUpPressed: {
-                    root.onUpPressed();
-                }
-
-                onLeftPressed: {
-                    root.onLeftPressed();
-                }
-
-                onRightPressed: {
-                    root.onRightPressed();
-                }
-
-                Keys.onPressed: event => {
-                    if (event.key === Qt.Key_Tab && !(event.modifiers & Qt.ShiftModifier)) {
-                        root.clearButtonFocused = true;
-                        clearButton.forceActiveFocus();
-                        event.accepted = true;
-                    } else if (event.key === Qt.Key_Delete && !root.deleteMode && root.selectedIndex >= 0 && root.selectedIndex < root.textItems.length) {
-                        // Tecla Delete para activar modo delete
-                        var selectedText = root.textItems[root.selectedIndex];
-                        root.enterDeleteMode(selectedText.id);
-                        event.accepted = true;
-                    } else if (event.key === Qt.Key_Return && (event.modifiers & Qt.ShiftModifier) && !root.deleteMode && root.selectedIndex >= 0 && root.selectedIndex < root.textItems.length) {
-                        // Shift+Enter para activar modo delete
-                        var selectedText = root.textItems[root.selectedIndex];
-                        root.enterDeleteMode(selectedText.id);
-                        event.accepted = true;
+                    if (root.selectedIndex >= 0 && root.selectedIndex < root.textItems.length) {
+                        let selectedItem = root.textItems[root.selectedIndex];
+                        console.log("DEBUG: Selected item:", selectedItem);
+                        if (selectedItem && !root.deleteMode) {
+                            root.copyToClipboard(selectedItem.id);
+                        }
+                    } else if (root.isImageSectionFocused && root.selectedImageIndex >= 0 && root.selectedImageIndex < root.imageItems.length) {
+                        let selectedImage = root.imageItems[root.selectedImageIndex];
+                        console.log("DEBUG: Selected image:", selectedImage);
+                        if (selectedImage && !root.deleteMode) {
+                            root.copyToClipboard(selectedImage.id);
+                        }
+                    } else {
+                        console.log("DEBUG: No action taken - selectedIndex:", root.selectedIndex, "count:", root.textItems.length);
                     }
                 }
             }
+
+            onShiftAccepted: {
+                console.log("DEBUG: Shift+Enter pressed! selectedIndex:", root.selectedIndex, "deleteMode:", root.deleteMode);
+
+                if (!root.deleteMode && root.selectedIndex >= 0 && root.selectedIndex < root.textItems.length) {
+                    let selectedItem = root.textItems[root.selectedIndex];
+                    console.log("DEBUG: Selected item for deletion:", selectedItem);
+                    if (selectedItem) {
+                        // Activar modo delete para el item seleccionado
+                        root.enterDeleteMode(selectedItem.id);
+                    }
+                }
+            }
+
+            onEscapePressed: {
+                if (!root.deleteMode) {
+                    // Solo cerrar el notch si NO estamos en modo eliminar
+                    root.itemSelected();
+                }
+                // Si estamos en modo eliminar, no hacer nada aquí
+                // El handler global del root se encargará
+            }
+
+            onDownPressed: {
+                if (!root.deleteMode && root.textItems.length > 0) {
+                    if (root.isImageSectionFocused) {
+                        // Si estamos en imágenes, bajar a texto
+                        root.isImageSectionFocused = false;
+                        root.selectedIndex = 0;
+                        textResultsList.currentIndex = 0;
+                        root.selectedImageIndex = -1;
+                    } else if (root.selectedIndex === -1) {
+                        root.selectedIndex = 0;
+                        textResultsList.currentIndex = 0;
+                    } else if (root.selectedIndex < root.textItems.length - 1) {
+                        root.selectedIndex++;
+                        textResultsList.currentIndex = root.selectedIndex;
+                    }
+                }
+            }
+
+            onUpPressed: {
+                if (!root.deleteMode) {
+                    if (root.selectedIndex > 0) {
+                        root.selectedIndex--;
+                        textResultsList.currentIndex = root.selectedIndex;
+                    } else if (root.selectedIndex === 0) {
+                        // Si hay imágenes, subir a la sección de imágenes
+                        if (root.imageItems.length > 0 && root.searchText.length === 0) {
+                            root.isImageSectionFocused = true;
+                            textResultsList.currentIndex = -1;
+                            if (root.selectedImageIndex === -1) {
+                                root.selectedImageIndex = 0;
+                            }
+                        } else {
+                            // Regresar al search
+                            root.selectedIndex = -1;
+                            root.hasNavigatedFromSearch = false;
+                            textResultsList.currentIndex = -1;
+                        }
+                    } else if (root.selectedIndex === -1 && root.imageItems.length > 0 && root.searchText.length === 0) {
+                        // Ir a imágenes si están disponibles
+                        root.isImageSectionFocused = true;
+                        textResultsList.currentIndex = -1;
+                        if (root.selectedImageIndex === -1) {
+                            root.selectedImageIndex = 0;
+                        }
+                    }
+                }
+            }
+
+            onLeftPressed: {
+                if (root.isImageSectionFocused && root.selectedImageIndex > 0) {
+                    root.selectedImageIndex--;
+                    imageResultsList.currentIndex = root.selectedImageIndex;
+                }
+            }
+
+            onRightPressed: {
+                if (root.isImageSectionFocused && root.selectedImageIndex < root.imageItems.length - 1) {
+                    root.selectedImageIndex++;
+                    imageResultsList.currentIndex = root.selectedImageIndex;
+                }
+            }
+        }
 
             // Botón de limpiar historial
             Rectangle {
