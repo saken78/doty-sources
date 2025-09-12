@@ -18,6 +18,7 @@ Rectangle {
     property int selectedIndex: -1
     property int selectedRecentIndex: -1
     property bool isRecentFocused: false
+    property bool hasNavigatedFromSearch: false
     property var emojiData: []
     property var recentEmojis: []
     property var filteredEmojis: []
@@ -39,6 +40,7 @@ Rectangle {
         selectedIndex = -1;
         selectedRecentIndex = -1;
         isRecentFocused = false;
+        hasNavigatedFromSearch = false;
         searchInput.focusInput();
         updateFilteredEmojis();
     }
@@ -134,12 +136,41 @@ Rectangle {
     }
 
     function onDownPressed() {
-        if (!isRecentFocused) {
-            if (emojiList.count > 0) {
+        if (!hasNavigatedFromSearch) {
+            // Primera vez presionando down desde search
+            hasNavigatedFromSearch = true;
+            if (recentEmojis.length > 0 && searchText.length === 0) {
+                // Ir primero a la sección de recientes si hay recientes y no hay búsqueda
+                isRecentFocused = true;
+                selectedIndex = -1;
+                emojiList.currentIndex = -1;
+                if (selectedRecentIndex === -1) {
+                    selectedRecentIndex = 0;
+                }
+                recentList.currentIndex = selectedRecentIndex;
+            } else if (filteredEmojis.length > 0) {
+                // Si no hay recientes o hay búsqueda, ir directo a emojis
+                isRecentFocused = false;
+                selectedRecentIndex = -1;
+                recentList.currentIndex = -1;
                 if (selectedIndex === -1) {
                     selectedIndex = 0;
                     emojiList.currentIndex = 0;
-                } else if (selectedIndex < emojiList.count - 1) {
+                }
+            }
+        } else {
+            // Ya navegamos desde search, ahora navegamos dentro de secciones
+            if (isRecentFocused) {
+                // Cambiar de sección de recientes a emojis
+                isRecentFocused = false;
+                selectedRecentIndex = -1;
+                recentList.currentIndex = -1;
+                if (filteredEmojis.length > 0) {
+                    selectedIndex = 0;
+                    emojiList.currentIndex = 0;
+                }
+            } else if (emojiList.count > 0 && selectedIndex >= 0) {
+                if (selectedIndex < emojiList.count - 1) {
                     selectedIndex++;
                     emojiList.currentIndex = selectedIndex;
                 }
@@ -347,7 +378,7 @@ Rectangle {
                     required property var modelData
                     required property int index
 
-                    width: 48
+                    width: emojiText.implicitWidth + 16 // Ancho basado en el contenido del emoji + padding
                     height: 48
                     color: {
                         if (root.isRecentFocused && root.selectedRecentIndex === index) {
@@ -385,6 +416,7 @@ Rectangle {
                     }
 
                     Text {
+                        id: emojiText
                         anchors.centerIn: parent
                         text: modelData.emoji
                         font.pixelSize: 24
@@ -456,7 +488,8 @@ Rectangle {
                     spacing: 12
 
                     Text {
-                        Layout.preferredWidth: 32
+                        id: emojiIcon
+                        Layout.preferredWidth: implicitWidth + 8 // Ancho variable basado en el emoji
                         Layout.preferredHeight: 32
                         text: modelData.emoji
                         font.pixelSize: 24

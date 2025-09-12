@@ -41,4 +41,6 @@ QtObject {
     readonly property string clip: ""
     readonly property string copy: ""
     readonly property string image: ""
+    readonly property string broom: ""
+    readonly property string xeyes: ""
 }
