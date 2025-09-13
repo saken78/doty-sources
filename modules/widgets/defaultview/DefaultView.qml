@@ -7,8 +7,9 @@ import qs.modules.globals
 import qs.config
 
 Item {
-    implicitWidth: userHostText.implicitWidth
-    implicitHeight: userHostText.implicitHeight
+    // implicitWidth: userHostText.implicitWidth
+    implicitWidth: 290
+    implicitHeight: 40
 
     Process {
         id: hostnameProcess
