@@ -8,7 +8,33 @@ Menu {
 
     // Propiedades principales
     property var items: []
+    
+    // Update menu width when items change
+    onItemsChanged: updateMenuWidth()
     property int menuWidth: 140
+    
+    // Function to update menu width when items change
+    function updateMenuWidth() {
+        if (!items || items.length === 0) {
+            menuWidth = 120;
+            return;
+        }
+        
+        let maxWidth = 0;
+        for (let i = 0; i < items.length; i++) {
+            if (items[i].isSeparator) continue;
+            
+            let text = items[i].text || "";
+            let textWidth = textMetrics.measureText(text);
+            let iconSpace = hasIcons ? 24 : 0;
+            let totalItemWidth = textWidth + iconSpace + 16;
+            
+            if (totalItemWidth > maxWidth) {
+                maxWidth = totalItemWidth;
+            }
+        }
+        menuWidth = Math.max(maxWidth, 120);
+    }
     property int itemHeight: 36
     
     // Propiedades de estilo del menú
@@ -25,14 +51,37 @@ Menu {
     // Propiedades internas
     property int hoveredIndex: -1
     
+    // Detectar si algún item tiene iconos para ajustar el layout
+    property bool hasIcons: {
+        for (let i = 0; i < items.length; i++) {
+            if (items[i].icon && items[i].icon !== "") {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    // TextMetrics para medir el texto
+    TextMetrics {
+        id: textMetrics
+        font.family: Config.theme.font
+        font.pixelSize: Config.theme.fontSize
+        font.weight: Font.Bold
+        
+        function measureText(text) {
+            textMetrics.text = text;
+            return textMetrics.width;
+        }
+    }
+    
     // Configuración del menú
-    width: menuWidth
+    width: menuWidth  // Use fixed width instead of calculated to avoid binding loop
     padding: 8
     spacing: 0
     
     // Estilo del menú principal
     background: Item {
-        implicitWidth: root.menuWidth
+        implicitWidth: root.calculatedWidth
         
         // Fondo principal
         Rectangle {
@@ -46,7 +95,7 @@ Menu {
         // Highlight animado que sigue al hover
         Rectangle {
             id: menuHighlight
-            width: parent.width - 16 // Accounting for padding
+            width: root.menuWidth - 16 // Accounting for padding
             height: root.itemHeight
             color: {
                 if (root.hoveredIndex === -1) return root.defaultHighlightColor;
@@ -54,7 +103,11 @@ Menu {
                 return item && item.highlightColor !== undefined ? item.highlightColor : root.defaultHighlightColor;
             }
             radius: root.menuRadius > 6 ? root.menuRadius - 6 : 0
-            visible: root.hoveredIndex !== -1
+            visible: {
+                if (root.hoveredIndex === -1) return false;
+                let item = root.items[root.hoveredIndex];
+                return item && !item.isSeparator; // No highlight en separadores
+            }
             opacity: visible ? 1.0 : 0
             
             x: 8 // Padding offset
@@ -93,20 +146,24 @@ Menu {
             id: menuItem
             property int itemIndex: index
             property var itemData: modelData
+            property bool isSeparatorItem: itemData.isSeparator || false
             
             text: itemData.text || ""
-            width: root.width
-            height: root.itemHeight
+            width: root.menuWidth
+            height: isSeparatorItem ? 2 : root.itemHeight
+            enabled: !isSeparatorItem
             
-            // Fondo transparente ya que el highlight se maneja externamente
+            // Fondo - diferente para separadores
             background: Rectangle {
                 anchors.fill: parent
-                color: "transparent"
-                radius: root.menuRadius > 6 ? root.menuRadius - 6 : 0
+                color: isSeparatorItem ? Colors.surface : "transparent"
+                radius: isSeparatorItem ? 0 : (root.menuRadius > 6 ? root.menuRadius - 6 : 0)
             }
             
-            // Manejo del hover
+            // Manejo del hover - desactivado para separadores
             onHoveredChanged: {
+                if (isSeparatorItem) return; // No hover en separadores
+                
                 if (hovered) {
                     root.hoveredIndex = itemIndex;
                 } else {
@@ -122,37 +179,75 @@ Menu {
             contentItem: Row {
                 anchors.fill: parent
                 anchors.margins: 8
-                spacing: 8
+                spacing: root.hasIcons ? 8 : 0
+                visible: !menuItem.isSeparatorItem
                 
-                // Icono (opcional)
-                Text {
-                    text: itemData.icon || ""
-                    visible: text !== ""
-                    color: {
-                        if (root.hoveredIndex === itemIndex) {
-                            return itemData.textColor !== undefined ? itemData.textColor : root.defaultTextColor;
-                        }
-                        return root.normalTextColor;
-                    }
-                    font.family: Icons.font
-                    font.pixelSize: 14
-                    font.weight: Font.Bold
+                // Icono (opcional) - Puede ser fuente o imagen
+                Loader {
+                    id: iconLoader
+                    width: root.hasIcons ? 16 : 0
+                    height: root.hasIcons ? 16 : 0
+                    visible: root.hasIcons
                     anchors.verticalCenter: parent.verticalCenter
                     
-                    Behavior on color {
-                        ColorAnimation {
-                            duration: Config.animDuration / 2
-                            easing.type: Easing.OutQuart
+                    property bool isImageIcon: menuItem.itemData.isImageIcon || false
+                    property string iconSource: menuItem.itemData.icon || ""
+                    
+                    sourceComponent: {
+                        if (iconSource === "" || !root.hasIcons) return null;
+                        return isImageIcon ? imageIconComponent : fontIconComponent;
+                    }
+                    
+                    Component {
+                        id: fontIconComponent
+                        Text {
+                            text: iconLoader.iconSource
+                            color: {
+                                if (root.hoveredIndex === menuItem.itemIndex) {
+                                    return menuItem.itemData.textColor !== undefined ? menuItem.itemData.textColor : root.defaultTextColor;
+                                }
+                                return root.normalTextColor;
+                            }
+                            font.family: Icons.font
+                            font.pixelSize: 14
+                            font.weight: Font.Bold
+                            anchors.centerIn: parent
+                            
+                            Behavior on color {
+                                ColorAnimation {
+                                    duration: Config.animDuration / 2
+                                    easing.type: Easing.OutQuart
+                                }
+                            }
+                        }
+                    }
+                    
+                    Component {
+                        id: imageIconComponent
+                        Image {
+                            source: iconLoader.iconSource
+                            width: 16
+                            height: 16
+                            fillMode: Image.PreserveAspectFit
+                            smooth: true
+                            anchors.centerIn: parent
+                            
+                            // Fallback en caso de error de carga
+                            onStatusChanged: {
+                                if (status === Image.Error) {
+                                    console.log("Failed to load icon:", source);
+                                }
+                            }
                         }
                     }
                 }
                 
                 // Texto
                 Text {
-                    text: itemData.text || ""
+                    text: menuItem.itemData.text || ""
                     color: {
-                        if (root.hoveredIndex === itemIndex) {
-                            return itemData.textColor !== undefined ? itemData.textColor : root.defaultTextColor;
+                        if (root.hoveredIndex === menuItem.itemIndex) {
+                            return menuItem.itemData.textColor !== undefined ? menuItem.itemData.textColor : root.defaultTextColor;
                         }
                         return root.normalTextColor;
                     }
