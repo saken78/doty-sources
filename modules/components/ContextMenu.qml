@@ -168,4 +168,13 @@ OptionsMenu {
         visible = false;
         Visibilities.setContextMenuOpen(false);
     }
+
+    // Conexión para detectar cuando el menú se cierra automáticamente
+    onVisibleChanged: {
+        if (!visible && isOpen) {
+            console.log("Context menu closed automatically, resetting state");
+            isOpen = false;
+            Visibilities.setContextMenuOpen(false);
+        }
+    }
 }
