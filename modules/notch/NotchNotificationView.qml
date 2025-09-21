@@ -89,51 +89,7 @@ Item {
                 anchors.fill: parent
                 spacing: 8
 
-                // Botón de copiar
-                Button {
-                    Layout.fillHeight: true
-                    Layout.preferredWidth: 40
-                    text: "📋"
-                    hoverEnabled: true
-
-                    onHoveredChanged: {
-                        root.anyButtonHovered = hovered;
-                    }
-
-                    background: Rectangle {
-                        color: parent.pressed ? Colors.adapter.primary : (parent.hovered ? Colors.surfaceBright : "transparent")
-                        radius: 8
-
-                        Behavior on color {
-                            ColorAnimation {
-                                duration: Config.animDuration / 2
-                            }
-                        }
-                    }
-
-                    contentItem: Text {
-                        text: parent.text
-                        font.family: Config.theme.font
-                        font.pixelSize: 10
-                        color: parent.pressed ? Colors.adapter.overPrimary : (parent.hovered ? Colors.adapter.overBackground : Colors.adapter.outline)
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
-
-                        Behavior on color {
-                            ColorAnimation {
-                                duration: Config.animDuration / 2
-                            }
-                        }
-                    }
-
-                    onClicked: {
-                        if (currentNotification) {
-                            console.log("Copy:", currentNotification.body);
-                        }
-                    }
-                }
-
-                // Botón del dashboard (centro)
+                // Botón del dashboard (solo)
                 Rectangle {
                     id: dashboardAccess
                     Layout.fillWidth: true
@@ -177,50 +133,6 @@ Item {
                             ColorAnimation {
                                 duration: Config.animDuration / 2
                             }
-                        }
-                    }
-                }
-
-                // Botón de descartar
-                Button {
-                    Layout.fillHeight: true
-                    Layout.preferredWidth: 40
-                    text: "✕"
-                    hoverEnabled: true
-
-                    onHoveredChanged: {
-                        root.anyButtonHovered = hovered;
-                    }
-
-                    background: Rectangle {
-                        color: parent.pressed ? Colors.adapter.error : (parent.hovered ? Colors.surfaceBright : "transparent")
-                        radius: 8
-
-                        Behavior on color {
-                            ColorAnimation {
-                                duration: Config.animDuration / 2
-                            }
-                        }
-                    }
-
-                    contentItem: Text {
-                        text: parent.text
-                        font.family: Config.theme.font
-                        font.pixelSize: 10
-                        color: parent.pressed ? Colors.adapter.overError : (parent.hovered ? Colors.adapter.overBackground : Colors.adapter.error)
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
-
-                        Behavior on color {
-                            ColorAnimation {
-                                duration: Config.animDuration / 2
-                            }
-                        }
-                    }
-
-                    onClicked: {
-                        if (currentNotification) {
-                            Notifications.discardNotification(currentNotification.id);
                         }
                     }
                 }
@@ -286,6 +198,59 @@ Item {
                         NumberAnimation {
                             duration: Config.animDuration / 2
                             easing.type: Easing.OutQuart
+                        }
+                    }
+                }
+            }
+
+            // Columna de botones (solo visible con hover)
+            Column {
+                Layout.preferredWidth: hovered ? 32 : 0
+                Layout.alignment: Qt.AlignVCenter
+                spacing: 4
+                visible: hovered
+                clip: true
+
+                // Botón de descartar (arriba)
+                Button {
+                    width: 32
+                    height: 32
+                    text: "✕"
+                    hoverEnabled: true
+
+                    onHoveredChanged: {
+                        root.anyButtonHovered = hovered;
+                    }
+
+                    background: Rectangle {
+                        color: parent.pressed ? Colors.adapter.error : (parent.hovered ? Colors.surfaceBright : "transparent")
+                        radius: 6
+
+                        Behavior on color {
+                            ColorAnimation {
+                                duration: Config.animDuration / 2
+                            }
+                        }
+                    }
+
+                    contentItem: Text {
+                        text: parent.text
+                        font.family: Config.theme.font
+                        font.pixelSize: 8
+                        color: parent.pressed ? Colors.adapter.overError : (parent.hovered ? Colors.adapter.overBackground : Colors.adapter.error)
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+
+                        Behavior on color {
+                            ColorAnimation {
+                                duration: Config.animDuration / 2
+                            }
+                        }
+                    }
+
+                    onClicked: {
+                        if (currentNotification) {
+                            Notifications.discardNotification(currentNotification.id);
                         }
                     }
                 }
