@@ -19,6 +19,17 @@ QtObject {
     readonly property string caretRight: ""
     readonly property string caretUp: ""
     readonly property string caretDown: ""
+
+    readonly property string caretDoubleLeft: ""
+    readonly property string caretDoubleRight: ""
+    readonly property string caretDoubleUp: ""
+    readonly property string caretDoubleDown: ""
+
+    readonly property string caretLineLeft: ""
+    readonly property string caretLineRight: ""
+    readonly property string caretLineUp: ""
+    readonly property string caretLineDown: ""
+
     // Dashboard
     readonly property string widgets: ""
     readonly property string pins: ""

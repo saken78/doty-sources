@@ -168,7 +168,7 @@ Item {
 
                     Text {
                         anchors.centerIn: parent
-                        text: Icons.caretDown
+                        text: Icons.caretDoubleDown
                         font.family: Icons.font
                         font.pixelSize: 16
                         color: dashboardAccessMouse.containsMouse ? Colors.adapter.overBackground : Colors.adapter.surfaceBright
@@ -240,7 +240,7 @@ Item {
                 Layout.preferredWidth: hovered ? 48 : 32
                 Layout.preferredHeight: hovered ? 48 : 32
                 size: hovered ? 48 : 32
-                radius: Config.roundness + 4
+                radius: Config.roundness > 0 ? Config.roundness + 4 : 0
                 visible: currentNotification && (currentNotification.appIcon !== "" || currentNotification.image !== "")
                 appIcon: currentNotification ? currentNotification.appIcon : ""
                 image: currentNotification ? currentNotification.image : ""
@@ -252,8 +252,7 @@ Item {
             // Textos de la notificación
             Column {
                 Layout.fillWidth: true
-                // Layout.fillHeight: true
-                Layout.preferredHeight: appIcon.Layout.preferredHeight
+                Layout.alignment: Qt.AlignVCenter
                 spacing: hovered ? 4 : 0
 
                 Text {
@@ -297,7 +296,7 @@ Item {
         Item {
             id: actionButtonsRow
             width: parent.width
-            height: (hovered && currentNotification && currentNotification.actions.length > 0) ? 24 : 0
+            height: (hovered && currentNotification && currentNotification.actions.length > 0) ? 32 : 0
             clip: true
 
             RowLayout {
@@ -309,11 +308,11 @@ Item {
 
                     Button {
                         Layout.fillWidth: true
-                        Layout.preferredHeight: 24
+                        Layout.preferredHeight: 32
 
                         text: modelData.text
                         font.family: Config.theme.font
-                        font.pixelSize: Config.theme.fontSize - 2
+                        font.pixelSize: Config.theme.fontSize
                         hoverEnabled: true
 
                         onHoveredChanged: {
@@ -321,8 +320,8 @@ Item {
                         }
 
                         background: Rectangle {
-                            color: parent.pressed ? Colors.adapter.primary : (parent.hovered ? Colors.surfaceBright : Colors.surfaceContainerHigh)
-                            radius: Config.roundness
+                            color: parent.pressed ? Colors.adapter.primary : (parent.hovered ? Colors.surfaceBright : Colors.surface)
+                            radius: Config.roundness > 0 ? Config.roundness + 4 : 0
 
                             Behavior on color {
                                 ColorAnimation {
