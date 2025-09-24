@@ -431,7 +431,7 @@ Item {
                                                 width: Math.min(implicitWidth, Math.max(60, parent.width * 0.3))
                                                 text: notification ? "• " + notification.appName : ""
                                                 font.family: Config.theme.font
-                                                font.pixelSize: Config.theme.fontSize - 1
+                                                font.pixelSize: Config.theme.fontSize
                                                 font.weight: Font.Bold
                                                 color: Colors.adapter.outline
                                                 elide: Text.ElideRight
