@@ -26,7 +26,7 @@ NotchAnimationBehavior {
     readonly property int tabSpacing: 8
 
     readonly property int tabWidth: 48
-    readonly property real nonAnimWidth: 400 + tabWidth + 16 // contenido + pestañas + spacing
+    readonly property real nonAnimWidth: (state.currentTab === 0 ? 600 : 400) + tabWidth + 16 // widgets tab is wider
 
     implicitWidth: nonAnimWidth
     implicitHeight: 430 // Altura fija para el dashboard vertical
