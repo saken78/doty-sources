@@ -179,7 +179,7 @@ Item {
                 Item {
                     id: topRow
                     Layout.fillWidth: true
-                    property real fontSize: 11
+                     property real fontSize: Config.theme.fontSize
                     property bool showAppName: root.multipleNotifications
                     implicitHeight: root.multipleNotifications ? Math.max(topTextRow.implicitHeight, expandButton.implicitHeight) : 0
                     visible: root.multipleNotifications
@@ -196,20 +196,20 @@ Item {
                             id: appName
                             elide: Text.ElideRight
                             Layout.fillWidth: true
-                            text: (topRow.showAppName ? notificationGroup?.appName : (root.validNotifications.length > 0 ? root.validNotifications[0]?.summary ?? "" : "")) || ""
-                            font.family: Config.theme.font
-                            font.pixelSize: topRow.showAppName ? topRow.fontSize : 14
-                            font.weight: Font.Bold
-                            color: topRow.showAppName ? Colors.adapter.outline : Colors.adapter.primary
+                             text: (topRow.showAppName ? notificationGroup?.appName : (root.validNotifications.length > 0 ? root.validNotifications[0]?.summary ?? "" : "")) || ""
+                             font.family: Config.theme.font
+                             font.pixelSize: Config.theme.fontSize
+                             font.weight: Font.Bold
+                             color: topRow.showAppName ? Colors.adapter.outline : Colors.adapter.primary
                         }
                         Text {
                             id: timeText
                             Layout.rightMargin: 10
                             horizontalAlignment: Text.AlignLeft
-                            text: NotificationUtils.getFriendlyNotifTimeString(notificationGroup?.time)
-                            font.family: Config.theme.font
-                            font.pixelSize: topRow.fontSize
-                            color: Colors.adapter.overBackground
+                             text: NotificationUtils.getFriendlyNotifTimeString(notificationGroup?.time)
+                             font.family: Config.theme.font
+                             font.pixelSize: Config.theme.fontSize
+                             color: Colors.adapter.overBackground
                         }
                     }
                     NotificationGroupExpandButton {

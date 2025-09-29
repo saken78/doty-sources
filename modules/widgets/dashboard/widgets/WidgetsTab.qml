@@ -20,7 +20,7 @@ Rectangle {
             Layout.fillWidth: true
             Layout.fillHeight: true
             color: Colors.surface
-            radius: Config.roundness + 4
+            radius: Config.roundness > 4 ? Config.roundness + 4 : 0
 
             Text {
                 anchors.centerIn: parent
@@ -37,7 +37,7 @@ Rectangle {
             Layout.preferredWidth: 340
             Layout.fillHeight: true
             color: Colors.surface
-            radius: Config.roundness + 4
+            radius: Config.roundness > 4 ? Config.roundness + 4 : 0
             clip: true
 
             ScrollView {

@@ -13,7 +13,7 @@ Item {
     id: root
     property var notificationObject
     property bool expanded: false
-    property real fontSize: 12
+    property real fontSize: Config.theme.fontSize
     property real padding: onlyNotification || expanded ? 8 : 0
     property bool onlyNotification: false
 
@@ -283,7 +283,7 @@ Item {
                                      Layout.fillWidth: true
                                      text: notificationObject.summary || ""
                                      font.family: Config.theme.font
-                                     font.pixelSize: 14
+                                     font.pixelSize: Config.theme.fontSize
                                      font.weight: Font.Bold
                                      color: Colors.adapter.primary
                                      elide: Text.ElideRight
@@ -308,7 +308,7 @@ Item {
                                      contentItem: Text {
                                          text: Icons.cancel
                                          font.family: Icons.font
-                                         font.pixelSize: 16
+                                         font.pixelSize: Config.theme.fontSize
                                          color: parent.pressed ? Colors.adapter.overError : (parent.hovered ? Colors.adapter.overBackground : Colors.adapter.error)
                                          horizontalAlignment: Text.AlignHCenter
                                          verticalAlignment: Text.AlignVCenter
@@ -348,23 +348,23 @@ Item {
                         spacing: 4
                         visible: !expanded
 
-                        Text {
-                            text: notificationObject.summary || ""
-                            font.family: Config.theme.font
-                            font.pixelSize: 14
-                            font.weight: Font.Bold
-                            color: Colors.adapter.primary
-                            elide: Text.ElideRight
-                        }
+                         Text {
+                             text: notificationObject.summary || ""
+                             font.family: Config.theme.font
+                             font.pixelSize: Config.theme.fontSize
+                             font.weight: Font.Bold
+                             color: Colors.adapter.primary
+                             elide: Text.ElideRight
+                         }
 
-                        Text {
-                            text: "•"
-                            font.family: Config.theme.font
-                            font.pixelSize: 14
-                            font.weight: Font.Bold
-                            color: Colors.adapter.outline
-                            visible: notificationObject.body && notificationObject.body.length > 0
-                        }
+                         Text {
+                             text: "•"
+                             font.family: Config.theme.font
+                             font.pixelSize: Config.theme.fontSize
+                             font.weight: Font.Bold
+                             color: Colors.adapter.outline
+                             visible: notificationObject.body && notificationObject.body.length > 0
+                         }
 
                         Text {
                             text: processNotificationBody(notificationObject.body || "").replace(/\n/g, ' ')

@@ -27,7 +27,7 @@ Button {
     contentItem: Text {
         text: root.text
         font.family: Config.theme.font
-        font.pixelSize: 14
+        font.pixelSize: Config.theme.fontSize
         color: (root.urgency == NotificationUrgency.Critical) ? "#d32f2f" : "#424242"
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter

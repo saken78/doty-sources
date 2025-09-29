@@ -7,7 +7,7 @@ Button {
     id: root
     property int count: 1
     property bool expanded: false
-    property real fontSize: 14
+    property real fontSize: Config.theme.fontSize
 
     visible: count > 1
     width: 24
@@ -27,7 +27,7 @@ Button {
     contentItem: Text {
         text: root.expanded ? Icons.caretUp : Icons.caretDown
         font.family: Icons.font
-        font.pixelSize: root.fontSize
+        font.pixelSize: Config.theme.fontSize
         color: root.pressed ? Colors.adapter.overPrimary : (root.hovered ? Colors.adapter.overBackground : Colors.adapter.primary)
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
