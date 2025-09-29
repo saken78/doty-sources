@@ -247,19 +247,19 @@ Item {
                 spacing: 8
                 visible: !onlyNotification
 
-                NotificationAppIcon {
-                    id: groupedAppIcon
-                    Layout.preferredWidth: expanded ? 48 : 32
-                    Layout.preferredHeight: expanded ? 48 : 32
-                    Layout.alignment: Qt.AlignTop
-                    size: expanded ? 48 : 32
-                    radius: Config.roundness > 0 ? Config.roundness + 4 : 0
-                    visible: notificationObject && (notificationObject.appIcon !== "" || notificationObject.image !== "")
-                    appIcon: notificationObject ? notificationObject.appIcon : ""
-                    image: notificationObject ? notificationObject.image : ""
-                    summary: notificationObject ? notificationObject.summary : ""
-                    urgency: notificationObject ? notificationObject.urgency : NotificationUrgency.Normal
-                }
+                     NotificationAppIcon {
+                         id: groupedAppIcon
+                         Layout.preferredWidth: expanded ? 48 : 24
+                         Layout.preferredHeight: expanded ? 48 : 24
+                         Layout.alignment: Qt.AlignTop
+                         size: expanded ? 48 : 24
+                         radius: Config.roundness > 0 ? Config.roundness + 4 : 0
+                         visible: notificationObject && (notificationObject.appIcon !== "" || notificationObject.image !== "")
+                         appIcon: notificationObject ? notificationObject.appIcon : ""
+                         image: notificationObject ? notificationObject.image : ""
+                         summary: notificationObject ? notificationObject.summary : ""
+                         urgency: notificationObject ? notificationObject.urgency : NotificationUrgency.Normal
+                     }
 
                 Item {
                     Layout.fillWidth: true
