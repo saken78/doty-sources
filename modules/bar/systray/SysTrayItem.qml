@@ -3,7 +3,6 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Services.SystemTray
 import Quickshell.Widgets
-import Qt5Compat.GraphicalEffects
 import qs.modules.theme
 import qs.modules.components
 import qs.config
