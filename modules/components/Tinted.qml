@@ -12,6 +12,8 @@ Item {
         anchors.fill: parent
         sourceComponent: MultiEffect {
             source: sourceItem
+            brightness: 0.1
+            contrast: 0.1
             saturation: -0.25
             colorization: 0.25
             colorizationColor: Colors.primary
