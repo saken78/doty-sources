@@ -373,31 +373,33 @@ PanelWindow {
                     usingFallback = false;
                     // Only update if the list has actually changed
                     var newFiles = files.sort();
-                    if (JSON.stringify(newFiles) !== JSON.stringify(wallpaperPaths)) {
+                    var listChanged = JSON.stringify(newFiles) !== JSON.stringify(wallpaperPaths);
+                    if (listChanged) {
                         console.log("Wallpaper directory updated. Found", newFiles.length, "images");
                         wallpaperPaths = newFiles;
 
-                        // Initialize wallpaper selection
-                        if (wallpaperPaths.length > 0 && !initialLoadCompleted) {
-                            console.log("DEBUG: Initializing wallpaper selection");
+                        // Always try to load the saved wallpaper when list changes
+                        if (wallpaperPaths.length > 0) {
                             if (wallpaperConfig.adapter.currentWall) {
-                                console.log("DEBUG: Found saved wallpaper:", wallpaperConfig.adapter.currentWall);
                                 var savedIndex = wallpaperPaths.indexOf(wallpaperConfig.adapter.currentWall);
                                 if (savedIndex !== -1) {
-                                    console.log("DEBUG: Loading saved wallpaper at index:", savedIndex);
                                     currentIndex = savedIndex;
+                                    console.log("Loaded saved wallpaper at index:", savedIndex);
                                 } else {
-                                    console.log("DEBUG: Saved wallpaper not found, using first wallpaper");
                                     currentIndex = 0;
-                                    wallpaperConfig.adapter.currentWall = wallpaperPaths[0];
+                                    console.log("Saved wallpaper not found, using first");
                                 }
                             } else {
-                                console.log("DEBUG: No saved wallpaper, using first one");
                                 currentIndex = 0;
-                                wallpaperConfig.adapter.currentWall = wallpaperPaths[0];
                             }
-                            console.log("DEBUG: Setting initialLoadCompleted to true");
-                            initialLoadCompleted = true;
+
+                            if (!initialLoadCompleted) {
+                                if (!wallpaperConfig.adapter.currentWall) {
+                                    wallpaperConfig.adapter.currentWall = wallpaperPaths[0];
+                                }
+                                console.log("DEBUG: Setting initialLoadCompleted to true");
+                                initialLoadCompleted = true;
+                            }
                         }
                     }
                 }
@@ -436,10 +438,24 @@ PanelWindow {
                     wallpaperPaths = files.sort();
 
                     // Initialize fallback wallpaper selection
-                    if (wallpaperPaths.length > 0 && !initialLoadCompleted) {
-                        currentIndex = 0;
-                        wallpaperConfig.adapter.currentWall = wallpaperPaths[0];
-                        initialLoadCompleted = true;
+                    if (wallpaperPaths.length > 0) {
+                        if (wallpaperConfig.adapter.currentWall) {
+                            var savedIndex = wallpaperPaths.indexOf(wallpaperConfig.adapter.currentWall);
+                            if (savedIndex !== -1) {
+                                currentIndex = savedIndex;
+                            } else {
+                                currentIndex = 0;
+                            }
+                        } else {
+                            currentIndex = 0;
+                        }
+
+                        if (!initialLoadCompleted) {
+                            if (!wallpaperConfig.adapter.currentWall) {
+                                wallpaperConfig.adapter.currentWall = wallpaperPaths[0];
+                            }
+                            initialLoadCompleted = true;
+                        }
                     }
                 }
             }
