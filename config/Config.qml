@@ -66,16 +66,26 @@ Singleton {
             }
 
             property JsonObject hyprland: JsonObject {
-                property string activeBorderColor: "primary"
-                property string inactiveBorderColor: "background"
-                property int borderSize: 2
-                property int rounding: 16
-                property bool syncRoundness: true
-                property bool syncBorderWidth: false
-                property bool syncBorderColor: false
-                property int gapsIn: 2
-                property int gapsOut: 4
-            }
+                 property string activeBorderColor: "primary"
+                 property string inactiveBorderColor: "background"
+                 property int borderSize: 2
+                 property int rounding: 16
+                 property bool syncRoundness: true
+                 property bool syncBorderWidth: false
+                 property bool syncBorderColor: false
+                 property int gapsIn: 2
+                 property int gapsOut: 4
+                 property bool shadowEnabled: true
+                 property int shadowRange: 4
+                 property int shadowRenderPower: 3
+                 property bool shadowSharp: false
+                 property bool shadowIgnoreWindow: true
+                 property string shadowColor: "background"
+                 property string shadowColorInactive: "background"
+                 property real shadowOpacity: 0.5
+                 property string shadowOffset: "0 0"
+                 property real shadowScale: 1.0
+             }
 
             property JsonObject performance: JsonObject {
                 property bool blurTransition: true
