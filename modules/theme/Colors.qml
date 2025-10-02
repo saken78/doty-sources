@@ -208,4 +208,5 @@ FileView {
     property color sourceColor: adapter.sourceColor
 
     property color criticalText: "#FF6B08"
+    property color criticalRed: "#FF0028"
 }

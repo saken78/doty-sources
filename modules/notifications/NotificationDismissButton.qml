@@ -14,19 +14,11 @@ Button {
     visible: visibleWhen
 
     background: Rectangle {
-        color: urgency == NotificationUrgency.Critical ? Colors.redSource : (parent.pressed ? Colors.error : (parent.hovered ? Colors.surfaceBright : Colors.surface))
+        color: urgency == NotificationUrgency.Critical ? Colors.criticalRed : (parent.pressed ? Colors.error : (parent.hovered ? Colors.surfaceBright : Colors.surface))
         radius: Config.roundness > 0 ? Config.roundness + 4 : 0
-        border.width: urgency == NotificationUrgency.Critical ? 4 : 0
-        border.color: urgency == NotificationUrgency.Critical ? Colors.shadow : "transparent"
 
         Behavior on color {
             ColorAnimation {
-                duration: Config.animDuration
-            }
-        }
-
-        Behavior on border.width {
-            NumberAnimation {
                 duration: Config.animDuration
             }
         }

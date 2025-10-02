@@ -6,7 +6,7 @@ import qs.config
 ClippingRectangle {
     id: root
 
-    property color stripeColor: Colors.redSource
+    property color stripeColor: Colors.criticalRed
     property int stripeWidth: 8
     property int stripeSpacing: 20
     property int animationDuration: 1000
@@ -48,7 +48,7 @@ ClippingRectangle {
         anchors.fill: parent
         anchors.topMargin: 6
         anchors.bottomMargin: 6
-        color: Colors.redSource
+        color: root.stripeColor
     }
 
     Rectangle {

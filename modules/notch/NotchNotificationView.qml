@@ -417,186 +417,178 @@ Item {
                                             urgency: notification ? notification.urgency : NotificationUrgency.Normal
                                         }
 
-                                     // Textos de la notificación
-                                    Item {
-                                        Layout.fillWidth: true
-                                        implicitHeight: hovered ? textColumnExpanded.implicitHeight : textRowCollapsed.implicitHeight
+                                        // Textos de la notificación
+                                        Item {
+                                            Layout.fillWidth: true
+                                            implicitHeight: hovered ? textColumnExpanded.implicitHeight : textRowCollapsed.implicitHeight
 
-                                        Column {
-                                            id: textColumnExpanded
-                                            width: parent.width
-                                            spacing: 4
-                                            visible: hovered
-
-                                            // Fila del summary, app name y timestamp
-                                            Row {
+                                            Column {
+                                                id: textColumnExpanded
                                                 width: parent.width
                                                 spacing: 4
+                                                visible: hovered
 
-                                                // Contenedor izquierdo para summary y app name
+                                                // Fila del summary, app name y timestamp
                                                 Row {
-                                                    width: parent.width - (timestampText.visible ? timestampText.implicitWidth + parent.spacing : 0)
+                                                    width: parent.width
                                                     spacing: 4
 
-                                                    Text {
-                                                        id: summaryText
-                                                        width: Math.min(implicitWidth, parent.width - (appNameText.visible ? appNameText.width + parent.spacing : 0))
-                                                        text: notification ? notification.summary : ""
-                                                        font.family: Config.theme.font
-                                                        font.pixelSize: Config.theme.fontSize
-                                                        font.weight: Font.Bold
-                                                        color: notification && notification.urgency == NotificationUrgency.Critical ? Colors.criticalText : Colors.primary
-                                                        elide: Text.ElideRight
-                                                        maximumLineCount: 1
-                                                        wrapMode: Text.NoWrap
-                                                        verticalAlignment: Text.AlignVCenter
+                                                    // Contenedor izquierdo para summary y app name
+                                                    Row {
+                                                        width: parent.width - (timestampText.visible ? timestampText.implicitWidth + parent.spacing : 0)
+                                                        spacing: 4
+
+                                                        Text {
+                                                            id: summaryText
+                                                            width: Math.min(implicitWidth, parent.width - (appNameText.visible ? appNameText.width + parent.spacing : 0))
+                                                            text: notification ? notification.summary : ""
+                                                            font.family: Config.theme.font
+                                                            font.pixelSize: Config.theme.fontSize
+                                                            font.weight: Font.Bold
+                                                            color: notification && notification.urgency == NotificationUrgency.Critical ? Colors.criticalText : Colors.primary
+                                                            elide: Text.ElideRight
+                                                            maximumLineCount: 1
+                                                            wrapMode: Text.NoWrap
+                                                            verticalAlignment: Text.AlignVCenter
+                                                        }
+
+                                                        Text {
+                                                            id: appNameText
+                                                            width: Math.min(implicitWidth, Math.max(60, parent.width * 0.3))
+                                                            text: notification ? "• " + notification.appName : ""
+                                                            font.family: Config.theme.font
+                                                            font.pixelSize: Config.theme.fontSize
+                                                            font.weight: Font.Bold
+                                                            color: notification && notification.urgency == NotificationUrgency.Critical ? Colors.criticalText : Colors.outline
+                                                            elide: Text.ElideRight
+                                                            maximumLineCount: 1
+                                                            wrapMode: Text.NoWrap
+                                                            verticalAlignment: Text.AlignVCenter
+                                                            visible: text !== ""
+                                                        }
                                                     }
 
+                                                    // Timestamp a la derecha
                                                     Text {
-                                                        id: appNameText
-                                                        width: Math.min(implicitWidth, Math.max(60, parent.width * 0.3))
-                                                        text: notification ? "• " + notification.appName : ""
+                                                        id: timestampText
+                                                        text: notification ? NotificationUtils.getFriendlyNotifTimeString(notification.time) : ""
                                                         font.family: Config.theme.font
                                                         font.pixelSize: Config.theme.fontSize
                                                         font.weight: Font.Bold
                                                         color: notification && notification.urgency == NotificationUrgency.Critical ? Colors.criticalText : Colors.outline
-                                                        elide: Text.ElideRight
-                                                        maximumLineCount: 1
-                                                        wrapMode: Text.NoWrap
                                                         verticalAlignment: Text.AlignVCenter
                                                         visible: text !== ""
+                                                        anchors.verticalCenter: parent.verticalCenter
                                                     }
                                                 }
 
-                                                // Timestamp a la derecha
                                                 Text {
-                                                    id: timestampText
-                                                    text: notification ? NotificationUtils.getFriendlyNotifTimeString(notification.time) : ""
+                                                    width: parent.width
+                                                    text: notification ? processNotificationBody(notification.body, notification.appName) : ""
+                                                    font.family: Config.theme.font
+                                                    font.pixelSize: Config.theme.fontSize
+                                                    font.weight: notification && notification.urgency == NotificationUrgency.Critical ? Font.Bold : Font.Normal
+                                                    color: notification && notification.urgency == NotificationUrgency.Critical ? Colors.criticalText : Colors.overBackground
+                                                    wrapMode: Text.Wrap
+                                                    maximumLineCount: 3
+                                                    elide: Text.ElideRight
+                                                    visible: text !== ""
+                                                }
+                                            }
+
+                                            RowLayout {
+                                                id: textRowCollapsed
+                                                width: parent.width
+                                                spacing: 4
+                                                visible: !hovered
+
+                                                Text {
+                                                    Layout.maximumWidth: parent.width * 0.4
+                                                    text: notification ? notification.summary : ""
+                                                    font.family: Config.theme.font
+                                                    font.pixelSize: Config.theme.fontSize
+                                                    font.weight: Font.Bold
+                                                    color: notification && notification.urgency == NotificationUrgency.Critical ? Colors.criticalText : Colors.primary
+                                                    elide: Text.ElideRight
+                                                }
+
+                                                Text {
+                                                    text: "•"
                                                     font.family: Config.theme.font
                                                     font.pixelSize: Config.theme.fontSize
                                                     font.weight: Font.Bold
                                                     color: notification && notification.urgency == NotificationUrgency.Critical ? Colors.criticalText : Colors.outline
-                                                    verticalAlignment: Text.AlignVCenter
-                                                    visible: text !== ""
-                                                    anchors.verticalCenter: parent.verticalCenter
+                                                    visible: notification && notification.body && notification.body.length > 0
+                                                }
+
+                                                Text {
+                                                    text: notification ? processNotificationBody(notification.body || "").replace(/\n/g, ' ') : ""
+                                                    font.family: Config.theme.font
+                                                    font.pixelSize: Config.theme.fontSize
+                                                    font.weight: notification && notification.urgency == NotificationUrgency.Critical ? Font.Bold : Font.Normal
+                                                    color: notification && notification.urgency == NotificationUrgency.Critical ? Colors.criticalText : Colors.overBackground
+                                                    wrapMode: Text.NoWrap
+                                                    elide: Text.ElideRight
+                                                    Layout.fillWidth: true
+                                                    visible: text.length > 0
                                                 }
                                             }
-
-                                            Text {
-                                                width: parent.width
-                                                text: notification ? processNotificationBody(notification.body, notification.appName) : ""
-                                                font.family: Config.theme.font
-                                                font.pixelSize: Config.theme.fontSize
-                                                font.weight: notification && notification.urgency == NotificationUrgency.Critical ? Font.Bold : Font.Normal
-                                                color: notification && notification.urgency == NotificationUrgency.Critical ? Colors.criticalText : Colors.overBackground
-                                                wrapMode: Text.Wrap
-                                                maximumLineCount: 3
-                                                elide: Text.ElideRight
-                                                visible: text !== ""
-                                            }
                                         }
+                                    }
 
-                                        RowLayout {
-                                            id: textRowCollapsed
-                                            width: parent.width
-                                            spacing: 4
-                                            visible: !hovered
+                                    // Botón de descartar
+                                    Item {
+                                        Layout.preferredWidth: hovered ? 24 : 0
+                                        Layout.preferredHeight: hovered ? 24 : 0
+                                        Layout.alignment: Qt.AlignTop
 
-                                            Text {
-                                                Layout.maximumWidth: parent.width * 0.4
-                                                text: notification ? notification.summary : ""
-                                                font.family: Config.theme.font
-                                                font.pixelSize: Config.theme.fontSize
-                                                font.weight: Font.Bold
-                                                color: notification && notification.urgency == NotificationUrgency.Critical ? Colors.criticalText : Colors.primary
-                                                elide: Text.ElideRight
-                                            }
+                                        Loader {
+                                            anchors.fill: parent
+                                            active: hovered
 
-                                            Text {
-                                                text: "•"
-                                                font.family: Config.theme.font
-                                                font.pixelSize: Config.theme.fontSize
-                                                font.weight: Font.Bold
-                                                color: notification && notification.urgency == NotificationUrgency.Critical ? Colors.criticalText : Colors.outline
-                                                visible: notification && notification.body && notification.body.length > 0
-                                            }
+                                            sourceComponent: Button {
+                                                id: dismissButton
+                                                anchors.fill: parent
+                                                hoverEnabled: true
 
-                                            Text {
-                                                text: notification ? processNotificationBody(notification.body || "").replace(/\n/g, ' ') : ""
-                                                font.family: Config.theme.font
-                                                font.pixelSize: Config.theme.fontSize
-                                                font.weight: notification && notification.urgency == NotificationUrgency.Critical ? Font.Bold : Font.Normal
-                                                color: notification && notification.urgency == NotificationUrgency.Critical ? Colors.criticalText : Colors.overBackground
-                                                wrapMode: Text.NoWrap
-                                                elide: Text.ElideRight
-                                                Layout.fillWidth: true
-                                                visible: text.length > 0
+                                                background: Rectangle {
+                                                    color: notification && notification.urgency == NotificationUrgency.Critical ? Colors.criticalRed : (parent.pressed ? Colors.error : (parent.hovered ? Colors.surfaceBright : Colors.surface))
+                                                    radius: Config.roundness > 0 ? Config.roundness + 4 : 0
+
+                                                    Behavior on color {
+                                                        ColorAnimation {
+                                                            duration: Config.animDuration
+                                                        }
+                                                    }
+                                                }
+
+                                                contentItem: Text {
+                                                    text: Icons.cancel
+                                                    font.family: Icons.font
+                                                    font.pixelSize: 16
+                                                    color: notification && notification.urgency == NotificationUrgency.Critical ? Colors.shadow : (parent.pressed ? Colors.overError : (parent.hovered ? Colors.overBackground : Colors.error))
+                                                    horizontalAlignment: Text.AlignHCenter
+                                                    verticalAlignment: Text.AlignVCenter
+
+                                                    Behavior on color {
+                                                        ColorAnimation {
+                                                            duration: Config.animDuration
+                                                        }
+                                                    }
+                                                }
+
+                                                onClicked: {
+                                                    if (notification) {
+                                                        Notifications.discardNotification(notification.id);
+                                                    }
+                                                }
                                             }
                                         }
                                     }
                                 }
+                            }
 
-                                // Botón de descartar
-                                Item {
-                                    Layout.preferredWidth: hovered ? 32 : 0
-                                    Layout.preferredHeight: hovered ? 32 : 0
-                                    Layout.alignment: Qt.AlignTop
-
-                                    Loader {
-                                        anchors.fill: parent
-                                        active: hovered
-
-                                        sourceComponent: Button {
-                                            id: dismissButton
-                                            anchors.fill: parent
-                                            hoverEnabled: true
-
-                                            background: Rectangle {
-                                                color: notification && notification.urgency == NotificationUrgency.Critical ? Colors.redSource : (parent.pressed ? Colors.error : (parent.hovered ? Colors.surfaceBright : Colors.surface))
-                                                radius: Config.roundness > 0 ? Config.roundness + 4 : 0
-                                                border.width: notification && notification.urgency == NotificationUrgency.Critical ? 4 : 0
-                                                border.color: notification && notification.urgency == NotificationUrgency.Critical ? Colors.shadow : "transparent"
-
-                                                Behavior on color {
-                                                    ColorAnimation {
-                                                        duration: Config.animDuration
-                                                    }
-                                                }
-
-                                                Behavior on border.width {
-                                                    NumberAnimation {
-                                                        duration: Config.animDuration
-                                                    }
-                                                }
-                                            }
-
-                                            contentItem: Text {
-                                                text: Icons.cancel
-                                                font.family: Icons.font
-                                                font.pixelSize: 20
-                                                color: notification && notification.urgency == NotificationUrgency.Critical ? Colors.shadow : (parent.pressed ? Colors.overError : (parent.hovered ? Colors.overBackground : Colors.error))
-                                                horizontalAlignment: Text.AlignHCenter
-                                                verticalAlignment: Text.AlignVCenter
-
-                                                Behavior on color {
-                                                    ColorAnimation {
-                                                        duration: Config.animDuration
-                                                    }
-                                                }
-                                            }
-
-                                             onClicked: {
-                                                 if (notification) {
-                                                     Notifications.discardNotification(notification.id);
-                                                 }
-                                             }
-                                         }
-                                     }
-                                 }
-                                 }
-                             }
-
-                             // Botones de acción (solo visible con hover)
+                            // Botones de acción (solo visible con hover)
                             Item {
                                 id: actionButtonsRow
                                 width: parent.width
@@ -624,7 +616,7 @@ Item {
                                             // Ya no necesita gestionar anyButtonHovered porque mouseArea principal maneja el hover
 
                                             background: Rectangle {
-                                                color: notification && notification.urgency == NotificationUrgency.Critical ? Colors.redSource : (parent.pressed ? Colors.primary : (parent.hovered ? Colors.surfaceBright : Colors.surface))
+                                                color: notification && notification.urgency == NotificationUrgency.Critical ? Colors.criticalRed : (parent.pressed ? Colors.primary : (parent.hovered ? Colors.surfaceBright : Colors.surface))
                                                 radius: Config.roundness > 0 ? Config.roundness + 4 : 0
 
                                                 Behavior on color {

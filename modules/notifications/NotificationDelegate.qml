@@ -112,270 +112,270 @@ Item {
                 anchors.rightMargin: background.criticalMargins > 0 ? 4 : 0
                 spacing: onlyNotification || expanded ? 8 : 0
 
-            // Individual notification layout (like expanded popup)
-            RowLayout {
-                id: mainContentRow
-                Layout.fillWidth: true
-                implicitHeight: Math.max(onlyNotification ? 48 : 32, textColumn.implicitHeight)
-                height: implicitHeight
-                spacing: 8
-                visible: onlyNotification
-
-                // Contenido principal
+                // Individual notification layout (like expanded popup)
                 RowLayout {
+                    id: mainContentRow
                     Layout.fillWidth: true
+                    implicitHeight: Math.max(onlyNotification ? 48 : 32, textColumn.implicitHeight)
+                    height: implicitHeight
                     spacing: 8
+                    visible: onlyNotification
 
-                    // App icon
-                    NotificationAppIcon {
-                        id: appIcon
-                        Layout.preferredWidth: onlyNotification ? 48 : 32
-                        Layout.preferredHeight: onlyNotification ? 48 : 32
-                        Layout.alignment: Qt.AlignTop
-                        size: onlyNotification ? 48 : 32
-                        radius: Config.roundness > 0 ? Config.roundness + 4 : 0
-                        visible: latestNotification && (latestNotification.appIcon !== "" || latestNotification.image !== "")
-                        appIcon: latestNotification ? (latestNotification.cachedAppIcon || latestNotification.appIcon) : ""
-                        image: latestNotification ? (latestNotification.cachedImage || latestNotification.image) : ""
-                        summary: latestNotification ? latestNotification.summary : ""
-                        urgency: latestNotification ? latestNotification.urgency : NotificationUrgency.Normal
-                    }
-
-                    // Textos de la notificación
-                    Column {
-                        id: textColumn
+                    // Contenido principal
+                    RowLayout {
                         Layout.fillWidth: true
-                        Layout.alignment: Qt.AlignVCenter
-                        spacing: onlyNotification ? 4 : 0
+                        spacing: 8
 
-                        // Fila del summary, app name y timestamp
-                        RowLayout {
-                            width: parent.width
-                            spacing: 4
-
-                            // Contenedor izquierdo para summary y app name
-                            Row {
-                                Layout.fillWidth: true
-                                Layout.minimumWidth: 0
-                                spacing: 4
-
-                                Text {
-                                    id: summaryText
-                                    width: Math.min(implicitWidth, parent.width - (appNameText.visible ? appNameText.width + parent.spacing : 0))
-                                    text: latestNotification ? latestNotification.summary : ""
-                                    font.family: Config.theme.font
-                                    font.pixelSize: Config.theme.fontSize
-                                    font.weight: Font.Bold
-                                    color: latestNotification && latestNotification.urgency == NotificationUrgency.Critical ? Colors.criticalText : Colors.primary
-                                    elide: Text.ElideRight
-                                    maximumLineCount: 1
-                                    wrapMode: Text.NoWrap
-                                    verticalAlignment: Text.AlignVCenter
-                                }
-
-                                Text {
-                                    id: appNameText
-                                    width: Math.min(implicitWidth, Math.max(60, parent.width * 0.3))
-                                    text: latestNotification ? "• " + latestNotification.appName : ""
-                                    font.family: Config.theme.font
-                                    font.pixelSize: Config.theme.fontSize
-                                    font.weight: Font.Bold
-                                    color: latestNotification && latestNotification.urgency == NotificationUrgency.Critical ? Colors.criticalText : Colors.outline
-                                    elide: Text.ElideRight
-                                    maximumLineCount: 1
-                                    wrapMode: Text.NoWrap
-                                    verticalAlignment: Text.AlignVCenter
-                                    visible: text !== "" && !root.appNameAlreadyShown
-                                }
-                            }
-
-                            // Timestamp a la derecha
-                            Text {
-                                id: timestampText
-                                text: latestNotification ? NotificationUtils.getFriendlyNotifTimeString(latestNotification.time) : ""
-                                font.family: Config.theme.font
-                                font.pixelSize: Config.theme.fontSize
-                                font.weight: Font.Bold
-                                color: latestNotification && latestNotification.urgency == NotificationUrgency.Critical ? Colors.criticalText : Colors.outline
-                                verticalAlignment: Text.AlignVCenter
-                                visible: text !== ""
-                                Layout.alignment: Qt.AlignVCenter
-                            }
+                        // App icon
+                        NotificationAppIcon {
+                            id: appIcon
+                            Layout.preferredWidth: onlyNotification ? 48 : 32
+                            Layout.preferredHeight: onlyNotification ? 48 : 32
+                            Layout.alignment: Qt.AlignTop
+                            size: onlyNotification ? 48 : 32
+                            radius: Config.roundness > 0 ? Config.roundness + 4 : 0
+                            visible: latestNotification && (latestNotification.appIcon !== "" || latestNotification.image !== "")
+                            appIcon: latestNotification ? (latestNotification.cachedAppIcon || latestNotification.appIcon) : ""
+                            image: latestNotification ? (latestNotification.cachedImage || latestNotification.image) : ""
+                            summary: latestNotification ? latestNotification.summary : ""
+                            urgency: latestNotification ? latestNotification.urgency : NotificationUrgency.Normal
                         }
 
-                        Text {
-                            width: parent.width
-                            text: latestNotification ? NotificationUtils.processNotificationBody(latestNotification.body, latestNotification.appName) : ""
-                            font.family: Config.theme.font
-                            font.pixelSize: Config.theme.fontSize
-                            font.weight: latestNotification && latestNotification.urgency == NotificationUrgency.Critical ? Font.Bold : Font.Normal
-                            color: latestNotification && latestNotification.urgency == NotificationUrgency.Critical ? Colors.criticalText : Colors.overBackground
-                            wrapMode: onlyNotification ? Text.Wrap : Text.NoWrap
-                            maximumLineCount: onlyNotification ? 3 : 1
-                            elide: Text.ElideRight
-                            visible: onlyNotification || text !== ""
-                        }
-                    }
-                }
+                        // Textos de la notificación
+                        Column {
+                            id: textColumn
+                            Layout.fillWidth: true
+                            Layout.alignment: Qt.AlignVCenter
+                            spacing: onlyNotification ? 4 : 0
 
-                // Botón de descartar
-                Item {
-                    Layout.preferredWidth: 32
-                    Layout.preferredHeight: 32
-                    Layout.alignment: Qt.AlignTop
-
-                    NotificationDismissButton {
-                        visibleWhen: onlyNotification
-                        urgency: latestNotification ? latestNotification.urgency : NotificationUrgency.Normal
-                        onClicked: root.destroyWithAnimation()
-                    }
-                }
-            }
-
-            // Grouped notification layout (original)
-            RowLayout {
-                Layout.fillWidth: true
-                spacing: 8
-                visible: !onlyNotification
-
-                // Contenido principal
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: 8
-
-                    NotificationAppIcon {
-                        id: groupedAppIcon
-                        Layout.preferredWidth: expanded ? 48 : 32
-                        Layout.preferredHeight: expanded ? 48 : 32
-                        Layout.alignment: Qt.AlignTop
-                        size: expanded ? 48 : 32
-                        radius: Config.roundness > 0 ? Config.roundness + 4 : 0
-                        visible: latestNotification && (latestNotification.appIcon !== "" || latestNotification.image !== "")
-                        appIcon: latestNotification ? (latestNotification.cachedAppIcon || latestNotification.appIcon) : ""
-                        image: latestNotification ? (latestNotification.cachedImage || latestNotification.image) : ""
-                        summary: latestNotification ? latestNotification.summary : ""
-                        urgency: latestNotification ? latestNotification.urgency : NotificationUrgency.Normal
-                    }
-
-                    Item {
-                        Layout.fillWidth: true
-                        implicitHeight: expanded ? columnLayout.implicitHeight : rowLayout.implicitHeight
-
-                        RowLayout {
-                            id: columnLayout
-                            width: parent.width
-                            spacing: 8
-                            visible: expanded
-
-                            Column {
-                                Layout.fillWidth: true
+                            // Fila del summary, app name y timestamp
+                            RowLayout {
+                                width: parent.width
                                 spacing: 4
 
-                                // Fila del summary y timestamp
-                                RowLayout {
-                                    width: parent.width
+                                // Contenedor izquierdo para summary y app name
+                                Row {
+                                    Layout.fillWidth: true
+                                    Layout.minimumWidth: 0
                                     spacing: 4
 
                                     Text {
-                                        Layout.maximumWidth: parent.width * 0.7
-                                        text: root.summary || (latestNotification ? latestNotification.summary : "")
+                                        id: summaryText
+                                        width: Math.min(implicitWidth, parent.width - (appNameText.visible ? appNameText.width + parent.spacing : 0))
+                                        text: latestNotification ? latestNotification.summary : ""
                                         font.family: Config.theme.font
                                         font.pixelSize: Config.theme.fontSize
                                         font.weight: Font.Bold
                                         color: latestNotification && latestNotification.urgency == NotificationUrgency.Critical ? Colors.criticalText : Colors.primary
                                         elide: Text.ElideRight
+                                        maximumLineCount: 1
+                                        wrapMode: Text.NoWrap
+                                        verticalAlignment: Text.AlignVCenter
                                     }
 
                                     Text {
-                                        text: latestNotification ? NotificationUtils.getFriendlyNotifTimeString(latestNotification.time) : ""
+                                        id: appNameText
+                                        width: Math.min(implicitWidth, Math.max(60, parent.width * 0.3))
+                                        text: latestNotification ? "• " + latestNotification.appName : ""
                                         font.family: Config.theme.font
                                         font.pixelSize: Config.theme.fontSize
                                         font.weight: Font.Bold
                                         color: latestNotification && latestNotification.urgency == NotificationUrgency.Critical ? Colors.criticalText : Colors.outline
-                                        visible: text !== ""
-                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                        elide: Text.ElideRight
+                                        maximumLineCount: 1
+                                        wrapMode: Text.NoWrap
+                                        verticalAlignment: Text.AlignVCenter
+                                        visible: text !== "" && !root.appNameAlreadyShown
                                     }
                                 }
 
-                                // Mostrar todos los body ordenados antiguo a reciente con spacing 4
+                                // Timestamp a la derecha
+                                Text {
+                                    id: timestampText
+                                    text: latestNotification ? NotificationUtils.getFriendlyNotifTimeString(latestNotification.time) : ""
+                                    font.family: Config.theme.font
+                                    font.pixelSize: Config.theme.fontSize
+                                    font.weight: Font.Bold
+                                    color: latestNotification && latestNotification.urgency == NotificationUrgency.Critical ? Colors.criticalText : Colors.outline
+                                    verticalAlignment: Text.AlignVCenter
+                                    visible: text !== ""
+                                    Layout.alignment: Qt.AlignVCenter
+                                }
+                            }
+
+                            Text {
+                                width: parent.width
+                                text: latestNotification ? NotificationUtils.processNotificationBody(latestNotification.body, latestNotification.appName) : ""
+                                font.family: Config.theme.font
+                                font.pixelSize: Config.theme.fontSize
+                                font.weight: latestNotification && latestNotification.urgency == NotificationUrgency.Critical ? Font.Bold : Font.Normal
+                                color: latestNotification && latestNotification.urgency == NotificationUrgency.Critical ? Colors.criticalText : Colors.overBackground
+                                wrapMode: onlyNotification ? Text.Wrap : Text.NoWrap
+                                maximumLineCount: onlyNotification ? 3 : 1
+                                elide: Text.ElideRight
+                                visible: onlyNotification || text !== ""
+                            }
+                        }
+                    }
+
+                    // Botón de descartar
+                    Item {
+                        Layout.preferredWidth: 24
+                        Layout.preferredHeight: 24
+                        Layout.alignment: Qt.AlignTop
+
+                        NotificationDismissButton {
+                            visibleWhen: onlyNotification
+                            urgency: latestNotification ? latestNotification.urgency : NotificationUrgency.Normal
+                            onClicked: root.destroyWithAnimation()
+                        }
+                    }
+                }
+
+                // Grouped notification layout (original)
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 8
+                    visible: !onlyNotification
+
+                    // Contenido principal
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 8
+
+                        NotificationAppIcon {
+                            id: groupedAppIcon
+                            Layout.preferredWidth: expanded ? 48 : 32
+                            Layout.preferredHeight: expanded ? 48 : 32
+                            Layout.alignment: Qt.AlignTop
+                            size: expanded ? 48 : 32
+                            radius: Config.roundness > 0 ? Config.roundness + 4 : 0
+                            visible: latestNotification && (latestNotification.appIcon !== "" || latestNotification.image !== "")
+                            appIcon: latestNotification ? (latestNotification.cachedAppIcon || latestNotification.appIcon) : ""
+                            image: latestNotification ? (latestNotification.cachedImage || latestNotification.image) : ""
+                            summary: latestNotification ? latestNotification.summary : ""
+                            urgency: latestNotification ? latestNotification.urgency : NotificationUrgency.Normal
+                        }
+
+                        Item {
+                            Layout.fillWidth: true
+                            implicitHeight: expanded ? columnLayout.implicitHeight : rowLayout.implicitHeight
+
+                            RowLayout {
+                                id: columnLayout
+                                width: parent.width
+                                spacing: 8
+                                visible: expanded
+
                                 Column {
-                                    width: parent.width
+                                    Layout.fillWidth: true
                                     spacing: 4
 
-                                    Repeater {
-                                        model: root.sortedNotifications
+                                    // Fila del summary y timestamp
+                                    RowLayout {
+                                        width: parent.width
+                                        spacing: 4
 
                                         Text {
-                                            width: parent.width
-                                            text: NotificationUtils.processNotificationBody(modelData.body || "", modelData.appName)
+                                            Layout.maximumWidth: parent.width * 0.7
+                                            text: root.summary || (latestNotification ? latestNotification.summary : "")
                                             font.family: Config.theme.font
-                                            font.pixelSize: root.fontSize
-                                            font.weight: modelData.urgency == NotificationUrgency.Critical ? Font.Bold : Font.Normal
-                                            color: modelData.urgency == NotificationUrgency.Critical ? Colors.criticalText : Colors.overBackground
-                                            wrapMode: Text.Wrap
-                                            maximumLineCount: 3
+                                            font.pixelSize: Config.theme.fontSize
+                                            font.weight: Font.Bold
+                                            color: latestNotification && latestNotification.urgency == NotificationUrgency.Critical ? Colors.criticalText : Colors.primary
                                             elide: Text.ElideRight
-                                            visible: text.length > 0
+                                        }
+
+                                        Text {
+                                            text: latestNotification ? NotificationUtils.getFriendlyNotifTimeString(latestNotification.time) : ""
+                                            font.family: Config.theme.font
+                                            font.pixelSize: Config.theme.fontSize
+                                            font.weight: Font.Bold
+                                            color: latestNotification && latestNotification.urgency == NotificationUrgency.Critical ? Colors.criticalText : Colors.outline
+                                            visible: text !== ""
+                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                        }
+                                    }
+
+                                    // Mostrar todos los body ordenados antiguo a reciente con spacing 4
+                                    Column {
+                                        width: parent.width
+                                        spacing: 4
+
+                                        Repeater {
+                                            model: root.sortedNotifications
+
+                                            Text {
+                                                width: parent.width
+                                                text: NotificationUtils.processNotificationBody(modelData.body || "", modelData.appName)
+                                                font.family: Config.theme.font
+                                                font.pixelSize: root.fontSize
+                                                font.weight: modelData.urgency == NotificationUrgency.Critical ? Font.Bold : Font.Normal
+                                                color: modelData.urgency == NotificationUrgency.Critical ? Colors.criticalText : Colors.overBackground
+                                                wrapMode: Text.Wrap
+                                                maximumLineCount: 3
+                                                elide: Text.ElideRight
+                                                visible: text.length > 0
+                                            }
                                         }
                                     }
                                 }
                             }
-                        }
 
-                        RowLayout {
-                            id: rowLayout
-                            width: parent.width
-                            spacing: 4
-                            visible: !expanded
+                            RowLayout {
+                                id: rowLayout
+                                width: parent.width
+                                spacing: 4
+                                visible: !expanded
 
-                            Text {
-                                Layout.maximumWidth: parent.width * 0.4
-                                text: root.summary || (latestNotification ? latestNotification.summary : "")
-                                font.family: Config.theme.font
-                                font.pixelSize: Config.theme.fontSize
-                                font.weight: Font.Bold
-                                color: latestNotification && latestNotification.urgency == NotificationUrgency.Critical ? Colors.criticalText : Colors.primary
-                                elide: Text.ElideRight
-                            }
+                                Text {
+                                    Layout.maximumWidth: parent.width * 0.4
+                                    text: root.summary || (latestNotification ? latestNotification.summary : "")
+                                    font.family: Config.theme.font
+                                    font.pixelSize: Config.theme.fontSize
+                                    font.weight: Font.Bold
+                                    color: latestNotification && latestNotification.urgency == NotificationUrgency.Critical ? Colors.criticalText : Colors.primary
+                                    elide: Text.ElideRight
+                                }
 
-                            Text {
-                                text: "•"
-                                font.family: Config.theme.font
-                                font.pixelSize: Config.theme.fontSize
-                                font.weight: Font.Bold
-                                color: latestNotification && latestNotification.urgency == NotificationUrgency.Critical ? Colors.criticalText : Colors.outline
-                                visible: latestNotification && latestNotification.body && latestNotification.body.length > 0
-                            }
+                                Text {
+                                    text: "•"
+                                    font.family: Config.theme.font
+                                    font.pixelSize: Config.theme.fontSize
+                                    font.weight: Font.Bold
+                                    color: latestNotification && latestNotification.urgency == NotificationUrgency.Critical ? Colors.criticalText : Colors.outline
+                                    visible: latestNotification && latestNotification.body && latestNotification.body.length > 0
+                                }
 
-                            Text {
-                                text: latestNotification ? NotificationUtils.processNotificationBody(latestNotification.body || "").replace(/\n/g, ' ') : ""
-                                font.family: Config.theme.font
-                                font.pixelSize: root.fontSize
-                                font.weight: latestNotification && latestNotification.urgency == NotificationUrgency.Critical ? Font.Bold : Font.Normal
-                                color: latestNotification && latestNotification.urgency == NotificationUrgency.Critical ? Colors.criticalText : Colors.overBackground
-                                wrapMode: Text.NoWrap
-                                elide: Text.ElideRight
-                                Layout.fillWidth: true
-                                visible: text.length > 0
+                                Text {
+                                    text: latestNotification ? NotificationUtils.processNotificationBody(latestNotification.body || "").replace(/\n/g, ' ') : ""
+                                    font.family: Config.theme.font
+                                    font.pixelSize: root.fontSize
+                                    font.weight: latestNotification && latestNotification.urgency == NotificationUrgency.Critical ? Font.Bold : Font.Normal
+                                    color: latestNotification && latestNotification.urgency == NotificationUrgency.Critical ? Colors.criticalText : Colors.overBackground
+                                    wrapMode: Text.NoWrap
+                                    elide: Text.ElideRight
+                                    Layout.fillWidth: true
+                                    visible: text.length > 0
+                                }
                             }
                         }
                     }
-                }
 
-                // Botón de descartar
-                Item {
-                    Layout.preferredWidth: expanded ? 32 : 0
-                    Layout.minimumWidth: 0
-                    Layout.preferredHeight: 32
-                    Layout.alignment: Qt.AlignTop
+                    // Botón de descartar
+                    Item {
+                        Layout.preferredWidth: expanded ? 24 : 0
+                        Layout.minimumWidth: 0
+                        Layout.preferredHeight: 24
+                        Layout.alignment: Qt.AlignTop
 
-                    NotificationDismissButton {
-                        visibleWhen: expanded
-                        urgency: latestNotification ? latestNotification.urgency : NotificationUrgency.Normal
-                        onClicked: root.destroyWithAnimation()
+                        NotificationDismissButton {
+                            visibleWhen: expanded
+                            urgency: latestNotification ? latestNotification.urgency : NotificationUrgency.Normal
+                            onClicked: root.destroyWithAnimation()
+                        }
                     }
                 }
-            }
             }
         }
 
@@ -405,7 +405,7 @@ Item {
                         hoverEnabled: true
 
                         background: Rectangle {
-                            color: latestNotification && latestNotification.urgency == NotificationUrgency.Critical ? Colors.redSource : (parent.pressed ? Colors.primary : (parent.hovered ? Colors.surfaceBright : Colors.surface))
+                            color: latestNotification && latestNotification.urgency == NotificationUrgency.Critical ? Colors.criticalRed : (parent.pressed ? Colors.primary : (parent.hovered ? Colors.surfaceBright : Colors.surface))
                             radius: Config.roundness > 0 ? Config.roundness + 4 : 0
 
                             Behavior on color {

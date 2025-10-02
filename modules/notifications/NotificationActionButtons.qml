@@ -36,7 +36,7 @@ Item {
                 hoverEnabled: true
 
                 background: Rectangle {
-                    color: root.urgency == NotificationUrgency.Critical ? Colors.redSource : (parent.pressed ? Colors.primary : (parent.hovered ? Colors.surfaceBright : Colors.surface))
+                    color: root.urgency == NotificationUrgency.Critical ? Colors.criticalRed : (parent.pressed ? Colors.primary : (parent.hovered ? Colors.surfaceBright : Colors.surface))
                     radius: Config.roundness > 0 ? Config.roundness + 4 : 0
 
                     Behavior on color {
