@@ -51,6 +51,7 @@ Item {
         }
     }
 
+    // Corner fills (keep for shape background). Their previous per-corner stroke canvases were removed.
     RoundCorner {
         id: leftCorner
         visible: Config.notchTheme === "default"
@@ -68,6 +69,7 @@ Item {
         height: parent.implicitHeight
         layer.enabled: false
         radius: 0
+        border.width: Config.notchTheme === "default" ? 0 : Config.theme.borderSize
 
         property int defaultRadius: Config.roundness > 0 ? (screenNotchOpen || hasActiveNotifications ? Config.roundness + 20 : Config.roundness + 4) : 0
         property int islandRadius: Config.roundness > 0 ? (screenNotchOpen || hasActiveNotifications ? Config.roundness + 20 : Config.roundness) : 0
@@ -265,5 +267,63 @@ Item {
         corner: RoundCorner.CornerEnum.TopLeft
         size: Config.roundness > 0 ? Config.roundness + 4 : 0
         color: Colors.background
+    }
+
+    // Unified outline canvas (single continuous stroke around silhouette)
+    Canvas {
+        id: outlineCanvas
+        anchors.top: parent.top
+        anchors.left: leftCorner.visible ? leftCorner.left : notchRect.left
+        width: (Config.notchTheme === "default" && leftCorner.visible && rightCorner.visible) ? leftCorner.width + notchRect.width + rightCorner.width : notchRect.width
+        height: notchRect.height
+        z: 5000
+        antialiasing: true
+        visible: Config.notchTheme === "default"
+        onPaint: {
+            if (Config.notchTheme !== "default") return; // Only draw for default theme
+            var ctx = getContext("2d");
+            ctx.clearRect(0, 0, width, height);
+            // Resolve dynamic border color from config (string key referencing Colors)
+            var colorKey = Config.theme.borderColor || "primary";
+            var strokeColor = Colors[colorKey] !== undefined ? Colors[colorKey] : Colors.primary;
+            if (Config.theme.borderSize <= 0) return; // No outline when borderSize is 0
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = Config.theme.borderSize;
+            ctx.lineJoin = "round";
+            ctx.lineCap = "round";
+
+            var rTop = leftCorner.visible ? leftCorner.size : 0;
+            var bl = notchRect.bottomLeftRadius;
+            var br = notchRect.bottomRightRadius;
+            var wCenter = notchRect.width;
+            var yBottom = height - 1;
+
+            ctx.beginPath();
+            if (rTop > 0) {
+                ctx.moveTo(0, 0);
+                ctx.arc(0, rTop, rTop, 3 * Math.PI / 2, 2 * Math.PI); // to (rTop, rTop)
+            } else {
+                ctx.moveTo(0, 0);
+                ctx.lineTo(rTop, rTop);
+            }
+            ctx.lineTo(rTop, yBottom - bl);
+            if (bl > 0) {
+                ctx.arcTo(rTop, yBottom, rTop + bl, yBottom, bl);
+            }
+            ctx.lineTo(rTop + wCenter - br, yBottom);
+            if (br > 0) {
+                ctx.arcTo(rTop + wCenter, yBottom, rTop + wCenter, yBottom - br, br);
+            }
+            ctx.lineTo(rTop + wCenter, rTop);
+            if (rTop > 0) {
+                ctx.arc(rTop + wCenter + rTop, rTop, rTop, Math.PI, 3 * Math.PI / 2);
+            }
+            ctx.stroke();
+        }
+        Connections { target: Colors; function onPrimaryChanged() { outlineCanvas.requestPaint(); } }
+        Connections { target: Config.theme; function onBorderSizeChanged() { outlineCanvas.requestPaint(); } function onBorderColorChanged() { outlineCanvas.requestPaint(); } }
+        Connections { target: notchRect; function onBottomLeftRadiusChanged() { outlineCanvas.requestPaint(); } function onBottomRightRadiusChanged() { outlineCanvas.requestPaint(); } function onTopLeftRadiusChanged() { outlineCanvas.requestPaint(); } function onTopRightRadiusChanged() { outlineCanvas.requestPaint(); } function onWidthChanged() { outlineCanvas.requestPaint(); } function onHeightChanged() { outlineCanvas.requestPaint(); } }
+        Connections { target: leftCorner; function onSizeChanged() { outlineCanvas.requestPaint(); } }
+        Connections { target: rightCorner; function onSizeChanged() { outlineCanvas.requestPaint(); } }
     }
 }

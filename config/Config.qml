@@ -174,7 +174,7 @@ Singleton {
 
     // Notch configuration
     property QtObject notch: loader.adapter.notch
-    property string notchTheme: theme.borderSize > 0 ? "island" : notch.theme
+    property string notchTheme: notch.theme
 
     // Hyprland configuration
     property QtObject hyprland: loader.adapter.hyprland
