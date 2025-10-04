@@ -228,28 +228,42 @@ PanelWindow {
             anchors.margins: 4
             spacing: 4
 
-            RowLayout {
-                Layout.preferredHeight: 36
+            ColumnLayout {
                 Layout.fillWidth: true
                 spacing: 4
-                LauncherButton { id: launcherButtonVert }
+                LauncherButton { 
+                    id: launcherButtonVert
+                    Layout.preferredHeight: 36
+                }
                 Workspaces {
                     bar: QtObject {
                         property var screen: panel.screen
                     }
+                    Layout.preferredHeight: 36
                 }
-                OverviewButton { id: overviewButtonVert }
+                OverviewButton { 
+                    id: overviewButtonVert
+                    Layout.preferredHeight: 36
+                }
             }
 
             Item { Layout.fillHeight: true }
 
-            RowLayout {
-                Layout.preferredHeight: 36
+            ColumnLayout {
                 Layout.fillWidth: true
                 spacing: 4
-                SysTray { bar: panel }
-                Clock { id: clockComponentVert }
-                PowerButton { id: powerButtonVert }
+                SysTray { 
+                    bar: panel
+                    Layout.preferredHeight: 36
+                }
+                Clock { 
+                    id: clockComponentVert
+                    Layout.preferredHeight: 36
+                }
+                PowerButton { 
+                    id: powerButtonVert
+                    Layout.preferredHeight: 36
+                }
             }
         }
     }
