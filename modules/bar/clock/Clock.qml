@@ -115,7 +115,7 @@ BgRect {
         onTriggered: {
             var now = new Date();
             clockContainer.currentTime = Qt.formatDateTime(now, "hh:mm:ss");
-            clockContainer.currentDayAbbrev = Qt.formatDateTime(now, "ddd").slice(0, 3);
+            clockContainer.currentDayAbbrev = Qt.formatDateTime(now, Qt.locale(), "ddd").slice(0, 3).charAt(0).toUpperCase() + Qt.formatDateTime(now, Qt.locale(), "ddd").slice(1, 3);
         }
     }
 
