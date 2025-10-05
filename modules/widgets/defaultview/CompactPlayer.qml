@@ -98,6 +98,8 @@ Item {
             anchors.leftMargin: (artworkLoader.active && (playerHover.hovered || compactPlayer.notchHovered)) ? 8 : 4
             anchors.verticalCenter: parent.verticalCenter
             spacing: (playerHover.hovered || compactPlayer.notchHovered) ? 4 : 0
+            opacity: compactPlayer.player ? 1.0 : 0.0
+            visible: opacity > 0
 
             Behavior on anchors.leftMargin {
                 NumberAnimation {
@@ -107,6 +109,13 @@ Item {
             }
 
             Behavior on spacing {
+                NumberAnimation {
+                    duration: Config.animDuration
+                    easing.type: Easing.OutQuart
+                }
+            }
+
+            Behavior on opacity {
                 NumberAnimation {
                     duration: Config.animDuration
                     easing.type: Easing.OutQuart
@@ -287,12 +296,26 @@ Item {
 
         Item {
             id: positionControl
-            anchors.left: controlButtons.right
-            anchors.right: playerIcon.left
+            anchors.left: compactPlayer.player ? controlButtons.right : parent.left
+            anchors.right: compactPlayer.player ? playerIcon.left : parent.right
             anchors.verticalCenter: parent.verticalCenter
-            anchors.leftMargin: 8
-            anchors.rightMargin: 8
+            anchors.leftMargin: compactPlayer.player ? 8 : 4
+            anchors.rightMargin: compactPlayer.player ? 8 : 4
             height: 4
+
+            Behavior on anchors.leftMargin {
+                NumberAnimation {
+                    duration: Config.animDuration
+                    easing.type: Easing.OutQuart
+                }
+            }
+
+            Behavior on anchors.rightMargin {
+                NumberAnimation {
+                    duration: Config.animDuration
+                    easing.type: Easing.OutQuart
+                }
+            }
 
             property bool isDragging: false
             property real dragPosition: 0.0
@@ -306,31 +329,46 @@ Item {
                 height: parent.height
                 radius: height / 2
                 color: Colors.shadow
+                visible: compactPlayer.player !== null
             }
 
             Loader {
                 anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter
-                active: compactPlayer.isPlaying
+                active: compactPlayer.isPlaying || !compactPlayer.player
                 sourceComponent: WavyLine {
                     id: wavyFill
                     frequency: 8
-                    color: Colors.primaryFixed
+                    color: compactPlayer.player ? Colors.primaryFixed : Colors.outline
                     amplitudeMultiplier: 0.8
-                    height: positionControl.height * 8
-                    width: Math.max(0, positionControl.width * positionControl.progressRatio - positionControl.dragSeparation)
+                    height: compactPlayer.player ? positionControl.height * 8 : positionControl.height * 4
+                    width: compactPlayer.player ? Math.max(0, positionControl.width * positionControl.progressRatio - positionControl.dragSeparation) : positionControl.width
                     lineWidth: positionControl.height
                     fullLength: positionControl.width
 
+                    Behavior on color {
+                        ColorAnimation {
+                            duration: Config.animDuration
+                            easing.type: Easing.OutQuart
+                        }
+                    }
+
+                    Behavior on height {
+                        NumberAnimation {
+                            duration: Config.animDuration
+                            easing.type: Easing.OutQuart
+                        }
+                    }
+
                     FrameAnimation {
-                        running: compactPlayer.isPlaying
+                        running: compactPlayer.isPlaying || !compactPlayer.player
                         onTriggered: wavyFill.requestPaint()
                     }
                 }
             }
 
             Loader {
-                active: !compactPlayer.isPlaying
+                active: !compactPlayer.isPlaying && compactPlayer.player
                 sourceComponent: Rectangle {
                     anchors.left: parent.left
                     width: Math.max(0, positionControl.width * positionControl.progressRatio - positionControl.dragSeparation)
@@ -348,6 +386,7 @@ Item {
                 height: positionControl.isDragging ? 20 : 16
                 radius: width / 2
                 color: Colors.whiteSource
+                visible: compactPlayer.player !== null
 
                 Behavior on width {
                     NumberAnimation {
@@ -357,6 +396,13 @@ Item {
                 }
 
                 Behavior on height {
+                    NumberAnimation {
+                        duration: Config.animDuration
+                        easing.type: Easing.OutQuart
+                    }
+                }
+
+                Behavior on opacity {
                     NumberAnimation {
                         duration: Config.animDuration
                         easing.type: Easing.OutQuart
@@ -416,9 +462,18 @@ Item {
             font.pixelSize: 20
             font.family: Icons.font
             verticalAlignment: Text.AlignVCenter
+            opacity: compactPlayer.player ? 1.0 : 0.0
+            visible: opacity > 0
 
             Behavior on color {
                 ColorAnimation {
+                    duration: Config.animDuration
+                    easing.type: Easing.OutQuart
+                }
+            }
+
+            Behavior on opacity {
+                NumberAnimation {
                     duration: Config.animDuration
                     easing.type: Easing.OutQuart
                 }

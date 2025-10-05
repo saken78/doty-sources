@@ -6,5 +6,5 @@ Text {
     text: Icons.clock
     color: Colors.overBackground
     font.pixelSize: 20
-    font.family: Config.theme.font
+    font.family: Icons.font
 }

@@ -14,7 +14,7 @@ BgRect {
     required property var bar
     property bool vertical: bar.orientation === "vertical"
 
-    Layout.preferredWidth: vertical ? 36 : (clockIndicator.implicitWidth + hoursDisplay.implicitWidth + minutesDisplay.implicitWidth + 36)
+    Layout.preferredWidth: vertical ? 36 : (clockIndicator.implicitWidth + hoursDisplay.implicitWidth + minutesDisplay.implicitWidth + 28)
     implicitHeight: vertical ? columnLayout.implicitHeight + 24 : 36
     Layout.preferredHeight: implicitHeight
 
