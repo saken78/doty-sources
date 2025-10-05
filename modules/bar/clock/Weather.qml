@@ -21,6 +21,9 @@ BgRect {
     // Weather retry / backoff
     property int weatherRetryCount: 0
     property int weatherMaxRetries: 5
+    
+    property string cachedLat: ""
+    property string cachedLon: ""
 
     Layout.preferredWidth: vertical ? 36 : rowLayout.implicitWidth + 20
     implicitHeight: vertical ? columnLayout.implicitHeight + 20 : 36
@@ -93,18 +96,69 @@ BgRect {
         }
     }
 
-    function buildWeatherUrl() {
-        var base = "wttr.in/";
-        if (Config.weather.location.length > 0) {
-            base += Config.weather.location;
+    function getWeatherCodeEmoji(code) {
+        if (code === 0) return "☀️";
+        if (code < 3) return "🌤️";
+        if (code < 50) return "☁️";
+        if (code < 70) return "🌧️";
+        if (code < 90) return "⛈️";
+        return "❄️";
+    }
+
+    function fetchWeatherWithCoords(lat, lon) {
+        var url = "https://api.open-meteo.com/v1/forecast?latitude=" + lat + "&longitude=" + lon + "&current_weather=true";
+        weatherProcess.command = ["curl", "-s", url];
+        weatherProcess.running = true;
+    }
+
+    function urlEncode(str) {
+        return str.replace(/%/g, "%25")
+                  .replace(/ /g, "%20")
+                  .replace(/!/g, "%21")
+                  .replace(/"/g, "%22")
+                  .replace(/#/g, "%23")
+                  .replace(/\$/g, "%24")
+                  .replace(/&/g, "%26")
+                  .replace(/'/g, "%27")
+                  .replace(/\(/g, "%28")
+                  .replace(/\)/g, "%29")
+                  .replace(/\*/g, "%2A")
+                  .replace(/\+/g, "%2B")
+                  .replace(/,/g, "%2C")
+                  .replace(/\//g, "%2F")
+                  .replace(/:/g, "%3A")
+                  .replace(/;/g, "%3B")
+                  .replace(/=/g, "%3D")
+                  .replace(/\?/g, "%3F")
+                  .replace(/@/g, "%40")
+                  .replace(/\[/g, "%5B")
+                  .replace(/]/g, "%5D");
+    }
+
+    function updateWeather() {
+        var location = Config.weather.location.trim();
+        if (location.length === 0) {
+            weatherContainer.weatherVisible = false;
+            return;
         }
-        base += "?format=%c+%t";
-        if (Config.weather.unit === "C") {
-            base += "&m";
-        } else if (Config.weather.unit === "F") {
-            base += "&u";
+
+        var coords = location.split(",");
+        var isCoordinates = coords.length === 2 && 
+                           !isNaN(parseFloat(coords[0].trim())) && 
+                           !isNaN(parseFloat(coords[1].trim()));
+
+        if (isCoordinates) {
+            cachedLat = coords[0].trim();
+            cachedLon = coords[1].trim();
+            console.log("Weather: using coordinates", cachedLat + "," + cachedLon);
+            fetchWeatherWithCoords(cachedLat, cachedLon);
+        } else {
+            var encodedCity = urlEncode(location);
+            console.log("Weather: geocoding location '" + location + "' -> '" + encodedCity + "'");
+            var geocodeUrl = "https://geocoding-api.open-meteo.com/v1/search?name=" + encodedCity;
+            geocodingProcess.command = ["curl", "-s", geocodeUrl];
+            geocodingProcess.running = true;
         }
-        return base;
     }
 
     function scheduleNextDayUpdate() {
@@ -122,33 +176,84 @@ BgRect {
         scheduleNextDayUpdate();
     }
 
-    function updateWeather() {
-        weatherProcess.command = ["curl", buildWeatherUrl()];
-        weatherProcess.running = true;
-    }
-
     Process {
-        id: weatherProcess
+        id: geocodingProcess
         running: false
-        command: ["curl", buildWeatherUrl()]
+        command: []
 
         stdout: StdioCollector {
             waitForEnd: true
             onStreamFinished: {
                 var raw = text.trim();
                 if (raw.length > 0) {
-                    // Expect format: <symbol> <temp>
-                    var parts = raw.split(/ +/);
-                    weatherContainer.weatherSymbol = parts.length > 0 ? parts[0] : "";
-                    weatherContainer.weatherTemp = parts.length > 1 ? parts.slice(1).join(" ") : "";
-                    weatherContainer.weatherVisible = true;
-                    weatherContainer.weatherRetryCount = 0; // success resets retry count
-                } else {
-                    weatherContainer.weatherVisible = false;
-                    if (weatherContainer.weatherRetryCount < weatherContainer.weatherMaxRetries) {
-                        weatherContainer.weatherRetryCount++;
-                        weatherRetryTimer.interval = Math.min(600000, 5000 * Math.pow(2, weatherContainer.weatherRetryCount - 1));
-                        weatherRetryTimer.start();
+                    try {
+                        var data = JSON.parse(raw);
+                        if (data.results && data.results.length > 0) {
+                            var result = data.results[0];
+                            cachedLat = result.latitude.toString();
+                            cachedLon = result.longitude.toString();
+                            fetchWeatherWithCoords(cachedLat, cachedLon);
+                        } else {
+                            console.log("Geocoding: no results for location");
+                            weatherContainer.weatherVisible = false;
+                        }
+                    } catch (e) {
+                        console.log("Geocoding JSON parse error:", e);
+                        weatherContainer.weatherVisible = false;
+                    }
+                }
+            }
+        }
+
+        onExited: function (code) {
+            if (code !== 0) {
+                console.log("Geocoding fetch failed");
+                weatherContainer.weatherVisible = false;
+            }
+        }
+    }
+
+    Process {
+        id: weatherProcess
+        running: false
+        command: []
+
+        stdout: StdioCollector {
+            waitForEnd: true
+            onStreamFinished: {
+                var raw = text.trim();
+                if (raw.length > 0) {
+                    try {
+                        var data = JSON.parse(raw);
+                        if (data.current_weather) {
+                            var weather = data.current_weather;
+                            var code = parseInt(weather.weathercode);
+                            var temp = parseFloat(weather.temperature);
+                            
+                            if (Config.weather.unit === "F") {
+                                temp = (temp * 9/5) + 32;
+                            }
+                            
+                            weatherContainer.weatherSymbol = getWeatherCodeEmoji(code);
+                            weatherContainer.weatherTemp = Math.round(temp) + "°" + Config.weather.unit;
+                            weatherContainer.weatherVisible = true;
+                            weatherContainer.weatherRetryCount = 0;
+                        } else {
+                            weatherContainer.weatherVisible = false;
+                            if (weatherContainer.weatherRetryCount < weatherContainer.weatherMaxRetries) {
+                                weatherContainer.weatherRetryCount++;
+                                weatherRetryTimer.interval = Math.min(600000, 5000 * Math.pow(2, weatherContainer.weatherRetryCount - 1));
+                                weatherRetryTimer.start();
+                            }
+                        }
+                    } catch (e) {
+                        console.log("Weather JSON parse error:", e);
+                        weatherContainer.weatherVisible = false;
+                        if (weatherContainer.weatherRetryCount < weatherContainer.weatherMaxRetries) {
+                            weatherContainer.weatherRetryCount++;
+                            weatherRetryTimer.interval = Math.min(600000, 5000 * Math.pow(2, weatherContainer.weatherRetryCount - 1));
+                            weatherRetryTimer.start();
+                        }
                     }
                 }
             }
