@@ -26,7 +26,7 @@ Item {
 
     ClippingRectangle {
         anchors.fill: parent
-        radius: Math.max(0, Config.roundness - 4)
+        radius: Config.roundness > 0 ? Math.max(Config.roundness - 4, 0) : 0
         color: Colors.surface
 
         Image {
@@ -76,7 +76,7 @@ Item {
             sourceComponent: ClippingRectangle {
                 width: 24
                 height: 24
-                radius: Math.max(0, Config.roundness - 8)
+                radius: Config.roundness > 0 ? Math.max(Config.roundness - 8, 0) : 0
                 color: Colors.overPrimaryFixed
 
                 Image {

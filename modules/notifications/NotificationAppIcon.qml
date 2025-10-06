@@ -22,7 +22,7 @@ ClippingRectangle {
 
     implicitWidth: size
     implicitHeight: size
-    radius: Config.roundness > 8 ? Config.roundness - 8 : 0
+    radius: Config.roundness > 0 ? Math.max(Config.roundness - 8, 0) : 0
     color: "transparent"
 
     Rectangle {

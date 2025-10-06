@@ -133,7 +133,7 @@ Item {
                             implicitWidth: overviewRoot.workspaceImplicitWidth + workspacePadding
                             implicitHeight: overviewRoot.workspaceImplicitHeight + workspacePadding
                             color: hoveredWhileDragging ? hoveredWorkspaceColor : defaultWorkspaceColor
-                            radius: Math.max(0, Config.roundness - workspaceSpacing + 4)
+                            radius: Config.roundness > 0 ? Math.max(Config.roundness - workspaceSpacing + 4, 0) : 0
                             border.width: 2
                             border.color: hoveredWhileDragging ? hoveredBorderColor : "transparent"
 
@@ -261,7 +261,7 @@ Item {
                 width: Math.round(overviewRoot.workspaceImplicitWidth + workspacePadding)
                 height: Math.round(overviewRoot.workspaceImplicitHeight + workspacePadding)
                 color: "transparent"
-                radius: Math.max(0, Config.roundness - workspaceSpacing + 4)
+                radius: Config.roundness > 0 ? Math.max(Config.roundness - workspaceSpacing + 4, 0) : 0
                 border.width: 2
                 border.color: overviewRoot.activeBorderColor
 

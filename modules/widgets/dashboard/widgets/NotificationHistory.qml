@@ -9,7 +9,7 @@ import qs.config
 
 ClippingRectangle {
     color: Colors.surface
-    radius: Config.roundness > 4 ? Config.roundness + 4 : 0
+    radius: Config.roundness > 0 ? Config.roundness + 4 : 0
     clip: true
 
     ScrollView {

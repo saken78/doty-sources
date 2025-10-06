@@ -97,7 +97,7 @@ Item {
 
     ClippingRectangle {
         anchors.fill: parent
-        radius: Math.max(0, Config.roundness - workspaceSpacing - 2)
+        radius: Config.roundness > 0 ? Math.max(Config.roundness - workspaceSpacing - 2, 0) : 0
 
         ScreencopyView {
             id: windowPreview
@@ -112,7 +112,7 @@ Item {
     Rectangle {
         id: previewBackground
         anchors.fill: parent
-        radius: Math.max(0, Config.roundness - workspaceSpacing - 2)
+        radius: Config.roundness > 0 ? Math.max(Config.roundness - workspaceSpacing - 2, 0) : 0
         color: pressed ? Colors.surfaceBright : hovered ? Colors.surface : Colors.background
         border.color: hovered ? Colors.primary : Colors.surfaceContainerHighest
         border.width: 2
@@ -209,7 +209,7 @@ Item {
     Rectangle {
         id: previewOverlay
         anchors.fill: parent
-        radius: Math.max(0, Config.roundness - workspaceSpacing - 2)
+        radius: Config.roundness > 0 ? Math.max(Config.roundness - workspaceSpacing - 2, 0) : 0
         color: pressed ? Qt.rgba(Colors.surfaceContainerHighest.r, Colors.surfaceContainerHighest.g, Colors.surfaceContainerHighest.b, 0.5) : hovered ? Qt.rgba(Colors.surfaceContainer.r, Colors.surfaceContainer.g, Colors.surfaceContainer.b, 0.2) : "transparent"
         border.color: hovered ? Colors.primary : Colors.surfaceContainerHighest
         border.width: 2

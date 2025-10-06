@@ -854,7 +854,7 @@ Rectangle {
                                 Rectangle {
                                     anchors.fill: parent
                                     color: Colors.primary
-                                    radius: Config.roundness > 0 ? Config.roundness - 4 : 0
+                                    radius: Config.roundness > 0 ? Math.max(Config.roundness - 4, 0) : 0
                                     visible: imagePreview.status !== Image.Ready
 
                                     Text {
@@ -871,7 +871,7 @@ Rectangle {
                                 Rectangle {
                                     anchors.fill: parent
                                     color: Colors.surface
-                                    radius: Config.roundness > 0 ? Config.roundness - 4 : 0
+                                    radius: Config.roundness > 0 ? Math.max(Config.roundness - 4, 0) : 0
                                     visible: imagePreview.status === Image.Loading
                                     opacity: 0.8
 
@@ -965,7 +965,7 @@ Rectangle {
                                     Rectangle {
                                         id: imageDeleteHighlight
                                         color: Colors.overError
-                                        radius: Config.roundness > 0 ? Config.roundness - 4 : 0
+                                        radius: Config.roundness > 0 ? Math.max(Config.roundness - 4, 0) : 0
                                         visible: root.imageDeleteMode
 
                                         property real activeButtonMargin: 2
@@ -1308,7 +1308,7 @@ Rectangle {
                                 Rectangle {
                                     id: deleteHighlight
                                     color: Colors.overError
-                                    radius: Config.roundness > 4 ? Config.roundness - 4 : 0
+                                    radius: Config.roundness > 0 ? Math.max(Config.roundness - 4, 0) : 0
                                     visible: mouseArea.isInDeleteMode
                                     z: 0
 
@@ -1527,7 +1527,7 @@ Rectangle {
                                         return Colors.surface;
                                     }
                                 }
-                                radius: Config.roundness > 0 ? Config.roundness - 4 : 0
+                                radius: Config.roundness > 0 ? Math.max(Config.roundness - 4, 0) : 0
 
                                 Behavior on color {
                                     ColorAnimation {

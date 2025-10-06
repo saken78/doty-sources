@@ -21,7 +21,7 @@ Rectangle {
             Layout.fillWidth: true
             Layout.fillHeight: true
             color: Colors.surface
-            radius: Config.roundness > 4 ? Config.roundness + 4 : 0
+            radius: Config.roundness > 0 ? Config.roundness + 4 : 0
 
             Text {
                 anchors.centerIn: parent

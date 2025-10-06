@@ -380,7 +380,7 @@ Item {
                                     id: notchStripeContainer
                                     anchors.fill: parent
                                     visible: notification && notification.urgency == NotificationUrgency.Critical
-                                    radius: Config.roundness > 4 ? Config.roundness + 4 : 0
+                                    radius: Config.roundness > 0 ? Config.roundness + 4 : 0
                                     animationRunning: visible
                                 }
 

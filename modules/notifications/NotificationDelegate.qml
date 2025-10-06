@@ -99,7 +99,7 @@ Item {
                 id: stripeContainer
                 anchors.fill: parent
                 visible: latestNotification && latestNotification.urgency == NotificationUrgency.Critical
-                radius: Config.roundness > 4 ? Config.roundness + 4 : 0
+                radius: Config.roundness > 0 ? Config.roundness + 4 : 0
                 animationRunning: visible
             }
 

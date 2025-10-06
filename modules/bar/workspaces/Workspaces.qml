@@ -104,11 +104,11 @@ Item {
                 z: 1
                 implicitWidth: workspaceButtonWidth
                 implicitHeight: workspaceButtonWidth
-                radius: Math.max(0, Config.roundness - widgetPadding)
+                radius: Config.roundness > 0 ? Math.max(Config.roundness - widgetPadding, 0) : 0
                 property var leftOccupied: (workspaceOccupied[index - 1] && !(!activeWindow?.activated && monitor?.activeWorkspace?.id === index))
                 property var rightOccupied: (workspaceOccupied[index + 1] && !(!activeWindow?.activated && monitor?.activeWorkspace?.id === index + 2))
-                property var radiusLeft: leftOccupied ? 0 : Math.max(0, Config.roundness - widgetPadding)
-                property var radiusRight: rightOccupied ? 0 : Math.max(0, Config.roundness - widgetPadding)
+                property var radiusLeft: leftOccupied ? 0 : Config.roundness > 0 ? Math.max(Config.roundness - widgetPadding, 0) : 0
+                property var radiusRight: rightOccupied ? 0 : Config.roundness > 0 ? Math.max(Config.roundness - widgetPadding, 0) : 0
 
                 topLeftRadius: radiusLeft
                 bottomLeftRadius: radiusLeft
@@ -158,11 +158,11 @@ Item {
                 z: 1
                 implicitWidth: workspaceButtonWidth
                 implicitHeight: workspaceButtonWidth
-                radius: Math.max(0, Config.roundness - widgetPadding)
+                radius: Config.roundness > 0 ? Math.max(Config.roundness - widgetPadding, 0) : 0
                 property var topOccupied: (workspaceOccupied[index - 1] && !(!activeWindow?.activated && monitor?.activeWorkspace?.id === index))
                 property var bottomOccupied: (workspaceOccupied[index + 1] && !(!activeWindow?.activated && monitor?.activeWorkspace?.id === index + 2))
-                property var radiusTop: topOccupied ? 0 : Math.max(0, Config.roundness - widgetPadding)
-                property var radiusBottom: bottomOccupied ? 0 : Math.max(0, Config.roundness - widgetPadding)
+                property var radiusTop: topOccupied ? 0 : Config.roundness > 0 ? Math.max(Config.roundness - widgetPadding, 0) : 0
+                property var radiusBottom: bottomOccupied ? 0 : Config.roundness > 0 ? Math.max(Config.roundness - widgetPadding, 0) : 0
 
                 topLeftRadius: radiusTop
                 topRightRadius: radiusTop
@@ -211,7 +211,7 @@ Item {
         radius: {
             const currentWorkspaceHasWindows = Hyprland.workspaces.values.some(ws => ws.id === (monitor?.activeWorkspace?.id || 1) && HyprlandData.windowList.some(w => w.workspace.id === ws.id));
             if (Config.roundness === 0) return 0;
-            return currentWorkspaceHasWindows ? Math.max(0, Config.roundness - parent.widgetPadding - activeWorkspaceMargin) : implicitHeight / 2;
+            return currentWorkspaceHasWindows ? Config.roundness > 0 ? Math.max(Config.roundness - parent.widgetPadding - activeWorkspaceMargin, 0) : 0 : implicitHeight / 2;
         }
 
         Behavior on radius { NumberAnimation { duration: Config.animDuration - 100; easing.type: Easing.OutQuad } }
@@ -242,7 +242,7 @@ Item {
         radius: {
             const currentWorkspaceHasWindows = Hyprland.workspaces.values.some(ws => ws.id === (monitor?.activeWorkspace?.id || 1) && HyprlandData.windowList.some(w => w.workspace.id === ws.id));
             if (Config.roundness === 0) return 0;
-            return currentWorkspaceHasWindows ? Math.max(0, Config.roundness - parent.widgetPadding - activeWorkspaceMargin) : implicitWidth / 2;
+            return currentWorkspaceHasWindows ? Config.roundness > 0 ? Math.max(Config.roundness - parent.widgetPadding - activeWorkspaceMargin, 0) : 0 : implicitWidth / 2;
         }
 
         Behavior on radius { NumberAnimation { duration: Config.animDuration - 100; easing.type: Easing.OutQuad } }

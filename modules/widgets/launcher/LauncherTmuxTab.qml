@@ -667,7 +667,7 @@ Rectangle {
                         Rectangle {
                         id: renameHighlight
                         color: Colors.overSecondary
-                        radius: Config.roundness > 4 ? Config.roundness - 4 : 0
+                        radius: Config.roundness > 0 ? Math.max(Config.roundness - 4, 0) : 0
                         visible: isInRenameMode
                         z: 0
 
@@ -817,7 +817,7 @@ Rectangle {
                                 return Colors.surface;
                             }
                         }
-                        radius: Config.roundness > 4 ? Config.roundness - 4 : 0
+                        radius: Config.roundness > 0 ? Math.max(Config.roundness - 4, 0) : 0
 
                         Behavior on color {
                             ColorAnimation {
@@ -978,7 +978,7 @@ Rectangle {
                         Rectangle {
                         id: deleteHighlight
                         color: Colors.overError
-                        radius: Config.roundness > 4 ? Config.roundness - 4 : 0
+                        radius: Config.roundness > 0 ? Math.max(Config.roundness - 4, 0) : 0
                         visible: isInDeleteMode
                         z: 0
 

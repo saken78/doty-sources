@@ -587,7 +587,7 @@ Rectangle {
                         width: emojiText.implicitWidth + 24 // Ancho basado en el contenido del emoji + padding
                         height: 48
                         color: "transparent"
-                        radius: Config.roundness > 0 ? Config.roundness - 4 : 0
+                        radius: Config.roundness > 0 ? Math.max(Config.roundness - 4, 0) : 0
 
                         Behavior on color {
                             ColorAnimation {
@@ -690,7 +690,7 @@ Rectangle {
                         Rectangle {
                             Layout.preferredWidth: emojiIcon.implicitWidth + 6 // Ancho variable basado en el emoji
                             Layout.preferredHeight: 32
-                            radius: Config.roundness > 0 ? Config.roundness - 4 : 0
+                            radius: Config.roundness > 0 ? Math.max(Config.roundness - 4, 0) : 0
                             color: root.selectedIndex === index && !root.isRecentFocused ? Colors.overPrimary : Colors.surface
 
                             Behavior on color {
