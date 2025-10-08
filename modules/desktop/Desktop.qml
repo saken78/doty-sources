@@ -28,10 +28,20 @@ PanelWindow {
     GridView {
         id: gridView
         anchors.fill: parent
-        anchors.margins: Config.desktop.spacing
+        anchors.leftMargin: Config.desktop.spacing
+        anchors.rightMargin: Config.desktop.spacing
 
         cellWidth: Config.desktop.iconSize + Config.desktop.spacing
-        cellHeight: Config.desktop.iconSize + Config.desktop.spacing + 40
+        cellHeight: {
+            var minSpacing = 32;
+            var iconHeight = Config.desktop.iconSize + 40;
+            var availableHeight = parent.height;
+            
+            var maxRows = Math.floor(availableHeight / (iconHeight + minSpacing));
+            if (maxRows < 1) maxRows = 1;
+            
+            return availableHeight / maxRows;
+        }
 
         model: DesktopService.items
 

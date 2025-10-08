@@ -19,7 +19,7 @@ Item {
     signal contextMenuRequested()
 
     width: Config.desktop.iconSize + Config.desktop.spacing
-    height: Config.desktop.iconSize + Config.desktop.spacing + 40
+    height: Config.desktop.iconSize + 40
 
     Rectangle {
         id: background

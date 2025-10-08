@@ -145,7 +145,6 @@ Singleton {
                 property bool enabled: true
                 property int iconSize: 64
                 property int spacing: 16
-                property int columns: 8
                 property string textColor: "overBackground"
             }
         }
