@@ -11,19 +11,32 @@ Rectangle {
     visible: Config.bar.showBackground
     opacity: Config.bar.bgOpacity
 
+    property var firstColorData: Config.bar.barColor[0] || ["surface", 0.0]
+    property var lastColorData: Config.bar.barColor[Config.bar.barColor.length - 1] || ["surface", 0.0]
+    
+    property color firstColor: {
+        const colorValue = firstColorData[0];
+        if (colorValue.startsWith("#") || colorValue.startsWith("rgba") || colorValue.startsWith("rgb")) {
+            return colorValue;
+        }
+        return Colors[colorValue] || colorValue;
+    }
+    
+    property color lastColor: {
+        const colorValue = lastColorData[0];
+        if (colorValue.startsWith("#") || colorValue.startsWith("rgba") || colorValue.startsWith("rgb")) {
+            return colorValue;
+        }
+        return Colors[colorValue] || colorValue;
+    }
+
     gradient: Gradient {
         orientation: Config.bar.barOrientation === "horizontal" ? Gradient.Horizontal : Gradient.Vertical
         
         GradientStop {
             property var stopData: Config.bar.barColor[0] || ["surface", 0.0]
             position: stopData[1]
-            color: {
-                const colorValue = stopData[0];
-                if (colorValue.startsWith("#") || colorValue.startsWith("rgba") || colorValue.startsWith("rgb")) {
-                    return colorValue;
-                }
-                return Colors[colorValue] || colorValue;
-            }
+            color: root.firstColor
         }
         
         GradientStop {
@@ -65,13 +78,7 @@ Rectangle {
         GradientStop {
             property var stopData: Config.bar.barColor[4] || Config.bar.barColor[Config.bar.barColor.length - 1]
             position: stopData[1]
-            color: {
-                const colorValue = stopData[0];
-                if (colorValue.startsWith("#") || colorValue.startsWith("rgba") || colorValue.startsWith("rgb")) {
-                    return colorValue;
-                }
-                return Colors[colorValue] || colorValue;
-            }
+            color: root.lastColor
         }
     }
 
@@ -87,7 +94,18 @@ Rectangle {
             if (root.position === "left") return RoundCorner.CornerEnum.TopLeft
             if (root.position === "right") return RoundCorner.CornerEnum.TopRight
         }
-        color: parent.color
+        color: {
+            if (Config.bar.barOrientation === "vertical") {
+                if (root.position === "top") return root.lastColor;
+                if (root.position === "bottom") return root.firstColor;
+                if (root.position === "left") return root.firstColor;
+                if (root.position === "right") return root.firstColor;
+            } else {
+                if (root.position === "top" || root.position === "bottom") return root.firstColor;
+                if (root.position === "left") return root.lastColor;
+                if (root.position === "right") return root.firstColor;
+            }
+        }
     }
 
     RoundCorner {
@@ -102,6 +120,17 @@ Rectangle {
             if (root.position === "left") return RoundCorner.CornerEnum.BottomLeft
             if (root.position === "right") return RoundCorner.CornerEnum.BottomRight
         }
-        color: parent.color
+        color: {
+            if (Config.bar.barOrientation === "vertical") {
+                if (root.position === "top") return root.lastColor;
+                if (root.position === "bottom") return root.firstColor;
+                if (root.position === "left") return root.lastColor;
+                if (root.position === "right") return root.lastColor;
+            } else {
+                if (root.position === "top" || root.position === "bottom") return root.lastColor;
+                if (root.position === "left") return root.lastColor;
+                if (root.position === "right") return root.firstColor;
+            }
+        }
     }
 }
