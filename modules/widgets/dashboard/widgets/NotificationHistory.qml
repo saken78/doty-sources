@@ -24,38 +24,62 @@ Item {
                 color: Colors.surface
                 topLeftRadius: Config.roundness > 0 ? Config.roundness + 4 : 0
                 topRightRadius: Config.roundness > 0 ? Config.roundness + 4 : 0
-                Text {
-                    anchors.centerIn: parent
-                    text: "Notifications"
-                    font.family: Config.defaultFont
-                    font.pixelSize: Config.theme.fontSize
-                    font.weight: Font.Bold
-                    color: Colors.overSurface
-                    horizontalAlignment: Text.AlignHCenter
+                Rectangle {
+                    anchors.fill: parent
+                    anchors.margins: 4
+                    anchors.bottomMargin: 0
+                    color: Colors.background
+                    radius: Config.roundness
+                    Text {
+                        anchors.centerIn: parent
+                        text: "Notifications"
+                        font.family: Config.defaultFont
+                        font.pixelSize: Config.theme.fontSize
+                        font.weight: Font.Bold
+                        color: Colors.overSurface
+                        horizontalAlignment: Text.AlignHCenter
+                    }
                 }
             }
 
             Rectangle {
-                id: dndToggle
-                Layout.preferredWidth: 36
-                Layout.preferredHeight: 36
-                Layout.bottomMargin: 4
-                radius: Notifications.silent ? Config.roundness + 4 : Config.roundness
-                color: Notifications.silent ? Colors.primary : Colors.surface
+                Layout.preferredWidth: 40
+                Layout.preferredHeight: 40
+                Layout.leftMargin: -4
+                color: "transparent"
 
-                Text {
-                    anchors.centerIn: parent
-                    text: Notifications.silent ? Icons.bellZ : Icons.bell
-                    textFormat: Text.RichText
-                    font.family: Icons.font
-                    font.pixelSize: 16
-                    color: Notifications.silent ? Colors.overPrimary : Colors.overSurface
+                RoundCorner {
+                    anchors.bottom: parent.bottom
+                    anchors.left: parent.left
+                    size: Config.roundness > 0 ? Config.roundness + 4 : 0
+                    corner: RoundCorner.CornerEnum.BottomLeft
+                    color: Colors.surface
                 }
 
-                MouseArea {
-                    anchors.fill: parent
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: Notifications.silent = !Notifications.silent
+                Rectangle {
+                    id: dndToggle
+                    radius: Notifications.silent ? (Config.roundness > 4 ? Config.roundness - 4 : 0) : Config.roundness
+                    bottomLeftRadius: Config.roundness
+                    color: Notifications.silent ? Colors.primary : Colors.surface
+                    width: 36
+                    height: 36
+                    anchors.top: parent.top
+                    anchors.right: parent.right
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: Notifications.silent ? Icons.bellZ : Icons.bell
+                        textFormat: Text.RichText
+                        font.family: Icons.font
+                        font.pixelSize: 20
+                        color: Notifications.silent ? Colors.overPrimary : Colors.primary
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: Notifications.silent = !Notifications.silent
+                    }
                 }
             }
 
@@ -71,8 +95,8 @@ Item {
                     text: Icons.broom
                     textFormat: Text.RichText
                     font.family: Icons.font
-                    font.pixelSize: 16
-                    color: Colors.overSurface
+                    font.pixelSize: 20
+                    color: Colors.error
                 }
 
                 MouseArea {
@@ -91,30 +115,35 @@ Item {
             topLeftRadius: 0
             clip: true
 
-            Flickable {
+            ClippingRectangle {
                 anchors.fill: parent
                 anchors.margins: 4
-                contentWidth: width
-                contentHeight: notificationList.contentHeight
-                clip: true
+                color: "transparent"
+                radius: Config.roundness
+                Flickable {
+                    anchors.fill: parent
+                    contentWidth: width
+                    contentHeight: notificationList.contentHeight
+                    clip: true
 
-                ListView {
-                    id: notificationList
-                    width: parent.width
-                    height: contentHeight
-                    spacing: 4
-                    model: Notifications.appNameList
-                    interactive: false
-                    cacheBuffer: 200
-                    reuseItems: true
+                    ListView {
+                        id: notificationList
+                        width: parent.width
+                        height: contentHeight
+                        spacing: 4
+                        model: Notifications.appNameList
+                        interactive: false
+                        cacheBuffer: 200
+                        reuseItems: true
 
-                    delegate: NotificationGroup {
-                        required property int index
-                        required property string modelData
-                        width: notificationList.width
-                        notificationGroup: Notifications.groupsByAppName[modelData]
-                        expanded: false
-                        popup: false
+                        delegate: NotificationGroup {
+                            required property int index
+                            required property string modelData
+                            width: notificationList.width
+                            notificationGroup: Notifications.groupsByAppName[modelData]
+                            expanded: false
+                            popup: false
+                        }
                     }
                 }
             }
