@@ -138,10 +138,11 @@ Singleton {
                 property real blurInputMethodsIgnorealpha: 0.2
             }
 
-            property JsonObject performance: JsonObject {
-                property bool blurTransition: true
-                property bool windowPreview: true
-            }
+             property JsonObject performance: JsonObject {
+                 property bool blurTransition: true
+                 property bool windowPreview: true
+                 property bool wavyLine: true
+             }
 
             property JsonObject weather: JsonObject {
                 property string location: ""
