@@ -15,26 +15,35 @@ Rectangle {
     color: "transparent"
     radius: Config.roundness > 0 ? Config.roundness : 0
 
-    // Propiedades personalizadas para la funcionalidad del componente.
-    property string searchText: ""
-    readonly property int gridRows: 3
-    readonly property int gridColumns: 5
-    property int selectedIndex: GlobalStates.wallpaperSelectedIndex
+     // Propiedades personalizadas para la funcionalidad del componente.
+     property string searchText: ""
+     readonly property int gridRows: 3
+     readonly property int gridColumns: 5
+     property int selectedIndex: GlobalStates.wallpaperSelectedIndex
+     property var activeFilters: []  // Lista de tipos de archivo seleccionados para filtrar
 
     // Función para enfocar el campo de búsqueda.
     function focusSearch() {
         wallpaperSearchInput.focusInput();
     }
 
-    // Función para encontrar el índice del wallpaper actual en la lista filtrada
-    function findCurrentWallpaperIndex() {
-        if (!GlobalStates.wallpaperManager || !GlobalStates.wallpaperManager.currentWallpaper) {
-            return -1;
-        }
+     // Función para encontrar el índice del wallpaper actual en la lista filtrada
+     function findCurrentWallpaperIndex() {
+         if (!GlobalStates.wallpaperManager || !GlobalStates.wallpaperManager.currentWallpaper) {
+             return -1;
+         }
 
-        const currentWallpaper = GlobalStates.wallpaperManager.currentWallpaper;
-        return filteredWallpapers.indexOf(currentWallpaper);
-    }
+         const currentWallpaper = GlobalStates.wallpaperManager.currentWallpaper;
+         return filteredWallpapers.indexOf(currentWallpaper);
+     }
+
+     // Modelo para los filtros de tipo de archivo
+     ListModel {
+         id: filterModel
+         ListElement { label: "Images"; type: "image" }
+         ListElement { label: "GIFs"; type: "gif" }
+         ListElement { label: "Videos"; type: "video" }
+     }
 
     // Llama a focusSearch una vez que el componente se ha completado.
     Component.onCompleted: {
@@ -53,18 +62,31 @@ Rectangle {
         });
     }
 
-    // Propiedad calculada que filtra los fondos de pantalla según el texto de búsqueda.
-    property var filteredWallpapers: {
-        if (!GlobalStates.wallpaperManager)
-            return [];
-        if (searchText.length === 0)
-            return GlobalStates.wallpaperManager.wallpaperPaths;
+     // Propiedad calculada que filtra los fondos de pantalla según el texto de búsqueda y tipos activos.
+     property var filteredWallpapers: {
+         if (!GlobalStates.wallpaperManager)
+             return [];
 
-        return GlobalStates.wallpaperManager.wallpaperPaths.filter(function (path) {
-            const fileName = path.split('/').pop().toLowerCase();
-            return fileName.includes(searchText.toLowerCase());
-        });
-    }
+         let wallpapers = GlobalStates.wallpaperManager.wallpaperPaths;
+
+         // Filtrar por texto de búsqueda
+         if (searchText.length > 0) {
+             wallpapers = wallpapers.filter(function (path) {
+                 const fileName = path.split('/').pop().toLowerCase();
+                 return fileName.includes(searchText.toLowerCase());
+             });
+         }
+
+         // Filtrar por tipos activos si hay filtros seleccionados
+         if (activeFilters.length > 0) {
+             wallpapers = wallpapers.filter(function (path) {
+                 const fileType = GlobalStates.wallpaperManager.getFileType(path);
+                 return activeFilters.includes(fileType);
+             });
+         }
+
+         return wallpapers;
+     }
 
     // Layout principal con una fila para la barra lateral y la cuadrícula.
     RowLayout {
@@ -171,11 +193,82 @@ Rectangle {
                             GlobalStates.wallpaperManager.setWallpaper(selectedWallpaper);
                         }
                     }
-                }
-            }
+                 }
+             }
 
-            // Área para opciones de Matugen y modo de tema.
-            ClippingRectangle {
+             // Filtros horizontales para tipos de archivo
+             Flickable {
+                 id: filterFlickable
+                 Layout.fillWidth: true
+                 height: 32
+                 contentWidth: filterRow.width
+                 flickableDirection: Flickable.HorizontalFlick
+                 clip: true
+
+                 Row {
+                     id: filterRow
+                     spacing: 8
+
+                     Repeater {
+                         model: filterModel
+                         delegate: Rectangle {
+                             width: filterText.width + 40
+                             height: 32
+                             color: activeFilters.includes(model.type) ? Colors.primaryContainer : Colors.surface
+                             radius: Math.max(0, Config.roundness - 8)
+
+                             property alias filterText: filterText
+
+                             RowLayout {
+                                 anchors.fill: parent
+                                 anchors.margins: 8
+                                 spacing: 4
+
+                                 Text {
+                                     id: filterIcon
+                                     text: activeFilters.includes(model.type) ? Icons.accept : ""
+                                     font.family: Icons.font
+                                     font.pixelSize: 16
+                                     color: activeFilters.includes(model.type) ? Colors.primary : Colors.overBackground
+                                     visible: activeFilters.includes(model.type)
+                                 }
+
+                                 Text {
+                                     id: filterText
+                                     text: model.label
+                                     font.family: Config.theme.font
+                                     font.pixelSize: Config.theme.fontSize
+                                     color: activeFilters.includes(model.type) ? Colors.primary : Colors.overBackground
+                                 }
+                             }
+
+                             MouseArea {
+                                 anchors.fill: parent
+                                 cursorShape: Qt.PointingHandCursor
+                                 onClicked: {
+                                     const index = activeFilters.indexOf(model.type);
+                                     if (index > -1) {
+                                         activeFilters.splice(index, 1);
+                                     } else {
+                                         activeFilters.push(model.type);
+                                     }
+                                     activeFilters = activeFilters.slice();  // Trigger update
+                                 }
+                             }
+
+                             Behavior on color {
+                                 ColorAnimation {
+                                     duration: Config.animDuration / 2
+                                     easing.type: Easing.OutCubic
+                                 }
+                             }
+                         }
+                     }
+                 }
+             }
+
+             // Área para opciones de Matugen y modo de tema.
+             ClippingRectangle {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 color: "transparent"
