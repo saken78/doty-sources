@@ -19,23 +19,23 @@ Rectangle {
     property string searchText: ""
     readonly property int gridRows: 3
     readonly property int gridColumns: 5
-     property int selectedIndex: GlobalStates.wallpaperSelectedIndex
-     property bool schemeListExpanded: false
-     readonly property var schemeDisplayNames: ["Content", "Expressive", "Fidelity", "Fruit Salad", "Monochrome", "Neutral", "Rainbow", "Tonal Spot"]
+    property int selectedIndex: GlobalStates.wallpaperSelectedIndex
+    property bool schemeListExpanded: false
+    readonly property var schemeDisplayNames: ["Content", "Expressive", "Fidelity", "Fruit Salad", "Monochrome", "Neutral", "Rainbow", "Tonal Spot"]
 
-     function getSchemeDisplayName(scheme) {
-         const map = {
-             "scheme-content": "Content",
-             "scheme-expressive": "Expressive",
-             "scheme-fidelity": "Fidelity",
-             "scheme-fruit-salad": "Fruit Salad",
-             "scheme-monochrome": "Monochrome",
-             "scheme-neutral": "Neutral",
-             "scheme-rainbow": "Rainbow",
-             "scheme-tonal-spot": "Tonal Spot"
-         };
-         return map[scheme] || scheme;
-     }
+    function getSchemeDisplayName(scheme) {
+        const map = {
+            "scheme-content": "Content",
+            "scheme-expressive": "Expressive",
+            "scheme-fidelity": "Fidelity",
+            "scheme-fruit-salad": "Fruit Salad",
+            "scheme-monochrome": "Monochrome",
+            "scheme-neutral": "Neutral",
+            "scheme-rainbow": "Rainbow",
+            "scheme-tonal-spot": "Tonal Spot"
+        };
+        return map[scheme] || scheme;
+    }
 
     // Función para enfocar el campo de búsqueda.
     function focusSearch() {
