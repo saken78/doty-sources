@@ -24,7 +24,7 @@ PanelWindow {
     property string wallpaperDir: wallpaperConfig.adapter.wallPath || fallbackDir
     property string fallbackDir: Qt.resolvedUrl("../../../../assets/wallpapers_example").toString().replace("file://", "")
     property list<string> wallpaperPaths: []
-    property list<string> subfolderFilters: []
+    property var subfolderFilters: []
     property int currentIndex: 0
     property string currentWallpaper: initialLoadCompleted && wallpaperPaths.length > 0 ? wallpaperPaths[currentIndex] : ""
     property bool initialLoadCompleted: false
@@ -368,6 +368,7 @@ PanelWindow {
 
         stdout: StdioCollector {
             onStreamFinished: {
+                console.log("scanSubfolders stdout:", text);
                 var folders = text.trim().split("\n").filter(function (f) {
                     return f.length > 0;
                 }).map(function (folder) {
@@ -377,7 +378,8 @@ PanelWindow {
                 });
                 folders.sort();
                 subfolderFilters = folders;
-                console.log("Found subfolders:", subfolderFilters);
+                subfolderFiltersChanged();  // Emitir señal manualmente
+                console.log("Updated subfolderFilters:", subfolderFilters);
             }
         }
 
@@ -386,6 +388,14 @@ PanelWindow {
                 if (text.length > 0) {
                     console.warn("Error scanning subfolders:", text);
                 }
+            }
+        }
+
+        onRunningChanged: {
+            if (running) {
+                console.log("Starting scanSubfolders for directory:", wallpaperDir);
+            } else {
+                console.log("Finished scanSubfolders");
             }
         }
     }

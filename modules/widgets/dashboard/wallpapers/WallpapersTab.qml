@@ -54,6 +54,14 @@ Rectangle {
         });
     }
 
+    // Actualizar subcarpetas cuando la pestaña se haga visible
+    onVisibleChanged: {
+        if (visible && GlobalStates.wallpaperManager) {
+            console.log("WallpapersTab became visible, updating subfolders");
+            GlobalStates.wallpaperManager.scanSubfolders();
+        }
+    }
+
     // Propiedad calculada que filtra los fondos de pantalla según el texto de búsqueda y tipos activos.
     property var filteredWallpapers: {
         if (!GlobalStates.wallpaperManager)
