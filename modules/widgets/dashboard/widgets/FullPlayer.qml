@@ -151,6 +151,8 @@ PaneRect {
                         font.weight: Font.Bold
                         font.family: Config.theme.font
                         elide: Text.ElideRight
+                        wrapMode: Text.NoWrap
+                        maximumLineCount: 1
                     }
 
                     Text {
@@ -161,6 +163,8 @@ PaneRect {
                         font.pixelSize: Config.theme.fontSize
                         font.family: Config.theme.font
                         elide: Text.ElideRight
+                        wrapMode: Text.NoWrap
+                        maximumLineCount: 1
                         visible: text !== ""
                     }
 
