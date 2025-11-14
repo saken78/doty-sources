@@ -25,14 +25,42 @@ WlSessionLockSurface {
     // Always transparent - blur background handles the visuals
     color: "transparent"
 
-    // Wallpaper background
+    // Screen capture background (fondo absoluto con zoom sincronizado)
+    ScreencopyView {
+        id: screencopyBackground
+        anchors.fill: parent
+        captureSource: root.screen
+        live: false
+        paintCursor: false
+        visible: startAnim  // Visible solo cuando startAnim es true
+        z: 0  // Capa más baja - fondo absoluto
+
+        property real zoomScale: startAnim ? 1.25 : 1.0
+
+        transform: Scale {
+            origin.x: screencopyBackground.width / 2
+            origin.y: screencopyBackground.height / 2
+            xScale: screencopyBackground.zoomScale
+            yScale: screencopyBackground.zoomScale
+        }
+
+        Behavior on zoomScale {
+            NumberAnimation {
+                duration: Config.animDuration * 2
+                easing.type: Easing.OutExpo
+            }
+        }
+    }
+
+    // Wallpaper background (oculto - solo usado como source del MultiEffect)
     Image {
         id: wallpaperBackground
         anchors.fill: parent
         fillMode: Image.PreserveAspectCrop
         asynchronous: true
         smooth: true
-        opacity: 0  // Controlado solo por animaciones
+        visible: false  // Nunca visible directamente, solo a través del MultiEffect
+        z: 1
 
         property string lockscreenFramePath: {
             if (!GlobalStates.wallpaperManager)
@@ -49,39 +77,6 @@ WlSessionLockSurface {
                 console.warn("Failed to load lockscreen wallpaper:", lockscreenFramePath);
             }
         }
-        
-        SequentialAnimation on opacity {
-            id: wallpaperOpacityAnimation
-            running: false
-            
-            // Animación de entrada (fade in)
-            NumberAnimation {
-                from: 0
-                to: 1
-                duration: Config.animDuration * 2
-                easing.type: Easing.OutQuint
-            }
-        }
-        
-        SequentialAnimation {
-            id: wallpaperExitOpacityAnimation
-            running: false
-            
-            // Esperar a que termine el zoom out
-            PauseAnimation {
-                duration: Config.animDuration
-            }
-            
-            // Fade out después del zoom
-            NumberAnimation {
-                target: wallpaperBackground
-                property: "opacity"
-                from: 1
-                to: 0
-                duration: Config.animDuration
-                easing.type: Easing.OutQuint
-            }
-        }
     }
 
     // Blur effect
@@ -95,6 +90,7 @@ WlSessionLockSurface {
         blurMax: 64
         visible: true
         opacity: 0  // Controlado solo por animaciones
+        z: 2
 
         property real zoomScale: startAnim ? 1.25 : 1.0
 
@@ -159,6 +155,7 @@ WlSessionLockSurface {
         anchors.fill: parent
         color: "black"
         opacity: startAnim ? 0.25 : 0
+        z: 3
 
         property real zoomScale: startAnim ? 1.1 : 1.0
 
@@ -190,6 +187,7 @@ WlSessionLockSurface {
         anchors.centerIn: parent
         width: clockRow.width
         height: hoursText.height + (hoursText.height * 0.5)
+        z: 10
 
         Row {
             id: clockRow
@@ -282,6 +280,7 @@ WlSessionLockSurface {
     // Music player (slides from left)
     Item {
         id: playerContainer
+        z: 10
 
         property bool isTopPosition: Config.lockscreen.position === "top"
 
@@ -321,6 +320,7 @@ WlSessionLockSurface {
     // Password input container (slides from top or bottom)
     Item {
         id: passwordContainer
+        z: 10
 
         property bool isTopPosition: Config.lockscreen.position === "top"
 
@@ -674,7 +674,6 @@ WlSessionLockSurface {
             if (exitCode === 0) {
                 // Autenticación exitosa - trigger exit animation
                 startAnim = false;
-                wallpaperExitOpacityAnimation.start();
                 exitOpacityAnimation.start();
 
                 // Wait for exit animation, then unlock
@@ -745,6 +744,7 @@ WlSessionLockSurface {
         anchors.left: parent.left
         anchors.top: parent.top
         corner: RoundCorner.CornerEnum.TopLeft
+        z: 100
     }
 
     RoundCorner {
@@ -753,6 +753,7 @@ WlSessionLockSurface {
         anchors.right: parent.right
         anchors.top: parent.top
         corner: RoundCorner.CornerEnum.TopRight
+        z: 100
     }
 
     RoundCorner {
@@ -761,6 +762,7 @@ WlSessionLockSurface {
         anchors.left: parent.left
         anchors.bottom: parent.bottom
         corner: RoundCorner.CornerEnum.BottomLeft
+        z: 100
     }
 
     RoundCorner {
@@ -769,13 +771,16 @@ WlSessionLockSurface {
         anchors.right: parent.right
         anchors.bottom: parent.bottom
         corner: RoundCorner.CornerEnum.BottomRight
+        z: 100
     }
 
     // Initialize when component is created (when lock becomes active)
     Component.onCompleted: {
+        // Capture screen immediately
+        screencopyBackground.captureFrame();
+        
         // Start animations
         startAnim = true;
-        wallpaperOpacityAnimation.start();
         opacityAnimation.start();
         passwordInput.forceActiveFocus();
     }
