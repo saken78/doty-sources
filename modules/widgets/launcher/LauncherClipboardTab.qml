@@ -323,7 +323,7 @@ Item {
             // Botón de limpiar historial
             Rectangle {
                 id: clearButton
-                width: root.clearButtonConfirmState ? clearButtonContent.implicitWidth + 32 : 48
+                width: root.clearButtonConfirmState ? 120 : 48
                 height: 48
                 radius: searchInput.radius
                 color: {
@@ -452,11 +452,11 @@ Item {
         Row {
             width: parent.width
             height: parent.height - 56
-            spacing: 4
+            spacing: 8
 
             // Lista vertical (35% del ancho)
             Item {
-                width: parent.width * 0.35
+                width: ClipboardService.items.length > 0 ? parent.width * 0.35 : parent.width
                 height: parent.height
 
                 ListView {
@@ -471,6 +471,10 @@ Item {
 
                     model: root.allItems
                     currentIndex: root.selectedIndex
+
+                    ScrollBar.vertical: ScrollBar {
+                        id: mainScrollBar
+                    }
 
                     onCurrentIndexChanged: {
                         if (currentIndex !== root.selectedIndex) {
@@ -592,9 +596,9 @@ Item {
                                 visible: opacity > 0
 
                                 transform: Translate {
-                                    y: isInDeleteMode ? 0 : 80
+                                    x: isInDeleteMode ? 0 : 80
 
-                                    Behavior on y {
+                                    Behavior on x {
                                         enabled: Config.animDuration > 0
                                         NumberAnimation {
                                             duration: Config.animDuration
@@ -960,18 +964,48 @@ Item {
                 }
             }
 
-            // Separador vertical
-            Separator {
-                vert: true
-                width: 2
+            // ScrollBar visual entre lista y preview
+            ScrollBar {
+                id: visualScrollBar
+                width: 8
                 height: parent.height
+                orientation: Qt.Vertical
+                visible: ClipboardService.items.length > 0 && resultsList.contentHeight > resultsList.height
+
+                position: resultsList.contentY / resultsList.contentHeight
+                size: resultsList.height / resultsList.contentHeight
+
+                background: Rectangle {
+                    implicitWidth: 8
+                    color: Colors.surface
+                    radius: Config.roundness
+                }
+
+                contentItem: Rectangle {
+                    implicitWidth: 8
+                    color: Colors.primary
+                    radius: Config.roundness
+                }
+
+                onPressedChanged: {
+                    if (pressed && resultsList.contentHeight > resultsList.height) {
+                        resultsList.contentY = position * resultsList.contentHeight;
+                    }
+                }
+
+                onPositionChanged: {
+                    if (pressed && resultsList.contentHeight > resultsList.height) {
+                        resultsList.contentY = position * resultsList.contentHeight;
+                    }
+                }
             }
 
             // Preview panel (65% del ancho)
             Item {
                 id: previewPanel
-                width: parent.width * 0.65 - 6
+                width: parent.width * 0.65 - 12
                 height: parent.height
+                visible: ClipboardService.items.length > 0
 
                 property var currentItem: root.selectedIndex >= 0 && root.selectedIndex < root.allItems.length ? root.allItems[root.selectedIndex] : null
 
@@ -1038,6 +1072,22 @@ Item {
 
                         ScrollBar.vertical: ScrollBar {
                             policy: ScrollBar.AsNeeded
+                        }
+                    }
+
+                    // Placeholder cuando no hay nada seleccionado
+                    Column {
+                        anchors.centerIn: parent
+                        spacing: 16
+                        visible: !previewPanel.currentItem
+
+                        Text {
+                            text: Icons.clipboard
+                            font.family: Icons.font
+                            font.pixelSize: 48
+                            color: Colors.surfaceBright
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            textFormat: Text.RichText
                         }
                     }
                 }
