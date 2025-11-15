@@ -146,12 +146,16 @@ Rectangle {
     }
 
     function copyEmoji(emoji) {
+        // Cerrar el dashboard primero para que el paste vaya a la aplicación activa
+        Visibilities.setActiveModule("");
+        
+        // Copiar el emoji al clipboard
         copyProcess.command = ["bash", "-c", "echo -n '" + emoji.emoji.replace(/'/g, "'\\''") + "' | wl-copy"];
         copyProcess.running = true;
         addToRecent(emoji);
-        typeTimer.start();
+        
+        // Iniciar timers para paste automático
         pasteTimer.start();
-        // No cerrar el dashboard al copiar emoji
     }
 
     function onDownPressed() {
@@ -342,13 +346,6 @@ Rectangle {
         running: false
     }
 
-    // Type emoji
-    Process {
-        id: typeProcess
-        command: ["bash", "-c", "wl-paste | wtype"]
-        running: false
-    }
-
     // Paste emoji
     Process {
         id: pasteProcess
@@ -357,16 +354,8 @@ Rectangle {
     }
 
     Timer {
-        id: typeTimer
-        interval: 100
-        onTriggered: {
-            typeProcess.running = true;
-        }
-    }
-
-    Timer {
         id: pasteTimer
-        interval: 150
+        interval: 200 // Delay aumentado para asegurar que el emoji esté en el clipboard
         onTriggered: {
             pasteProcess.running = true;
         }
