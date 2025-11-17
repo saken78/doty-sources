@@ -26,8 +26,22 @@ EOF
 }
 
 find_ambxst_pid() {
-  # Find the QuickShell process running shell.qml from this directory
-  pgrep -f "quickshell.*${SCRIPT_DIR}/shell.qml" | head -1
+  # Try to find QuickShell process running shell.qml
+  # First try with full path (production/flake mode)
+  local pid
+  pid=$(pgrep -f "quickshell.*${SCRIPT_DIR}/shell.qml" 2>/dev/null | head -1)
+  
+  # If not found, try with relative path (development mode)
+  if [ -z "$pid" ]; then
+    pid=$(pgrep -f "quickshell.*shell.qml" 2>/dev/null | head -1)
+  fi
+  
+  # Last resort: find any quickshell process in this directory
+  if [ -z "$pid" ]; then
+    pid=$(pgrep -a quickshell 2>/dev/null | grep -F "$SCRIPT_DIR" | awk '{print $1}' | head -1)
+  fi
+  
+  echo "$pid"
 }
 
 case "${1:-}" in
