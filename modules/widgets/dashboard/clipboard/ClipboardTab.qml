@@ -1509,7 +1509,7 @@ Item {
                                             Rectangle {
                                                 anchors.fill: parent
                                                 color: Colors.surfaceBright
-                                                radius: parent.radius
+                                                radius: parent.parent.radius
                                                 visible: parent.status === Image.Loading
                                                 
                                                 Text {
