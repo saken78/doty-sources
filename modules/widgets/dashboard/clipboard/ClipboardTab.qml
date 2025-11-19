@@ -1127,7 +1127,7 @@ Item {
 
                 Column {
                     anchors.centerIn: parent
-                    spacing: 16
+                    spacing: 8
                     visible: ClipboardService.items.length === 0
 
                     Text {
@@ -1142,7 +1142,7 @@ Item {
                     Text {
                         text: "No clipboard history"
                         font.family: Config.theme.font
-                        font.pixelSize: Config.theme.fontSize + 2
+                        font.pixelSize: Config.theme.fontSize
                         font.weight: Font.Bold
                         color: Colors.overBackground
                         anchors.horizontalCenter: parent.horizontalCenter
@@ -1985,7 +1985,8 @@ Item {
 
                                 Text {
                                     text: {
-                                        if (!previewPanel.currentItem || !previewPanel.currentItem.hash) return "N/A";
+                                        if (!previewPanel.currentItem || !previewPanel.currentItem.hash)
+                                            return "N/A";
                                         var hash = previewPanel.currentItem.hash;
                                         // Show first 8 and last 8 characters
                                         if (hash.length > 16) {
