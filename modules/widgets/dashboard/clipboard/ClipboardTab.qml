@@ -1250,13 +1250,36 @@ Item {
                                 }
                                 visible: root.linkPreviewData && !root.linkPreviewData.error && 
                                         (root.linkPreviewData.title || root.linkPreviewData.description || root.linkPreviewData.image)
-                                color: Colors.surface
+                                color: linkPreviewMouseArea.containsMouse ? Colors.surfaceBright : Colors.surface
                                 
                                 // Rounded corners only on the right side
                                 topLeftRadius: 0
                                 topRightRadius: Config.roundness > 0 ? Config.roundness + 4 : 0
                                 bottomLeftRadius: 0
                                 bottomRightRadius: Config.roundness > 0 ? Config.roundness + 4 : 0
+                                
+                                Behavior on color {
+                                    enabled: Config.animDuration > 0
+                                    ColorAnimation {
+                                        duration: Config.animDuration / 2
+                                        easing.type: Easing.OutQuart
+                                    }
+                                }
+                                
+                                MouseArea {
+                                    id: linkPreviewMouseArea
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    cursorShape: Qt.PointingHandCursor
+                                    
+                                    onClicked: {
+                                        if (root.currentFullContent) {
+                                            Qt.openUrlExternally(root.currentFullContent.trim());
+                                        } else if (previewPanel.currentItem) {
+                                            Qt.openUrlExternally(previewPanel.currentItem.preview.trim());
+                                        }
+                                    }
+                                }
                                 
                                 // Left accent bar
                                 Rectangle {
@@ -1579,8 +1602,31 @@ Item {
                                     anchors.centerIn: parent
                                     width: parent.width
                                     height: 60
-                                    color: Colors.surface
+                                    color: urlPreviewMouseArea.containsMouse ? Colors.surfaceBright : Colors.surface
                                     radius: Config.roundness > 0 ? Config.roundness + 4 : 0
+                                    
+                                    Behavior on color {
+                                        enabled: Config.animDuration > 0
+                                        ColorAnimation {
+                                            duration: Config.animDuration / 2
+                                            easing.type: Easing.OutQuart
+                                        }
+                                    }
+                                    
+                                    MouseArea {
+                                        id: urlPreviewMouseArea
+                                        anchors.fill: parent
+                                        hoverEnabled: true
+                                        cursorShape: Qt.PointingHandCursor
+                                        
+                                        onClicked: {
+                                            if (root.currentFullContent) {
+                                                Qt.openUrlExternally(root.currentFullContent.trim());
+                                            } else if (previewPanel.currentItem) {
+                                                Qt.openUrlExternally(previewPanel.currentItem.preview.trim());
+                                            }
+                                        }
+                                    }
                                     
                                     Row {
                                         anchors.fill: parent
