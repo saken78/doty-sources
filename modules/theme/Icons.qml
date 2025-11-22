@@ -47,6 +47,7 @@ QtObject {
     readonly property string pin: ""
     readonly property string unpin: ""
     readonly property string popOpen: ""
+    readonly property string handGrab: ""
 
     // Toolbox
     readonly property string toolbox: ""
