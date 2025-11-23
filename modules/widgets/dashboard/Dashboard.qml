@@ -9,7 +9,6 @@ import qs.modules.services
 import qs.modules.notch
 import qs.modules.widgets.dashboard.widgets
 import qs.modules.widgets.dashboard.kanban
-import qs.modules.widgets.dashboard.wallpapers
 import qs.modules.widgets.dashboard.assistant
 import qs.modules.widgets.dashboard.tmux
 import qs.modules.widgets.dashboard.clipboard
@@ -23,7 +22,7 @@ NotchAnimationBehavior {
         property int currentTab: GlobalStates.dashboardCurrentTab
     }
 
-    readonly property var tabModel: [Icons.widgets, Icons.kanban, Icons.wallpapers, Icons.assistant]
+    readonly property var tabModel: [Icons.widgets, Icons.kanban, Icons.assistant]
     readonly property int tabCount: tabModel.length
     readonly property int tabSpacing: 8
 
@@ -70,24 +69,10 @@ NotchAnimationBehavior {
             if (GlobalStates.dashboardCurrentTab === 0) {
                 Notifications.hideAllPopups();
                 focusUnifiedLauncherTimer.restart();
-            } else if (GlobalStates.dashboardCurrentTab === 2) {
-                focusWallpapersTimer.restart();
             }
         } else {
             // Reset launcher state when dashboard closes
             GlobalStates.clearLauncherState();
-        }
-    }
-
-    // Timer para asegurar que el foco se establezca después de que el componente esté listo
-    Timer {
-        id: focusWallpapersTimer
-        interval: 50
-        repeat: false
-        onTriggered: {
-            if (stack.currentItem && stack.currentItem.focusSearch) {
-                stack.currentItem.focusSearch();
-            }
         }
     }
 
@@ -255,7 +240,7 @@ NotchAnimationBehavior {
                 anchors.fill: parent
 
                 // Array de componentes para cargar dinámicamente
-                property var components: [unifiedLauncherComponent, quickSettingsComponent, wallpapersComponent, assistantComponent]
+                property var components: [unifiedLauncherComponent, quickSettingsComponent, assistantComponent]
 
                 // Cargar directamente el componente correcto según GlobalStates
                 initialItem: components[GlobalStates.dashboardCurrentTab]
@@ -265,8 +250,6 @@ NotchAnimationBehavior {
                     if (currentItem) {
                         if (root.state.currentTab === 0 && currentItem.focusSearchInput) {
                             focusUnifiedLauncherTimer.restart();
-                        } else if (root.state.currentTab === 2 && currentItem.focusSearch) {
-                            focusWallpapersTimer.restart();
                         }
                     }
                 }
@@ -291,8 +274,6 @@ NotchAnimationBehavior {
                         if (index === 0) {
                             Notifications.hideAllPopups();
                             focusUnifiedLauncherTimer.restart();
-                        } else if (index === 2) {
-                            focusWallpapersTimer.restart();
                         }
                     }
                 }
@@ -480,11 +461,6 @@ NotchAnimationBehavior {
     Component {
         id: quickSettingsComponent
         KanbanTab {}
-    }
-
-    Component {
-        id: wallpapersComponent
-        WallpapersTab {}
     }
 
     Component {
