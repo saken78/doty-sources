@@ -102,6 +102,7 @@ Singleton {
                 property bool showAppIcons: true
                 property bool alwaysShowNumbers: false
                 property bool showNumbers: false
+                property bool dynamic: false
             }
 
             property JsonObject overview: JsonObject {

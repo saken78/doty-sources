@@ -21,6 +21,8 @@ Item {
 
     readonly property int workspaceGroup: Math.floor((monitor?.activeWorkspace?.id - 1 || 0) / Config.workspaces.shown)
     property list<bool> workspaceOccupied: []
+    property list<int> dynamicWorkspaceIds: []
+    property int effectiveWorkspaceCount: Config.workspaces.dynamic ? dynamicWorkspaceIds.length : Config.workspaces.shown
     property int widgetPadding: 4
     property int baseSize: 36
     property int workspaceButtonSize: baseSize - widgetPadding * 2
@@ -29,20 +31,51 @@ Item {
     property real workspaceIconSizeShrinked: Math.round(workspaceButtonWidth * 0.5)
     property real workspaceIconOpacityShrinked: 1
     property real workspaceIconMarginShrinked: -4
-    property int workspaceIndexInGroup: (monitor?.activeWorkspace?.id - 1 || 0) % Config.workspaces.shown
+    property int workspaceIndexInGroup: Config.workspaces.dynamic 
+        ? dynamicWorkspaceIds.indexOf(monitor?.activeWorkspace?.id || 1)
+        : (monitor?.activeWorkspace?.id - 1 || 0) % Config.workspaces.shown
 
     function updateWorkspaceOccupied() {
-        workspaceOccupied = Array.from({
-            length: Config.workspaces.shown
-        }, (_, i) => {
-            return Hyprland.workspaces.values.some(ws => ws.id === workspaceGroup * Config.workspaces.shown + i + 1);
-        });
+        if (Config.workspaces.dynamic) {
+            // Get occupied workspace IDs, sorted and limited by 'shown'
+            const occupiedIds = Hyprland.workspaces.values
+                .filter(ws => HyprlandData.windowList.some(w => w.workspace.id === ws.id))
+                .map(ws => ws.id)
+                .sort((a, b) => a - b)
+                .slice(0, Config.workspaces.shown);
+            
+            // Include active workspace if not already in list
+            const activeId = monitor?.activeWorkspace?.id || 1;
+            if (!occupiedIds.includes(activeId)) {
+                occupiedIds.push(activeId);
+                occupiedIds.sort((a, b) => a - b);
+                if (occupiedIds.length > Config.workspaces.shown) {
+                    occupiedIds.pop();
+                }
+            }
+            
+            dynamicWorkspaceIds = occupiedIds;
+            workspaceOccupied = Array.from({length: dynamicWorkspaceIds.length}, () => true);
+        } else {
+            workspaceOccupied = Array.from({
+                length: Config.workspaces.shown
+            }, (_, i) => {
+                return Hyprland.workspaces.values.some(ws => ws.id === workspaceGroup * Config.workspaces.shown + i + 1);
+            });
+        }
     }
 
     function workspaceLabelFontSize(value) {
         const label = String(value);
         const shrink = label.length > 1 && label !== "10" ? (label.length - 1) * 2 : 0;
         return Math.round(Math.max(1, Config.theme.fontSize - shrink));
+    }
+
+    function getWorkspaceId(index) {
+        if (Config.workspaces.dynamic) {
+            return dynamicWorkspaceIds[index] || 1;
+        }
+        return workspaceGroup * Config.workspaces.shown + index + 1;
     }
 
     Component.onCompleted: updateWorkspaceOccupied()
@@ -61,12 +94,21 @@ Item {
         }
     }
 
+    Connections {
+        target: HyprlandData
+        function onWindowListChanged() {
+            if (Config.workspaces.dynamic) {
+                updateWorkspaceOccupied();
+            }
+        }
+    }
+
     onWorkspaceGroupChanged: {
         updateWorkspaceOccupied();
     }
 
-    implicitWidth: orientation === "vertical" ? baseSize : workspaceButtonSize * Config.workspaces.shown + widgetPadding * 2
-    implicitHeight: orientation === "vertical" ? workspaceButtonSize * Config.workspaces.shown + widgetPadding * 2 : baseSize
+    implicitWidth: orientation === "vertical" ? baseSize : workspaceButtonSize * effectiveWorkspaceCount + widgetPadding * 2
+    implicitHeight: orientation === "vertical" ? workspaceButtonSize * effectiveWorkspaceCount + widgetPadding * 2 : baseSize
 
     BgRect {
         id: bgRect
@@ -161,7 +203,7 @@ Item {
         implicitWidth: workspaceButtonWidth
 
         Repeater {
-            model: Config.workspaces.shown
+            model: effectiveWorkspaceCount
 
             Rectangle {
                 z: 1
@@ -340,11 +382,11 @@ Item {
         implicitHeight: workspaceButtonWidth
 
         Repeater {
-            model: Config.workspaces.shown
+            model: effectiveWorkspaceCount
 
             Button {
                 id: button
-                property int workspaceValue: workspaceGroup * Config.workspaces.shown + index + 1
+                property int workspaceValue: getWorkspaceId(index)
                 Layout.fillHeight: true
                 onPressed: Hyprland.dispatch(`workspace ${workspaceValue}`)
                 width: workspaceButtonWidth
@@ -469,11 +511,11 @@ Item {
         implicitWidth: workspaceButtonWidth
 
         Repeater {
-            model: Config.workspaces.shown
+            model: effectiveWorkspaceCount
 
             Button {
                 id: buttonVert
-                property int workspaceValue: workspaceGroup * Config.workspaces.shown + index + 1
+                property int workspaceValue: getWorkspaceId(index)
                 Layout.fillWidth: true
                 onPressed: Hyprland.dispatch(`workspace ${workspaceValue}`)
                 height: workspaceButtonWidth
