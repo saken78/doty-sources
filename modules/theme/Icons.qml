@@ -49,6 +49,25 @@ QtObject {
     readonly property string popOpen: ""
     readonly property string handGrab: ""
 
+    // Wi-Fi
+    readonly property string wifiOff: ""
+    readonly property string wifiNone: ""
+    readonly property string wifiLow: ""
+    readonly property string wifiMedium: ""
+    readonly property string wifiHigh: ""
+    readonly property string wifiX: ""
+
+    // Bluetooth
+    readonly property string bluetooth: ""
+    readonly property string bluetoothConnected: ""
+    readonly property string bluetoothOff: ""
+    readonly property string bluetoothX: ""
+
+    // Other Toggles
+    readonly property string nightLight: ""
+    readonly property string caffeine: ""
+    readonly property string gameMode: ""
+
     // Toolbox
     readonly property string toolbox: ""
     readonly property string regionScreenshot: ""
@@ -111,6 +130,10 @@ QtObject {
     readonly property string backspace: ""
     readonly property string enter: ""
     readonly property string shift: ""
+    readonly property string arrowUp: ""
+    readonly property string arrowDown: ""
+    readonly property string arrowLeft: ""
+    readonly property string arrowRight: ""
 
     // Misc
     readonly property string accept: ""
@@ -138,8 +161,4 @@ QtObject {
     readonly property string folder: ""
     readonly property string cactus: ""
     readonly property string countdown: ""
-    readonly property string arrowUp: ""
-    readonly property string arrowDown: ""
-    readonly property string arrowLeft: ""
-    readonly property string arrowRight: ""
 }
