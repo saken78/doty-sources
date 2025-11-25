@@ -761,6 +761,7 @@ Rectangle {
                             isToggled: true
                             enableIconRotation: true
                             iconRotation: (value / 1.0) * 180
+                            iconScale: 0.8 + (value / 1.0) * 0.2
 
                             property real brightnessValue: 0
                             property var currentMonitor: {

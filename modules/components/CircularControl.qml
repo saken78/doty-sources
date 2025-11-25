@@ -18,6 +18,7 @@ PaneRect {
 
     property real iconRotation: 0
     property bool enableIconRotation: false
+    property real iconScale: 1.0
     property real handleSpacing: 6
     property real handleSize: 8
     property real lineWidth: 4
@@ -148,7 +149,7 @@ PaneRect {
                 let remainingEnd = baseStartAngle + totalAngle;
 
                 if (remainingStart < remainingEnd) {
-                    ctx.strokeStyle = Colors.surfaceBright;
+                    ctx.strokeStyle = Colors.outline;
                     ctx.lineWidth = lineWidth;
                     ctx.beginPath();
                     ctx.arc(centerX, centerY, radius, remainingStart, remainingEnd, false);
@@ -187,6 +188,7 @@ PaneRect {
         font.family: Icons.font
         font.pixelSize: 18
         rotation: root.enableIconRotation ? root.iconRotation : 0
+        scale: root.iconScale
 
         Behavior on color {
             enabled: Config.animDuration > 0
@@ -197,6 +199,14 @@ PaneRect {
         }
 
         Behavior on rotation {
+            enabled: Config.animDuration > 0
+            NumberAnimation {
+                duration: 400
+                easing.type: Easing.OutCubic
+            }
+        }
+
+        Behavior on scale {
             enabled: Config.animDuration > 0
             NumberAnimation {
                 duration: 400
