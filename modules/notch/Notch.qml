@@ -427,31 +427,44 @@ Item {
             ctx.lineJoin = "round";
             ctx.lineCap = "round";
 
+            // Offset to move path inward by half the border width
+            var offset = borderWidth / 2;
+            
             var rTop = Config.roundness > 0 ? Config.roundness + 4 : 0;
             var bl = notchRect.bottomLeftRadius;
             var br = notchRect.bottomRightRadius;
             var wCenter = notchRect.width;
-            var yBottom = height - 1;
+            var yBottom = height - 1 - offset;
 
             ctx.beginPath();
             if (rTop > 0) {
-                ctx.moveTo(0, 0);
-                ctx.arc(0, rTop, rTop, 3 * Math.PI / 2, 2 * Math.PI); // to (rTop, rTop)
+                // Start at top-left, adjusted inward
+                ctx.moveTo(offset, offset);
+                // Left top corner arc - center at (offset, rTop), radius reduced by offset
+                ctx.arc(offset, rTop, rTop - offset, 3 * Math.PI / 2, 2 * Math.PI);
+                // This ends at (rTop, rTop)
             } else {
-                ctx.moveTo(0, 0);
+                ctx.moveTo(offset, offset);
                 ctx.lineTo(rTop, rTop);
             }
+            // Left vertical line down
             ctx.lineTo(rTop, yBottom - bl);
+            // Bottom left corner
             if (bl > 0) {
-                ctx.arcTo(rTop, yBottom, rTop + bl, yBottom, bl);
+                ctx.arcTo(rTop, yBottom, rTop + bl, yBottom, bl - offset);
             }
+            // Bottom horizontal line
             ctx.lineTo(rTop + wCenter - br, yBottom);
+            // Bottom right corner
             if (br > 0) {
-                ctx.arcTo(rTop + wCenter, yBottom, rTop + wCenter, yBottom - br, br);
+                ctx.arcTo(rTop + wCenter, yBottom, rTop + wCenter, yBottom - br, br - offset);
             }
+            // Right vertical line up
             ctx.lineTo(rTop + wCenter, rTop);
+            // Right top corner arc - center at (width - offset, rTop), from 180° to 270°
             if (rTop > 0) {
-                ctx.arc(rTop + wCenter + rTop, rTop, rTop, Math.PI, 3 * Math.PI / 2);
+                ctx.arc(width - offset, rTop, rTop - offset, Math.PI, 3 * Math.PI / 2);
+                // This ends at (width - offset - (rTop - offset), offset) = (width - rTop, offset)
             }
             ctx.stroke();
         }
