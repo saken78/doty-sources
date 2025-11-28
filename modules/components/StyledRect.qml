@@ -89,14 +89,29 @@ ClippingRectangle {
 
     // Linear gradient
     Rectangle {
-        readonly property real diagonal: Math.sqrt(parent.width * parent.width + parent.height * parent.height)
-        width: diagonal
-        height: diagonal
+        id: linearGrad
+        readonly property real maxDim: Math.max(parent.width, parent.height)
+        readonly property real angleRad: gradientAngle * Math.PI / 180
+        readonly property real cosAbs: Math.abs(Math.cos(angleRad))
+        readonly property real sinAbs: Math.abs(Math.sin(angleRad))
+        readonly property real scaleX: (parent.width * cosAbs + parent.height * sinAbs) / maxDim
+        readonly property real scaleY: (parent.height * cosAbs + parent.width * sinAbs) / maxDim
+        
+        width: maxDim
+        height: maxDim
         x: (parent.width - width) / 2
         y: (parent.height - height) / 2
         visible: gradientType === "linear"
         rotation: gradientAngle
         transformOrigin: Item.Center
+        
+        transform: Scale {
+            xScale: linearGrad.scaleX
+            yScale: linearGrad.scaleY
+            origin.x: linearGrad.width / 2
+            origin.y: linearGrad.height / 2
+        }
+        
         gradient: Gradient {
             orientation: gradientOrientation === "horizontal" ? Gradient.Horizontal : Gradient.Vertical
 

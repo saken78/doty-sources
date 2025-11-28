@@ -2871,9 +2871,10 @@ Item {
                             visible: previewPanel.currentItem !== null
 
                             // Open button (for files, images, and URLs)
-                            Rectangle {
+                            StyledRect {
                                 width: height
                                 height: 36
+                                variant: metadataOpenButtonMouseArea.containsMouse ? "focus" : "common"
                                 color: metadataOpenButtonMouseArea.containsMouse ? Colors.surfaceBright : Colors.surface
                                 radius: Config.roundness
                                 visible: {
@@ -2923,10 +2924,11 @@ Item {
                             }
 
                             // Drag button
-                            Rectangle {
+                            StyledRect {
                                 id: dragButton
                                 width: height
                                 height: 36
+                                variant: metadataDragArea.containsMouse ? "focus" : "common"
                                 color: metadataDragArea.containsMouse ? Colors.surfaceBright : Colors.surface
                                 radius: Config.roundness
 
