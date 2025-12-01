@@ -901,6 +901,93 @@ Item {
                         }
                     }
 
+                    highlight: Item {
+                        width: resultsList.width
+                        height: {
+                            let baseHeight = 48;
+                            if (resultsList.currentIndex === root.expandedItemIndex && !root.deleteMode && !root.aliasMode) {
+                                var itemData = itemsModel.get(resultsList.currentIndex).itemData;
+                                var optionsCount = 4;
+                                if (itemData.isFile || itemData.isImage || ClipboardUtils.isUrl(itemData.preview)) {
+                                    optionsCount++;
+                                }
+                                var listHeight = 36 * Math.min(3, optionsCount);
+                                return baseHeight + 4 + listHeight + 8;
+                            }
+                            return baseHeight;
+                        }
+                        
+                        // Calculate Y position based on index, not item position
+                        y: {
+                            var yPos = 0;
+                            for (var i = 0; i < resultsList.currentIndex && i < itemsModel.count; i++) {
+                                var itemHeight = 48;
+                                if (i === root.expandedItemIndex && !root.deleteMode && !root.aliasMode) {
+                                    var itemData = itemsModel.get(i).itemData;
+                                    var optionsCount = 4;
+                                    if (itemData.isFile || itemData.isImage || ClipboardUtils.isUrl(itemData.preview)) {
+                                        optionsCount++;
+                                    }
+                                    var listHeight = 36 * Math.min(3, optionsCount);
+                                    itemHeight = 48 + 4 + listHeight + 8;
+                                }
+                                yPos += itemHeight;
+                            }
+                            return yPos;
+                        }
+                        
+                        Behavior on y {
+                            enabled: Config.animDuration > 0
+                            NumberAnimation {
+                                duration: Config.animDuration / 2
+                                easing.type: Easing.OutCubic
+                            }
+                        }
+
+                        Behavior on height {
+                            enabled: Config.animDuration > 0
+                            NumberAnimation {
+                                duration: Config.animDuration
+                                easing.type: Easing.OutQuart
+                            }
+                        }
+                        
+                        onHeightChanged: {
+                            if (root.expandedItemIndex >= 0 && height > 48) {
+                                Qt.callLater(() => {
+                                    root.adjustScrollForExpandedItem(root.expandedItemIndex);
+                                });
+                            }
+                        }
+                        
+                        StyledRect {
+                            anchors.fill: parent
+                            variant: {
+                                if (root.deleteMode) {
+                                    return "error";
+                                } else if (root.aliasMode) {
+                                    return "secondary";
+                                } else if (root.expandedItemIndex >= 0 && root.selectedIndex === root.expandedItemIndex) {
+                                    return "pane";
+                                } else {
+                                    return "primary";
+                                }
+                            }
+                            radius: Config.roundness > 0 ? Config.roundness + 4 : 0
+                            visible: root.selectedIndex >= 0
+
+                            Behavior on color {
+                                enabled: Config.animDuration > 0
+                                ColorAnimation {
+                                    duration: Config.animDuration / 2
+                                    easing.type: Easing.OutQuart
+                                }
+                            }
+                        }
+                    }
+
+                    highlightFollowsCurrentItem: false
+
                     delegate: Rectangle {
                         required property string itemId
                         required property var itemData
@@ -923,6 +1010,14 @@ Item {
                         }
                         color: "transparent"
                         radius: 16
+
+                        Behavior on y {
+                            enabled: Config.animDuration > 0
+                            NumberAnimation {
+                                duration: Config.animDuration / 2
+                                easing.type: Easing.OutCubic
+                            }
+                        }
 
                         Behavior on height {
                             enabled: Config.animDuration > 0
@@ -2014,24 +2109,6 @@ Item {
                             }
                         }
                     }
-
-                    highlight: Item {
-                        width: resultsList.width
-                        height: {
-                            let baseHeight = 48;
-                            if (resultsList.currentIndex === root.expandedItemIndex && !root.deleteMode && !root.aliasMode) {
-                                var itemData = itemsModel.get(resultsList.currentIndex).itemData;
-                                var optionsCount = 4;
-                                if (itemData.isFile || itemData.isImage || ClipboardUtils.isUrl(itemData.preview)) {
-                                    optionsCount++;
-                                }
-                                var listHeight = 36 * Math.min(3, optionsCount);
-                                return baseHeight + 4 + listHeight + 8;
-                            }
-                        }
-                    }
-
-                    highlightFollowsCurrentItem: false
                 }
 
                 MouseArea {
