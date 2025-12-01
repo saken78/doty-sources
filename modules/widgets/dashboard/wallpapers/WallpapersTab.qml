@@ -679,7 +679,7 @@ FocusScope {
                                                     }
                                                     return "";
                                                 }
-                                                color: parent.parent.isCurrentWallpaper ? Config.resolveColor(Config.theme.srPrimary.itemColor) : Colors.overBackground
+                                                color: parent.parent.isCurrentWallpaper ? Config.resolveColor(Config.theme.srOverPrimary.itemColor) : Colors.overBackground
                                                 font.family: Config.theme.font
                                                 font.pixelSize: Config.theme.fontSize
                                                 font.weight: Font.Bold
