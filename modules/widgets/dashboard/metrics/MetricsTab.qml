@@ -16,6 +16,7 @@ Rectangle {
     implicitHeight: 400
 
     property string hostname: ""
+    property string osName: ""
     property real chartZoom: 1.0
 
     // Adjust history points based on zoom and repaint chart
@@ -39,6 +40,7 @@ Rectangle {
         // Limit zoom range: 0.2 (show all available) to 3.0 (zoom in)
         chartZoom = Math.max(0.2, Math.min(3.0, savedZoom));
         hostnameReader.running = true;
+        osReader.running = true;
     }
 
     // Get hostname
@@ -53,6 +55,23 @@ Rectangle {
                 const host = text.trim();
                 if (host) {
                     root.hostname = host.charAt(0).toUpperCase() + host.slice(1);
+                }
+            }
+        }
+    }
+
+    // Get OS name
+    Process {
+        id: osReader
+        running: false
+        command: ["sh", "-c", "grep PRETTY_NAME /etc/os-release | cut -d= -f2 | tr -d '\"'"]
+
+        stdout: StdioCollector {
+            waitForEnd: true
+            onStreamFinished: {
+                const os = text.trim();
+                if (os) {
+                    root.osName = os;
                 }
             }
         }
@@ -81,63 +100,153 @@ Rectangle {
                 anchors.fill: parent
                 spacing: 8
 
-                // User avatar
-                Rectangle {
-                    id: avatarContainer
-                    Layout.alignment: Qt.AlignHCenter
+                // User info section - Avatar left, info right
+                RowLayout {
+                    Layout.fillWidth: true
                     Layout.topMargin: 8
-                    width: 100
-                    height: 100
-                    radius: Config.roundness > 0 ? (height / 2) * (Config.roundness / 16) : 0
-                    color: "transparent"
+                    Layout.leftMargin: 16
+                    Layout.rightMargin: 16
+                    spacing: 12
 
-                    Image {
-                        id: userAvatar
-                        anchors.fill: parent
-                        source: `file://${Quickshell.env("HOME")}/.face.icon`
-                        fillMode: Image.PreserveAspectCrop
-                        smooth: true
-                        asynchronous: true
-                        visible: status === Image.Ready
+                    // User avatar
+                    Rectangle {
+                        id: avatarContainer
+                        Layout.preferredWidth: 80
+                        Layout.preferredHeight: 80
+                        radius: Config.roundness > 0 ? (height / 2) * (Config.roundness / 16) : 0
+                        color: "transparent"
 
-                        layer.enabled: true
-                        layer.effect: MultiEffect {
-                            maskEnabled: true
-                            maskThresholdMin: 0.5
-                            maskSpreadAtMin: 1.0
-                            maskSource: ShaderEffectSource {
-                                sourceItem: Rectangle {
-                                    width: userAvatar.width
-                                    height: userAvatar.height
-                                    radius: Config.roundness > 0 ? (height / 2) * (Config.roundness / 16) : 0
+                        Image {
+                            id: userAvatar
+                            anchors.fill: parent
+                            source: `file://${Quickshell.env("HOME")}/.face.icon`
+                            fillMode: Image.PreserveAspectCrop
+                            smooth: true
+                            asynchronous: true
+                            visible: status === Image.Ready
+
+                            layer.enabled: true
+                            layer.effect: MultiEffect {
+                                maskEnabled: true
+                                maskThresholdMin: 0.5
+                                maskSpreadAtMin: 1.0
+                                maskSource: ShaderEffectSource {
+                                    sourceItem: Rectangle {
+                                        width: userAvatar.width
+                                        height: userAvatar.height
+                                        radius: Config.roundness > 0 ? (height / 2) * (Config.roundness / 16) : 0
+                                    }
                                 }
                             }
                         }
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: Icons.user
+                            font.family: Icons.font
+                            font.pixelSize: 48
+                            color: Colors.overSurfaceVariant
+                            visible: userAvatar.status !== Image.Ready
+                        }
                     }
 
-                    Text {
-                        anchors.centerIn: parent
-                        text: Icons.user
-                        font.family: Icons.font
-                        font.pixelSize: 64
-                        color: Colors.overSurfaceVariant
-                        visible: userAvatar.status !== Image.Ready
+                    // User info column
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 4
+
+                        // Username
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 8
+
+                            Text {
+                                text: Icons.user
+                                font.family: Icons.font
+                                font.pixelSize: Config.theme.fontSize + 2
+                                color: Colors.primary
+                            }
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: Quickshell.env("USER") || "user"
+                                font.family: Config.theme.font
+                                font.pixelSize: Config.theme.fontSize
+                                font.weight: Font.Medium
+                                color: Colors.overBackground
+                                elide: Text.ElideRight
+                            }
+                        }
+
+                        // Hostname
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 8
+
+                            Text {
+                                text: Icons.at
+                                font.family: Icons.font
+                                font.pixelSize: Config.theme.fontSize + 2
+                                color: Colors.primary
+                            }
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: root.hostname ? root.hostname.toLowerCase() : "hostname"
+                                font.family: Config.theme.font
+                                font.pixelSize: Config.theme.fontSize
+                                font.weight: Font.Medium
+                                color: Colors.overBackground
+                                elide: Text.ElideRight
+                            }
+                        }
+
+                        // OS
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 8
+
+                            Text {
+                                text: Icons.linux
+                                font.family: Icons.font
+                                font.pixelSize: Config.theme.fontSize + 2
+                                color: Colors.primary
+                            }
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: root.osName || "Linux"
+                                font.family: Config.theme.font
+                                font.pixelSize: Config.theme.fontSize
+                                font.weight: Font.Medium
+                                color: Colors.overBackground
+                                elide: Text.ElideRight
+                            }
+                        }
                     }
                 }
 
-                // Username@Hostname
-                Text {
-                    Layout.alignment: Qt.AlignHCenter
-                    Layout.bottomMargin: 8
-                    text: {
-                        const user = Quickshell.env("USER") || "user";
-                        return root.hostname ? `${user}@${root.hostname.toLowerCase()}` : user;
+                // System separator
+                RowLayout {
+                    Layout.fillWidth: true
+                    Layout.leftMargin: 16
+                    Layout.rightMargin: 16
+                    Layout.topMargin: 4
+                    spacing: 8
+
+                    Text {
+                        text: "System"
+                        font.family: Config.theme.font
+                        font.pixelSize: Config.theme.fontSize - 2
+                        color: Colors.overBackground
                     }
-                    font.family: Config.theme.font
-                    font.pixelSize: Config.theme.fontSize
-                    font.weight: Font.Bold
-                    color: Colors.overBackground
-                    visible: text !== ""
+
+                    Separator {
+                        Layout.preferredHeight: 2
+                        Layout.fillWidth: true
+                        gradient: null
+                        color: Colors.surface
+                    }
                 }
 
                 Flickable {
