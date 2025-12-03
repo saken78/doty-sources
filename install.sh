@@ -84,6 +84,98 @@ fi
 
 echo "ℹ ddcutil requires i2c group + udev rules if not already set."
 
+# === Configure fontconfig to recognize Nix fonts ===
+echo "🔤 Setting up fontconfig for Nix fonts..."
+
+mkdir -p ~/.config/fontconfig/conf.d
+
+if [ ! -f ~/.config/fontconfig/conf.d/10-nix-fonts.conf ]; then
+  echo "📝 Creating user fontconfig..."
+  cat > ~/.config/fontconfig/conf.d/10-nix-fonts.conf <<EOF
+<?xml version="1.0"?>
+<!DOCTYPE fontconfig SYSTEM "fonts.dtd">
+<fontconfig>
+  <dir>~/.nix-profile/share/fonts</dir>
+</fontconfig>
+EOF
+else
+  echo "✔ User fontconfig already exists"
+fi
+
+if [ ! -f /etc/fonts/conf.d/90-nix-fonts.conf ]; then
+  echo "📝 Creating system fontconfig (requires sudo)..."
+  sudo mkdir -p /etc/fonts/conf.d
+  sudo tee /etc/fonts/conf.d/90-nix-fonts.conf >/dev/null <<EOF
+<?xml version="1.0"?>
+<!DOCTYPE fontconfig SYSTEM "fonts.dtd">
+<fontconfig>
+  <dir>/nix/var/nix/profiles/default/share/fonts</dir>
+</fontconfig>
+EOF
+  echo "✔ System fontconfig created"
+else
+  echo "✔ System fontconfig already exists"
+fi
+
+echo "🔄 Rebuilding font cache..."
+fc-cache -fv >/dev/null 2>&1
+if command -v sudo >/dev/null 2>&1; then
+  sudo fc-cache -fv >/dev/null 2>&1
+fi
+echo "✔ Font cache updated"
+
+# === Configure icon theme paths for Nix ===
+echo "🎨 Setting up icon theme paths for Nix..."
+
+# Add Nix icon paths to XDG_DATA_DIRS if not already present
+SHELL_RC=""
+if [ -n "$BASH_VERSION" ]; then
+  SHELL_RC="$HOME/.bashrc"
+elif [ -n "$ZSH_VERSION" ]; then
+  SHELL_RC="$HOME/.zshrc"
+else
+  # Try to detect shell from SHELL env var
+  case "$SHELL" in
+    */bash) SHELL_RC="$HOME/.bashrc" ;;
+    */zsh) SHELL_RC="$HOME/.zshrc" ;;
+    */fish) SHELL_RC="$HOME/.config/fish/config.fish" ;;
+  esac
+fi
+
+if [ -n "$SHELL_RC" ] && [ -f "$SHELL_RC" ]; then
+  if ! grep -q "XDG_DATA_DIRS.*nix/var/nix/profiles" "$SHELL_RC" 2>/dev/null; then
+    echo "📝 Adding Nix icon paths to $SHELL_RC..."
+    cat >> "$SHELL_RC" <<'EOF'
+
+# Nix icon theme paths
+export XDG_DATA_DIRS="$HOME/.nix-profile/share:/nix/var/nix/profiles/default/share:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
+EOF
+    echo "✔ Icon paths added to shell config"
+    echo "⚠ Run 'source $SHELL_RC' or restart your shell to apply changes"
+  else
+    echo "✔ Icon paths already in shell config"
+  fi
+else
+  echo "⚠ Could not detect shell config file. Add this to your shell RC manually:"
+  echo '   export XDG_DATA_DIRS="$HOME/.nix-profile/share:/nix/var/nix/profiles/default/share:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"'
+fi
+
+# Also set for current session
+export XDG_DATA_DIRS="$HOME/.nix-profile/share:/nix/var/nix/profiles/default/share:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
+
+# Update icon cache if gtk-update-icon-cache is available
+if command -v gtk-update-icon-cache >/dev/null 2>&1; then
+  echo "🔄 Updating icon cache..."
+  for icon_dir in "$HOME/.nix-profile/share/icons"/* "/nix/var/nix/profiles/default/share/icons"/*; do
+    if [ -d "$icon_dir" ]; then
+      gtk-update-icon-cache -f -t "$icon_dir" 2>/dev/null || true
+    fi
+  done
+  echo "✔ Icon cache updated"
+else
+  echo "ℹ gtk-update-icon-cache not found, skipping icon cache update"
+fi
+
 # === Compile ambxst-auth if missing OR if source updated ===
 INSTALL_DIR="$HOME/.local/bin"
 mkdir -p "$INSTALL_DIR"
