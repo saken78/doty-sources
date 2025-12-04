@@ -394,45 +394,6 @@ FloatingWindow {
                         }
 
                         Item { Layout.fillHeight: true }
-
-                        // Close button
-                        Button {
-                            id: closeButton
-                            Layout.fillWidth: true
-                            Layout.preferredHeight: 40
-
-                            background: StyledRect {
-                                variant: closeButton.hovered ? "error" : "common"
-                            }
-
-                            contentItem: RowLayout {
-                                spacing: 8
-
-                                Text {
-                                    text: Icons.cancel
-                                    font.family: Icons.font
-                                    font.pixelSize: 18
-                                    color: closeButton.hovered ? Colors.overError : Colors.overBackground
-                                    Layout.alignment: Qt.AlignVCenter
-                                }
-
-                                Text {
-                                    text: "Close"
-                                    font.family: Styling.defaultFont
-                                    font.pixelSize: Config.theme.fontSize
-                                    color: closeButton.hovered ? Colors.overError : Colors.overBackground
-                                    Layout.fillWidth: true
-                                    Layout.alignment: Qt.AlignVCenter
-                                }
-                            }
-
-                            onClicked: {
-                                if (root.hasChanges) {
-                                    root.discardChanges();
-                                }
-                                GlobalStates.themeEditorVisible = false;
-                            }
-                        }
                     }
                 }
 

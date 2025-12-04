@@ -53,7 +53,8 @@ Item {
 
             onActivated: index => {
                 if (index === 0) {
-                    // Custom selected, don't change anything
+                    // Custom selected - emit current hex value to switch mode
+                    root.colorChanged(root.displayHex);
                     return;
                 }
                 const colorName = root.colorNames[index - 1];
@@ -189,6 +190,7 @@ Item {
             Layout.preferredWidth: 110
             Layout.preferredHeight: 40
             variant: hexInput.activeFocus ? "focus" : "common"
+            opacity: root.isHexColor ? 1.0 : 0.5
 
             RowLayout {
                 anchors.fill: parent
@@ -215,12 +217,14 @@ Item {
                     verticalAlignment: Text.AlignVCenter
                     selectByMouse: true
                     maximumLength: 8 // RRGGBBAA
+                    readOnly: !root.isHexColor
 
                     validator: RegularExpressionValidator {
                         regularExpression: /[0-9A-Fa-f]{0,8}/
                     }
 
                     Keys.onReturnPressed: {
+                        if (!root.isHexColor) return;
                         let hex = text.trim();
                         if (hex.length >= 6) {
                             root.colorChanged("#" + hex);
@@ -228,6 +232,7 @@ Item {
                     }
 
                     Keys.onEnterPressed: {
+                        if (!root.isHexColor) return;
                         let hex = text.trim();
                         if (hex.length >= 6) {
                             root.colorChanged("#" + hex);
@@ -235,6 +240,7 @@ Item {
                     }
 
                     onEditingFinished: {
+                        if (!root.isHexColor) return;
                         let hex = text.trim();
                         if (hex.length >= 6) {
                             root.colorChanged("#" + hex);
@@ -242,6 +248,7 @@ Item {
                     }
 
                     onTextChanged: {
+                        if (!root.isHexColor) return;
                         // Auto-apply when 6 or 8 characters
                         if (text.length === 6 || text.length === 8) {
                             applyTimer.restart();
@@ -252,7 +259,7 @@ Item {
                         id: applyTimer
                         interval: 500
                         onTriggered: {
-                            if (hexInput.text.length >= 6) {
+                            if (root.isHexColor && hexInput.text.length >= 6) {
                                 root.colorChanged("#" + hexInput.text);
                             }
                         }
