@@ -365,6 +365,17 @@ StyledRect {
                 }
             }
 
+            // === GRADIENT STOPS (for linear/radial) ===
+            GradientStopsEditor {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 220
+                colorNames: root.colorNames
+                stops: root.variantConfig ? root.variantConfig.gradient : []
+                variantId: root.variantId
+                visible: root.variantConfig && root.variantConfig.gradientType !== "halftone"
+                onUpdateStops: newStops => root.updateProp("gradient", newStops)
+            }
+
             // === TYPE-SPECIFIC SETTINGS ===
             // Linear settings
             ColumnLayout {
@@ -768,17 +779,6 @@ StyledRect {
                         }
                     }
                 }
-            }
-
-            // === GRADIENT STOPS (for linear/radial) ===
-            GradientStopsEditor {
-                Layout.fillWidth: true
-                Layout.preferredHeight: 220
-                colorNames: root.colorNames
-                stops: root.variantConfig ? root.variantConfig.gradient : []
-                variantId: root.variantId
-                visible: root.variantConfig && root.variantConfig.gradientType !== "halftone"
-                onUpdateStops: newStops => root.updateProp("gradient", newStops)
             }
 
             // Spacer
