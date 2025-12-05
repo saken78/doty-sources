@@ -334,6 +334,7 @@ StyledRect {
                                         }
 
                                         text: currentHex
+                                        onCurrentHexChanged: text = currentHex
                                         font.family: "monospace"
                                         font.pixelSize: Styling.fontSize(0)
                                         color: Colors.overBackground
@@ -345,15 +346,22 @@ StyledRect {
                                             regularExpression: /[0-9A-Fa-f]{0,8}/
                                         }
 
-                                        onEditingFinished: {
+                                        onTextEdited: {
+                                            // Solo aplicar cuando el usuario escribe manualmente
                                             let hex = text.trim();
-                                            if (hex.length >= 6) {
+                                            if (hex.length === 6 || hex.length === 8) {
                                                 root.updateProp("itemColor", "#" + hex.toUpperCase());
                                             }
                                         }
 
-                                        Keys.onReturnPressed: editingFinished()
-                                        Keys.onEnterPressed: editingFinished()
+                                        Keys.onReturnPressed: {
+                                            let hex = text.trim();
+                                            if (hex.length >= 6) {
+                                                root.updateProp("itemColor", "#" + hex.toUpperCase());
+                                            }
+                                            focus = false;
+                                        }
+                                        Keys.onEnterPressed: Keys.onReturnPressed(event)
                                     }
 
                                     Text {
@@ -941,6 +949,7 @@ StyledRect {
                                             }
 
                                             text: currentHex
+                                            onCurrentHexChanged: text = currentHex
                                             font.family: "monospace"
                                             font.pixelSize: Styling.fontSize(0)
                                             color: Colors.overBackground
@@ -952,15 +961,21 @@ StyledRect {
                                                 regularExpression: /[0-9A-Fa-f]{0,8}/
                                             }
 
-                                            onEditingFinished: {
+                                            onTextEdited: {
                                                 let hex = text.trim();
-                                                if (hex.length >= 6) {
+                                                if (hex.length === 6 || hex.length === 8) {
                                                     root.updateProp("halftoneDotColor", "#" + hex.toUpperCase());
                                                 }
                                             }
 
-                                            Keys.onReturnPressed: editingFinished()
-                                            Keys.onEnterPressed: editingFinished()
+                                            Keys.onReturnPressed: {
+                                                let hex = text.trim();
+                                                if (hex.length >= 6) {
+                                                    root.updateProp("halftoneDotColor", "#" + hex.toUpperCase());
+                                                }
+                                                focus = false;
+                                            }
+                                            Keys.onEnterPressed: Keys.onReturnPressed(event)
                                         }
 
                                         Text {
@@ -1158,6 +1173,7 @@ StyledRect {
                                             }
 
                                             text: currentHex
+                                            onCurrentHexChanged: text = currentHex
                                             font.family: "monospace"
                                             font.pixelSize: Styling.fontSize(0)
                                             color: Colors.overBackground
@@ -1169,15 +1185,21 @@ StyledRect {
                                                 regularExpression: /[0-9A-Fa-f]{0,8}/
                                             }
 
-                                            onEditingFinished: {
+                                            onTextEdited: {
                                                 let hex = text.trim();
-                                                if (hex.length >= 6) {
+                                                if (hex.length === 6 || hex.length === 8) {
                                                     root.updateProp("halftoneBackgroundColor", "#" + hex.toUpperCase());
                                                 }
                                             }
 
-                                            Keys.onReturnPressed: editingFinished()
-                                            Keys.onEnterPressed: editingFinished()
+                                            Keys.onReturnPressed: {
+                                                let hex = text.trim();
+                                                if (hex.length >= 6) {
+                                                    root.updateProp("halftoneBackgroundColor", "#" + hex.toUpperCase());
+                                                }
+                                                focus = false;
+                                            }
+                                            Keys.onEnterPressed: Keys.onReturnPressed(event)
                                         }
 
                                         Text {
