@@ -59,6 +59,8 @@ QtObject {
     readonly property string temperature: ""
     readonly property string at: ""
     readonly property string gear: ""
+    readonly property string glassMinus: ""
+    readonly property string glassPlus: ""
 
     // Wi-Fi
     readonly property string wifiOff: ""
