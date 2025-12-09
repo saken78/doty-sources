@@ -42,7 +42,8 @@ FocusScope {
     }
 
     // Configuración del Flickable
-    height: 32 + 4 + scrollBar.implicitHeight
+    height: 32 + (scrollBar.visible ? 4 + scrollBar.implicitHeight : 0)
+    implicitWidth: filterRow.width
 
     onActiveFocusChanged: {
         if (!activeFocus) {

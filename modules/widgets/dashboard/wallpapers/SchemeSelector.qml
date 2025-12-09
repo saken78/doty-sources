@@ -83,10 +83,11 @@ Item {
         return map[scheme] || scheme;
     }
 
-    Layout.fillWidth: true
-    Layout.preferredHeight: schemeListExpanded ? 40 + 4 + (40 * 3) + 8 : 48
+    // Layout properties (can be overridden by parent)
+    implicitWidth: 200
+    implicitHeight: schemeListExpanded ? 40 + 4 + (40 * 3) + 8 : 48
 
-    Behavior on Layout.preferredHeight {
+    Behavior on implicitHeight {
         enabled: Config.animDuration > 0
         NumberAnimation {
             duration: Config.animDuration
