@@ -13,9 +13,18 @@ QtObject {
     property bool trusted: false
     property int battery: -1
     property bool batteryAvailable: battery >= 0
+    property bool connecting: false
 
+    // Connect with auto-trust for new devices
     function connect() {
-        BluetoothService.connectDevice(address);
+        connecting = true;
+        if (!trusted) {
+            // Trust first, then connect
+            trustThenConnectProcess.command = ["bash", "-c", `bluetoothctl trust ${address} && bluetoothctl connect ${address}`];
+            trustThenConnectProcess.running = true;
+        } else {
+            BluetoothService.connectDevice(address);
+        }
     }
 
     function disconnect() {
@@ -37,6 +46,18 @@ QtObject {
     function updateInfo() {
         infoProcess.command = ["bash", "-c", `bluetoothctl info ${address}`];
         infoProcess.running = true;
+    }
+
+    property Process trustThenConnectProcess: Process {
+        running: false
+        environment: ({
+            LANG: "C",
+            LC_ALL: "C"
+        })
+        onExited: (exitCode, exitStatus) => {
+            root.connecting = false;
+            root.updateInfo();
+        }
     }
 
     property Process infoProcess: Process {
@@ -62,6 +83,7 @@ QtObject {
                     root.paired = trimmed.includes("yes");
                 } else if (trimmed.startsWith("Connected:")) {
                     root.connected = trimmed.includes("yes");
+                    if (root.connected) root.connecting = false;
                 } else if (trimmed.startsWith("Trusted:")) {
                     root.trusted = trimmed.includes("yes");
                 } else if (trimmed.startsWith("Icon:")) {

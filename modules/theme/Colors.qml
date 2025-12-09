@@ -204,4 +204,8 @@ FileView {
 
     property color criticalText: "#FF6B08"
     property color criticalRed: "#FF0028"
+
+    // Semantic aliases
+    property color warning: adapter.yellow
+    property color success: adapter.green
 }

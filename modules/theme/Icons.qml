@@ -187,4 +187,39 @@ QtObject {
     readonly property string alignJustify: ""
     readonly property string markdown: ""
     readonly property string faders: ""
+
+    // Bluetooth device types (TODO: find appropriate Phosphor icons)
+    readonly property string headphones: ""      // Headphones/audio headset icon
+    readonly property string mouse: ""           // Computer mouse icon
+    readonly property string phone: ""           // Smartphone/mobile phone icon
+    readonly property string watch: ""           // Smartwatch icon
+    readonly property string gamepad: ""         // Game controller icon
+    readonly property string printer: ""         // Printer icon
+    readonly property string camera: ""          // Camera icon
+    readonly property string speaker: ""         // External speaker icon
+
+    // Battery levels (TODO: find battery level Phosphor icons)
+    readonly property string batteryFull: ""     // Battery 100% icon
+    readonly property string batteryHigh: ""     // Battery 75% icon
+    readonly property string batteryMedium: ""   // Battery 50% icon
+    readonly property string batteryLow: ""      // Battery 25% icon
+    readonly property string batteryEmpty: ""    // Battery empty/critical icon
+    readonly property string batteryCharging: "" // Battery charging icon
+
+    // Audio/EasyEffects
+    readonly property string waveform: ""        // Audio waveform/equalizer icon
+    readonly property string sparkle: ""         // Effects/magic sparkle icon
+
+    // Network extras
+    readonly property string ethernet: ""        // Ethernet/LAN cable icon
+    readonly property string router: ""          // Router/access point icon
+    readonly property string signalNone: ""      // No signal icon
+    readonly property string vpn: ""             // VPN/shield lock icon
+
+    // External apps
+    readonly property string externalLink: ""    // Open in external app icon
+
+    // Protection/Security
+    readonly property string shieldCheck: ""     // Shield with checkmark icon
+    readonly property string shield: ""          // Shield icon
 }

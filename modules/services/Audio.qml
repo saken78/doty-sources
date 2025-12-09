@@ -4,10 +4,12 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import Quickshell
 import Quickshell.Services.Pipewire
+import qs.config
 
 /**
  * A nice wrapper for default Pipewire audio sink and source.
  * Provides volume control, mute toggling, and access to app nodes and devices.
+ * Includes volume protection to prevent sudden loud spikes ("ear-bang" protection).
  */
 Singleton {
     id: root
@@ -17,6 +19,12 @@ Singleton {
     property PwNode source: Pipewire.defaultAudioSource
     readonly property real hardMaxValue: 2.00
     property real value: sink?.audio?.volume ?? 0
+
+    // Volume protection settings
+    readonly property bool protectionEnabled: Config.volumeProtection?.enabled ?? true
+    readonly property real maxVolumeJump: Config.volumeProtection?.maxJump ?? 0.15  // 15% max jump
+    readonly property real safeMaxVolume: Config.volumeProtection?.safeMax ?? 0.80  // 80% safe maximum
+    property bool protectionTriggered: false
 
     signal sinkProtectionTriggered(string reason);
 
@@ -56,6 +64,41 @@ Singleton {
     readonly property list<var> outputDevices: root.devices(true)
     readonly property list<var> inputDevices: root.devices(false)
 
+    // Volume protection - limit sudden jumps
+    function protectedSetVolume(node, targetVolume: real, currentVolume: real) {
+        if (!root.protectionEnabled) {
+            return targetVolume;
+        }
+
+        const jump = targetVolume - currentVolume;
+        
+        // Only protect against increases, not decreases
+        if (jump <= 0) {
+            root.protectionTriggered = false;
+            return targetVolume;
+        }
+
+        // Check if jump exceeds maximum
+        if (jump > root.maxVolumeJump) {
+            root.protectionTriggered = true;
+            root.sinkProtectionTriggered("Volume jump limited");
+            
+            // Clear the trigger after a short delay
+            protectionResetTimer.restart();
+            
+            return currentVolume + root.maxVolumeJump;
+        }
+
+        root.protectionTriggered = false;
+        return targetVolume;
+    }
+
+    Timer {
+        id: protectionResetTimer
+        interval: 1500
+        onTriggered: root.protectionTriggered = false
+    }
+
     // Control functions
     function toggleMute() {
         if (sink?.audio) {
@@ -87,13 +130,24 @@ Singleton {
 
     function setVolume(volume: real) {
         if (sink?.audio) {
-            sink.audio.volume = Math.max(0, Math.min(hardMaxValue, volume));
+            const current = sink.audio.volume;
+            const safeVolume = protectedSetVolume(sink, volume, current);
+            sink.audio.volume = Math.max(0, Math.min(hardMaxValue, safeVolume));
         }
     }
 
     function setMicVolume(volume: real) {
         if (source?.audio) {
             source.audio.volume = Math.max(0, Math.min(hardMaxValue, volume));
+        }
+    }
+
+    // Set node volume with protection
+    function setNodeVolume(node, volume: real) {
+        if (node?.audio) {
+            const current = node.audio.volume;
+            const safeVolume = protectedSetVolume(node, volume, current);
+            node.audio.volume = Math.max(0, Math.min(hardMaxValue, safeVolume));
         }
     }
 

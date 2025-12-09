@@ -24,6 +24,7 @@ Item {
 
     readonly property bool isMuted: root.node?.audio?.muted ?? false
     readonly property real volume: root.node?.audio?.volume ?? 0
+    property real lastSetVolume: volume
 
     RowLayout {
         anchors.fill: parent
@@ -81,7 +82,7 @@ Item {
 
             StyledToolTip {
                 visible: muteButton.hovered
-                tooltipText: root.isMainDevice 
+                text: root.isMainDevice 
                     ? (root.isMuted ? "Unmute" : "Mute")
                     : Audio.appNodeDisplayName(root.node)
             }
@@ -89,27 +90,63 @@ Item {
 
         // Volume slider
         StyledSlider {
+            id: volumeSlider
             Layout.fillWidth: true
             Layout.fillHeight: true
             value: root.volume
-            progressColor: root.isMuted ? Colors.outline : Colors.primary
+            progressColor: {
+                if (root.isMuted) return Colors.outline;
+                if (Audio.protectionTriggered && root.isMainDevice) return Colors.warning;
+                return Colors.primary;
+            }
             resizeParent: false
 
             onValueChanged: {
-                if (root.node?.audio) {
-                    root.node.audio.volume = value;
+                if (root.node?.audio && Math.abs(value - root.volume) > 0.001) {
+                    // Use protected volume setter
+                    Audio.setNodeVolume(root.node, value);
                 }
+            }
+
+            Behavior on progressColor {
+                enabled: Config.animDuration > 0
+                ColorAnimation { duration: Config.animDuration / 2 }
             }
         }
 
-        // Volume percentage
-        Text {
-            Layout.preferredWidth: 40
-            text: `${Math.round(root.volume * 100)}%`
-            font.family: Config.theme.font
-            font.pixelSize: Config.theme.fontSize - 2
-            color: Colors.overSurfaceVariant
-            horizontalAlignment: Text.AlignRight
+        // Volume percentage with protection indicator
+        RowLayout {
+            Layout.preferredWidth: 50
+            spacing: 4
+
+            // Protection indicator
+            Text {
+                visible: Audio.protectionTriggered && root.isMainDevice
+                text: Icons.shieldCheck
+                font.family: Icons.font
+                font.pixelSize: 12
+                color: Colors.warning
+
+                StyledToolTip {
+                    visible: parent.visible && protectionIndicatorMa.containsMouse
+                    text: "Volume protection active"
+                }
+
+                MouseArea {
+                    id: protectionIndicatorMa
+                    anchors.fill: parent
+                    hoverEnabled: true
+                }
+            }
+
+            Text {
+                text: `${Math.round(root.volume * 100)}%`
+                font.family: Config.theme.font
+                font.pixelSize: Config.theme.fontSize - 2
+                color: Colors.overSurfaceVariant
+                horizontalAlignment: Text.AlignRight
+                Layout.fillWidth: true
+            }
         }
     }
 }

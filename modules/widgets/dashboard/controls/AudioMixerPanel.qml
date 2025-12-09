@@ -3,6 +3,8 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import Quickshell
+import Quickshell.Io
 import Quickshell.Services.Pipewire
 import qs.modules.theme
 import qs.modules.components
@@ -56,6 +58,45 @@ Item {
                 }
 
                 onClicked: root.showOutput = !root.showOutput
+
+                StyledToolTip {
+                    visible: toggleButton.hovered
+                    text: root.showOutput ? "Switch to Input" : "Switch to Output"
+                }
+            }
+
+            // Open pavucontrol button
+            Button {
+                id: settingsButton
+                flat: true
+                implicitWidth: 32
+                implicitHeight: 32
+
+                background: StyledRect {
+                    variant: settingsButton.hovered ? "focus" : "common"
+                    radius: Styling.radius(4)
+                }
+
+                contentItem: Text {
+                    text: Icons.externalLink
+                    font.family: Icons.font
+                    font.pixelSize: 16
+                    color: Colors.overBackground
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                }
+
+                property Process launchProcess: Process {
+                    command: ["pavucontrol"]
+                    running: false
+                }
+
+                onClicked: launchProcess.running = true
+
+                StyledToolTip {
+                    visible: settingsButton.hovered
+                    text: "Open Volume Control"
+                }
             }
         }
 

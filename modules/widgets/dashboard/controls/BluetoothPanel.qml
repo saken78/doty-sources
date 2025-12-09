@@ -3,6 +3,8 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import Quickshell
+import Quickshell.Io
 import qs.modules.theme
 import qs.modules.components
 import qs.modules.services
@@ -128,11 +130,45 @@ Item {
             }
         }
 
-        // Footer with scan button
+        // Footer with scan button and external settings
         RowLayout {
             Layout.fillWidth: true
             Layout.preferredHeight: 32
             spacing: 8
+
+            // Open Blueman button
+            Button {
+                id: settingsButton
+                flat: true
+                implicitWidth: 32
+                implicitHeight: 32
+
+                background: StyledRect {
+                    variant: settingsButton.hovered ? "focus" : "common"
+                    radius: Styling.radius(4)
+                }
+
+                contentItem: Text {
+                    text: Icons.externalLink
+                    font.family: Icons.font
+                    font.pixelSize: 16
+                    color: Colors.overBackground
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                }
+
+                property Process launchProcess: Process {
+                    command: ["blueman-manager"]
+                    running: false
+                }
+
+                onClicked: launchProcess.running = true
+
+                StyledToolTip {
+                    visible: settingsButton.hovered
+                    text: "Open Blueman"
+                }
+            }
 
             Item { Layout.fillWidth: true }
 
@@ -158,6 +194,11 @@ Item {
                 }
 
                 onClicked: BluetoothService.startDiscovery()
+
+                StyledToolTip {
+                    visible: scanButton.hovered
+                    text: "Scan for devices"
+                }
             }
         }
     }

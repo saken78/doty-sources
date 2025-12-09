@@ -3,6 +3,7 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import Quickshell
 import qs.modules.theme
 import qs.modules.components
 import qs.modules.services
@@ -17,6 +18,7 @@ Item {
 
     ColumnLayout {
         anchors.fill: parent
+        anchors.rightMargin: 4
         spacing: 8
 
         // Header with title and toggle
@@ -31,6 +33,51 @@ Item {
                 font.pixelSize: Config.theme.fontSize + 2
                 font.weight: Font.Medium
                 color: Colors.overBackground
+            }
+
+            // Connection status indicator
+            Text {
+                visible: NetworkService.wifiConnecting
+                text: "Connecting..."
+                font.family: Config.theme.font
+                font.pixelSize: Config.theme.fontSize - 2
+                color: Colors.primary
+            }
+
+            // Limited connectivity warning with portal button
+            Button {
+                id: portalButton
+                visible: NetworkService.wifiStatus === "limited"
+                flat: true
+                implicitHeight: 24
+                
+                background: StyledRect {
+                    variant: "secondary"
+                    radius: Styling.radius(-4)
+                }
+
+                contentItem: RowLayout {
+                    spacing: 4
+                    Text {
+                        text: Icons.globe
+                        font.family: Icons.font
+                        font.pixelSize: 12
+                        color: Config.resolveColor(Config.theme.srSecondary.itemColor)
+                    }
+                    Text {
+                        text: "Open Portal"
+                        font.family: Config.theme.font
+                        font.pixelSize: Config.theme.fontSize - 2
+                        color: Config.resolveColor(Config.theme.srSecondary.itemColor)
+                    }
+                }
+
+                onClicked: NetworkService.openPublicWifiPortal()
+
+                StyledToolTip {
+                    visible: portalButton.hovered
+                    tooltipText: "Open captive portal for public Wi-Fi login"
+                }
             }
 
             Item { Layout.fillWidth: true }
@@ -107,7 +154,7 @@ Item {
 
             delegate: WifiNetworkItem {
                 required property var modelData
-                width: networkList.width
+                width: networkList.width - 4
                 network: modelData
             }
 
@@ -122,11 +169,47 @@ Item {
             }
         }
 
-        // Footer with rescan button
+        // Footer with external settings and rescan button
         RowLayout {
             Layout.fillWidth: true
             Layout.preferredHeight: 32
             spacing: 8
+
+            // Open external network settings
+            Button {
+                id: settingsButton
+                flat: true
+                implicitHeight: 28
+
+                background: StyledRect {
+                    variant: settingsButton.hovered ? "focus" : "common"
+                    radius: Styling.radius(4)
+                }
+
+                contentItem: RowLayout {
+                    spacing: 4
+                    Layout.margins: 8
+                    Text {
+                        text: Icons.gear
+                        font.family: Icons.font
+                        font.pixelSize: 14
+                        color: Colors.overBackground
+                    }
+                    Text {
+                        text: "Settings"
+                        font.family: Config.theme.font
+                        font.pixelSize: Config.theme.fontSize - 2
+                        color: Colors.overBackground
+                    }
+                }
+
+                onClicked: Quickshell.execDetached(["nm-connection-editor"])
+
+                StyledToolTip {
+                    visible: settingsButton.hovered
+                    tooltipText: "Open Network Manager settings"
+                }
+            }
 
             Item { Layout.fillWidth: true }
 
@@ -152,6 +235,11 @@ Item {
                 }
 
                 onClicked: NetworkService.rescanWifi()
+
+                StyledToolTip {
+                    visible: rescanButton.hovered
+                    tooltipText: "Rescan networks"
+                }
             }
         }
     }
