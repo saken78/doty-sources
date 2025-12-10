@@ -22,6 +22,7 @@ ClippingRectangle {
     property bool enableShadow: false
     property bool enableBorder: true
     property bool animateRadius: true
+    property real backgroundOpacity: -1  // -1 means use config value
 
     readonly property var variantConfig: {
         switch (variant) {
@@ -92,7 +93,7 @@ ClippingRectangle {
 
     readonly property color itemColor: Config.resolveColor(variantConfig.itemColor)
 
-    readonly property real rectOpacity: variantConfig.opacity
+    readonly property real rectOpacity: backgroundOpacity >= 0 ? backgroundOpacity : variantConfig.opacity
 
     radius: Styling.radius(0)
     color: "transparent"
@@ -454,14 +455,7 @@ ClippingRectangle {
 
     // Shadow effect
     layer.enabled: enableShadow
-    layer.effect: MultiEffect {
-        shadowEnabled: true
-        shadowHorizontalOffset: Config.theme.shadowXOffset
-        shadowVerticalOffset: Config.theme.shadowYOffset
-        shadowBlur: Config.theme.shadowBlur
-        shadowColor: Config.resolveColor(Config.theme.shadowColor)
-        shadowOpacity: Config.theme.shadowOpacity
-    }
+    layer.effect: Shadow {}
 
     // Border overlay to avoid ClippingRectangle artifacts
     Rectangle {

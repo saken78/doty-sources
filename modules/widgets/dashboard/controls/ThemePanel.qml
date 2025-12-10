@@ -161,16 +161,26 @@ Item {
                     spacing: 12
 
                     // Variant selector section
-                    StyledRect {
-                        variant: "pane"
+                    Item {
+                        id: variantSelectorPane
                         Layout.fillWidth: true
-                        Layout.preferredHeight: variantSelectorContent.implicitHeight + 24
-                        radius: Styling.radius(-2)
+                        Layout.preferredHeight: variantSelectorContent.implicitHeight
+
+                        property bool variantExpanded: false
+
+                        Behavior on Layout.preferredHeight {
+                            enabled: (Config.animDuration ?? 0) > 0
+                            NumberAnimation {
+                                duration: (Config.animDuration ?? 0) / 2
+                                easing.type: Easing.OutCubic
+                            }
+                        }
 
                         ColumnLayout {
                             id: variantSelectorContent
-                            anchors.fill: parent
-                            anchors.margins: 12
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            anchors.top: parent.top
                             spacing: 8
 
                             Text {
@@ -179,68 +189,50 @@ Item {
                                 font.pixelSize: Styling.fontSize(-1)
                                 font.weight: Font.Medium
                                 color: Colors.overSurfaceVariant
+                                Layout.bottomMargin: -4
                             }
 
-                            Flow {
-                                id: variantsFlow
+                            RowLayout {
                                 Layout.fillWidth: true
-                                spacing: 4
+                                spacing: 8
+                                Layout.alignment: Qt.AlignTop
 
-                                Repeater {
-                                    model: root.allVariants
+                                // Collapsed mode: horizontal scrollable row with scrollbar
+                                ColumnLayout {
+                                    Layout.fillWidth: true
+                                    spacing: 4
+                                    visible: !variantSelectorPane.variantExpanded
 
-                                    delegate: StyledRect {
-                                        id: variantTag
-                                        required property var modelData
-                                        required property int index
+                                    Flickable {
+                                        id: variantFlickable
+                                        Layout.fillWidth: true
+                                        Layout.preferredHeight: 32
+                                        contentWidth: variantRow.width
+                                        flickableDirection: Flickable.HorizontalFlick
+                                        clip: true
+                                        boundsBehavior: Flickable.StopAtBounds
 
-                                        property bool isSelected: root.selectedVariant === modelData.id
-                                        property bool isHovered: false
+                                        Row {
+                                            id: variantRow
+                                            spacing: 4
 
-                                        variant: modelData.id
+                                            Repeater {
+                                                model: root.allVariants
 
-                                        width: tagContent.width + 24 + (isSelected ? checkIcon.width + 4 : 0)
-                                        height: 32
-                                        radius: isSelected ? Styling.radius(0) / 2 : Styling.radius(0)
+                                                delegate: StyledRect {
+                                                    id: variantTagRow
+                                                    required property var modelData
+                                                    required property int index
 
-                                        Behavior on width {
-                                            enabled: (Config.animDuration ?? 0) > 0
-                                            NumberAnimation {
-                                                duration: (Config.animDuration ?? 0) / 3
-                                                easing.type: Easing.OutCubic
-                                            }
-                                        }
+                                                    property bool isSelected: root.selectedVariant === modelData.id
+                                                    property bool isHovered: false
 
-                                        Item {
-                                            anchors.fill: parent
-                                            anchors.margins: 8
+                                                    variant: modelData.id
+                                                    enableShadow: true
 
-                                            Row {
-                                                anchors.centerIn: parent
-                                                spacing: variantTag.isSelected ? 4 : 0
-
-                                                Item {
-                                                    width: checkIcon.visible ? checkIcon.width : 0
-                                                    height: checkIcon.height
-                                                    clip: true
-
-                                                    Text {
-                                                        id: checkIcon
-                                                        text: Icons.accept
-                                                        font.family: Icons.font
-                                                        font.pixelSize: 16
-                                                        color: variantTag.itemColor
-                                                        visible: variantTag.isSelected
-                                                        opacity: variantTag.isSelected ? 1 : 0
-
-                                                        Behavior on opacity {
-                                                            enabled: (Config.animDuration ?? 0) > 0
-                                                            NumberAnimation {
-                                                                duration: (Config.animDuration ?? 0) / 3
-                                                                easing.type: Easing.OutCubic
-                                                            }
-                                                        }
-                                                    }
+                                                    width: tagContentRow.width + 24 + (isSelected ? checkIconRow.width + 4 : 0)
+                                                    height: 32
+                                                    radius: isSelected ? Styling.radius(0) / 2 : Styling.radius(0)
 
                                                     Behavior on width {
                                                         enabled: (Config.animDuration ?? 0) > 0
@@ -249,52 +241,280 @@ Item {
                                                             easing.type: Easing.OutCubic
                                                         }
                                                     }
-                                                }
 
-                                                Text {
-                                                    id: tagContent
-                                                    text: variantTag.modelData.label
-                                                    font.family: Config.theme.font
-                                                    font.pixelSize: Config.theme.fontSize
-                                                    font.bold: true
-                                                    color: variantTag.itemColor
+                                                    Item {
+                                                        anchors.fill: parent
+                                                        anchors.margins: 8
 
-                                                    Behavior on color {
-                                                        enabled: (Config.animDuration ?? 0) > 0
-                                                        ColorAnimation {
-                                                            duration: (Config.animDuration ?? 0) / 3
-                                                            easing.type: Easing.OutCubic
+                                                        Row {
+                                                            anchors.centerIn: parent
+                                                            spacing: variantTagRow.isSelected ? 4 : 0
+
+                                                            Item {
+                                                                width: checkIconRow.visible ? checkIconRow.width : 0
+                                                                height: checkIconRow.height
+                                                                clip: true
+
+                                                                Text {
+                                                                    id: checkIconRow
+                                                                    text: Icons.accept
+                                                                    font.family: Icons.font
+                                                                    font.pixelSize: 16
+                                                                    color: variantTagRow.itemColor
+                                                                    visible: variantTagRow.isSelected
+                                                                    opacity: variantTagRow.isSelected ? 1 : 0
+
+                                                                    Behavior on opacity {
+                                                                        enabled: (Config.animDuration ?? 0) > 0
+                                                                        NumberAnimation {
+                                                                            duration: (Config.animDuration ?? 0) / 3
+                                                                            easing.type: Easing.OutCubic
+                                                                        }
+                                                                    }
+                                                                }
+
+                                                                Behavior on width {
+                                                                    enabled: (Config.animDuration ?? 0) > 0
+                                                                    NumberAnimation {
+                                                                        duration: (Config.animDuration ?? 0) / 3
+                                                                        easing.type: Easing.OutCubic
+                                                                    }
+                                                                }
+                                                            }
+
+                                                            Text {
+                                                                id: tagContentRow
+                                                                text: variantTagRow.modelData.label
+                                                                font.family: Config.theme.font
+                                                                font.pixelSize: Config.theme.fontSize
+                                                                font.bold: true
+                                                                color: variantTagRow.itemColor
+
+                                                                Behavior on color {
+                                                                    enabled: (Config.animDuration ?? 0) > 0
+                                                                    ColorAnimation {
+                                                                        duration: (Config.animDuration ?? 0) / 3
+                                                                        easing.type: Easing.OutCubic
+                                                                    }
+                                                                }
+                                                            }
                                                         }
+                                                    }
+
+                                                    Rectangle {
+                                                        anchors.fill: parent
+                                                        color: Colors.primary
+                                                        radius: variantTagRow.radius ?? 0
+                                                        opacity: variantTagRow.isHovered ? 0.15 : 0
+
+                                                        Behavior on opacity {
+                                                            enabled: (Config.animDuration ?? 0) > 0
+                                                            NumberAnimation {
+                                                                duration: (Config.animDuration ?? 0) / 2
+                                                            }
+                                                        }
+                                                    }
+
+                                                    MouseArea {
+                                                        anchors.fill: parent
+                                                        hoverEnabled: true
+                                                        cursorShape: Qt.PointingHandCursor
+
+                                                        onEntered: variantTagRow.isHovered = true
+                                                        onExited: variantTagRow.isHovered = false
+
+                                                        onClicked: root.selectedVariant = variantTagRow.modelData.id
                                                     }
                                                 }
                                             }
                                         }
+                                    }
 
-                                        Rectangle {
-                                            id: hoverOverlay
-                                            anchors.fill: parent
+                                    ScrollBar {
+                                        id: variantScrollBar
+                                        Layout.fillWidth: true
+                                        Layout.preferredHeight: 8
+                                        orientation: Qt.Horizontal
+
+                                        position: variantFlickable.contentWidth > 0 ? variantFlickable.contentX / variantFlickable.contentWidth : 0
+                                        size: variantFlickable.contentWidth > 0 ? variantFlickable.width / variantFlickable.contentWidth : 1
+
+                                        property bool scrollBarPressed: false
+
+                                        background: Rectangle {
+                                            implicitHeight: 8
+                                            color: Colors.surface
+                                            radius: 4
+                                        }
+
+                                        contentItem: Rectangle {
+                                            implicitHeight: 8
                                             color: Colors.primary
-                                            radius: variantTag.radius ?? 0
-                                            opacity: variantTag.isHovered ? 0.15 : 0
+                                            radius: 4
+                                        }
 
-                                            Behavior on opacity {
-                                                enabled: (Config.animDuration ?? 0) > 0
-                                                NumberAnimation {
-                                                    duration: (Config.animDuration ?? 0) / 2
-                                                }
+                                        onPressedChanged: {
+                                            scrollBarPressed = pressed;
+                                        }
+
+                                        onPositionChanged: {
+                                            if (scrollBarPressed && variantFlickable.contentWidth > variantFlickable.width) {
+                                                variantFlickable.contentX = position * variantFlickable.contentWidth;
                                             }
                                         }
+                                    }
+                                }
 
-                                        MouseArea {
-                                            anchors.fill: parent
-                                            hoverEnabled: true
-                                            cursorShape: Qt.PointingHandCursor
+                                // Expanded mode: Flow grid
+                                Flow {
+                                    id: variantsFlow
+                                    Layout.fillWidth: true
+                                    spacing: 4
+                                    visible: variantSelectorPane.variantExpanded
 
-                                            onEntered: variantTag.isHovered = true
-                                            onExited: variantTag.isHovered = false
+                                    Repeater {
+                                        model: root.allVariants
 
-                                            onClicked: root.selectedVariant = variantTag.modelData.id
+                                        delegate: StyledRect {
+                                            id: variantTag
+                                            required property var modelData
+                                            required property int index
+
+                                            property bool isSelected: root.selectedVariant === modelData.id
+                                            property bool isHovered: false
+
+                                            variant: modelData.id
+                                            enableShadow: true
+
+                                            width: tagContent.width + 24 + (isSelected ? checkIcon.width + 4 : 0)
+                                            height: 32
+                                            radius: isSelected ? Styling.radius(0) / 2 : Styling.radius(0)
+
+                                            Behavior on width {
+                                                enabled: (Config.animDuration ?? 0) > 0
+                                                NumberAnimation {
+                                                    duration: (Config.animDuration ?? 0) / 3
+                                                    easing.type: Easing.OutCubic
+                                                }
+                                            }
+
+                                            Item {
+                                                anchors.fill: parent
+                                                anchors.margins: 8
+
+                                                Row {
+                                                    anchors.centerIn: parent
+                                                    spacing: variantTag.isSelected ? 4 : 0
+
+                                                    Item {
+                                                        width: checkIcon.visible ? checkIcon.width : 0
+                                                        height: checkIcon.height
+                                                        clip: true
+
+                                                        Text {
+                                                            id: checkIcon
+                                                            text: Icons.accept
+                                                            font.family: Icons.font
+                                                            font.pixelSize: 16
+                                                            color: variantTag.itemColor
+                                                            visible: variantTag.isSelected
+                                                            opacity: variantTag.isSelected ? 1 : 0
+
+                                                            Behavior on opacity {
+                                                                enabled: (Config.animDuration ?? 0) > 0
+                                                                NumberAnimation {
+                                                                    duration: (Config.animDuration ?? 0) / 3
+                                                                    easing.type: Easing.OutCubic
+                                                                }
+                                                            }
+                                                        }
+
+                                                        Behavior on width {
+                                                            enabled: (Config.animDuration ?? 0) > 0
+                                                            NumberAnimation {
+                                                                duration: (Config.animDuration ?? 0) / 3
+                                                                easing.type: Easing.OutCubic
+                                                            }
+                                                        }
+                                                    }
+
+                                                    Text {
+                                                        id: tagContent
+                                                        text: variantTag.modelData.label
+                                                        font.family: Config.theme.font
+                                                        font.pixelSize: Config.theme.fontSize
+                                                        font.bold: true
+                                                        color: variantTag.itemColor
+
+                                                        Behavior on color {
+                                                            enabled: (Config.animDuration ?? 0) > 0
+                                                            ColorAnimation {
+                                                                duration: (Config.animDuration ?? 0) / 3
+                                                                easing.type: Easing.OutCubic
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                            Rectangle {
+                                                id: hoverOverlay
+                                                anchors.fill: parent
+                                                color: Colors.primary
+                                                radius: variantTag.radius ?? 0
+                                                opacity: variantTag.isHovered ? 0.15 : 0
+
+                                                Behavior on opacity {
+                                                    enabled: (Config.animDuration ?? 0) > 0
+                                                    NumberAnimation {
+                                                        duration: (Config.animDuration ?? 0) / 2
+                                                    }
+                                                }
+                                            }
+
+                                            MouseArea {
+                                                anchors.fill: parent
+                                                hoverEnabled: true
+                                                cursorShape: Qt.PointingHandCursor
+
+                                                onEntered: variantTag.isHovered = true
+                                                onExited: variantTag.isHovered = false
+
+                                                onClicked: root.selectedVariant = variantTag.modelData.id
+                                            }
                                         }
+                                    }
+                                }
+
+                                // Toggle expand/collapse button
+                                StyledRect {
+                                    id: expandToggleButton
+                                    variant: isHovered ? "focus" : "common"
+                                    width: 32
+                                    height: 32
+                                    radius: Styling.radius(-2)
+                                    Layout.alignment: Qt.AlignTop
+                                    enableShadow: true
+
+                                    property bool isHovered: false
+
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: variantSelectorPane.variantExpanded ? Icons.caretUp : Icons.caretDown
+                                        font.family: Icons.font
+                                        font.pixelSize: 16
+                                        color: expandToggleButton.itemColor
+                                    }
+
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        hoverEnabled: true
+                                        cursorShape: Qt.PointingHandCursor
+
+                                        onEntered: expandToggleButton.isHovered = true
+                                        onExited: expandToggleButton.isHovered = false
+
+                                        onClicked: variantSelectorPane.variantExpanded = !variantSelectorPane.variantExpanded
                                     }
                                 }
                             }
@@ -302,61 +522,66 @@ Item {
                     }
 
                     // Roundness section
-                    StyledRect {
-                        variant: "pane"
+                    Item {
                         Layout.fillWidth: true
-                        Layout.preferredHeight: roundnessContent.implicitHeight + 24
-                        radius: Styling.radius(-2)
+                        Layout.preferredHeight: roundnessContent.implicitHeight
 
-                        RowLayout {
+                        ColumnLayout {
                             id: roundnessContent
-                            anchors.fill: parent
-                            anchors.margins: 12
-                            spacing: 12
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            anchors.top: parent.top
+                            spacing: 8
 
                             Text {
                                 text: "Roundness"
                                 font.family: Config.theme.font
-                                font.pixelSize: Styling.fontSize(0)
+                                font.pixelSize: Styling.fontSize(-1)
                                 font.weight: Font.Medium
-                                color: Colors.overBackground
+                                color: Colors.overSurfaceVariant
+                                Layout.bottomMargin: -4
                             }
 
-                            StyledSlider {
-                                id: roundnessSlider
+                            RowLayout {
                                 Layout.fillWidth: true
-                                Layout.preferredHeight: 20
-                                progressColor: Colors.primary
-                                tooltipText: `${Math.round(value * 20)}`
-                                scroll: true
+                                spacing: 8
 
-                                // Use a computed property that always reads from Config
-                                readonly property real configValue: Config.theme.roundness / 20
+                                StyledSlider {
+                                    id: roundnessSlider
+                                    Layout.fillWidth: true
+                                    Layout.preferredHeight: 20
+                                    progressColor: Colors.primary
+                                    tooltipText: `${Math.round(value * 20)}`
+                                    scroll: true
 
-                                // Sync value when configValue changes (e.g., after discard)
-                                onConfigValueChanged: {
-                                    if (Math.abs(value - configValue) > 0.001) {
-                                        value = configValue;
+                                    // Use a computed property that always reads from Config
+                                    readonly property real configValue: Config.theme.roundness / 20
+
+                                    // Sync value when configValue changes (e.g., after discard)
+                                    onConfigValueChanged: {
+                                        if (Math.abs(value - configValue) > 0.001) {
+                                            value = configValue;
+                                        }
+                                    }
+
+                                    Component.onCompleted: value = configValue
+
+                                    onValueChanged: {
+                                        if (Math.round(value * 20) !== Config.theme.roundness) {
+                                            GlobalStates.markThemeChanged();
+                                            Config.theme.roundness = Math.round(value * 20);
+                                        }
                                     }
                                 }
 
-                                Component.onCompleted: value = configValue
-
-                                onValueChanged: {
-                                    if (Math.round(value * 20) !== Config.theme.roundness) {
-                                        GlobalStates.markThemeChanged();
-                                        Config.theme.roundness = Math.round(value * 20);
-                                    }
+                                Text {
+                                    text: Math.round(roundnessSlider.value * 20)
+                                    font.family: Config.theme.font
+                                    font.pixelSize: Styling.fontSize(0)
+                                    color: Colors.overBackground
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.preferredWidth: 24
                                 }
-                            }
-
-                            Text {
-                                text: Math.round(roundnessSlider.value * 20)
-                                font.family: Config.theme.font
-                                font.pixelSize: Styling.fontSize(0)
-                                color: Colors.overBackground
-                                horizontalAlignment: Text.AlignRight
-                                Layout.preferredWidth: 24
                             }
                         }
                     }
