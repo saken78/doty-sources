@@ -262,6 +262,13 @@ QtObject {
         }
     }
 
+    property Connections barConnections: Connections {
+        target: Config.bar
+        function onPositionChanged() {
+            applyHyprlandConfig();
+        }
+    }
+
     property Connections hyprlandConnections: Connections {
         target: Hyprland
         function onRawEvent(event) {
