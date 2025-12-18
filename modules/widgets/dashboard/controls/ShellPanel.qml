@@ -459,6 +459,17 @@ Item {
                                 Config.notch.theme = newValue;
                             }
                         }
+
+                        NumberInputRow {
+                            label: "Hover Region Height"
+                            value: Config.notch.hoverRegionHeight ?? 8
+                            minValue: 0
+                            maxValue: 32
+                            suffix: "px"
+                            onValueEdited: newValue => {
+                                Config.notch.hoverRegionHeight = newValue;
+                            }
+                        }
                     }
 
                     Separator { Layout.fillWidth: true }
@@ -607,6 +618,149 @@ Item {
                             suffix: "px"
                             onValueEdited: newValue => {
                                 Config.overview.workspaceSpacing = newValue;
+                            }
+                        }
+                    }
+
+                    Separator { Layout.fillWidth: true }
+
+                    // ═══════════════════════════════════════════════════════════════
+                    // DOCK SECTION
+                    // ═══════════════════════════════════════════════════════════════
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 8
+
+                        Text {
+                            text: "Dock"
+                            font.family: Config.theme.font
+                            font.pixelSize: Styling.fontSize(-1)
+                            font.weight: Font.Medium
+                            color: Colors.overSurfaceVariant
+                            Layout.bottomMargin: -4
+                        }
+
+                        ToggleRow {
+                            label: "Enabled"
+                            checked: Config.dock.enabled ?? false
+                            onToggled: value => {
+                                Config.dock.enabled = value;
+                            }
+                        }
+
+                        SelectorRow {
+                            label: ""
+                            options: [
+                                { label: "Bottom", value: "bottom", icon: Icons.arrowDown },
+                                { label: "Left", value: "left", icon: Icons.arrowLeft },
+                                { label: "Right", value: "right", icon: Icons.arrowRight }
+                            ]
+                            value: Config.dock.position ?? "bottom"
+                            onValueSelected: newValue => {
+                                Config.dock.position = newValue;
+                            }
+                        }
+
+                        NumberInputRow {
+                            label: "Height"
+                            value: Config.dock.height ?? 56
+                            minValue: 32
+                            maxValue: 128
+                            suffix: "px"
+                            onValueEdited: newValue => {
+                                Config.dock.height = newValue;
+                            }
+                        }
+
+                        NumberInputRow {
+                            label: "Icon Size"
+                            value: Config.dock.iconSize ?? 40
+                            minValue: 16
+                            maxValue: 96
+                            suffix: "px"
+                            onValueEdited: newValue => {
+                                Config.dock.iconSize = newValue;
+                            }
+                        }
+
+                        NumberInputRow {
+                            label: "Spacing"
+                            value: Config.dock.spacing ?? 4
+                            minValue: 0
+                            maxValue: 24
+                            suffix: "px"
+                            onValueEdited: newValue => {
+                                Config.dock.spacing = newValue;
+                            }
+                        }
+
+                        NumberInputRow {
+                            label: "Margin"
+                            value: Config.dock.margin ?? 8
+                            minValue: 0
+                            maxValue: 32
+                            suffix: "px"
+                            onValueEdited: newValue => {
+                                Config.dock.margin = newValue;
+                            }
+                        }
+
+                        NumberInputRow {
+                            label: "Hover Region Height"
+                            value: Config.dock.hoverRegionHeight ?? 4
+                            minValue: 0
+                            maxValue: 32
+                            suffix: "px"
+                            onValueEdited: newValue => {
+                                Config.dock.hoverRegionHeight = newValue;
+                            }
+                        }
+
+                        ToggleRow {
+                            label: "Pinned on Startup"
+                            checked: Config.dock.pinnedOnStartup ?? false
+                            onToggled: value => {
+                                Config.dock.pinnedOnStartup = value;
+                            }
+                        }
+
+                        ToggleRow {
+                            label: "Hover to Reveal"
+                            checked: Config.dock.hoverToReveal ?? true
+                            onToggled: value => {
+                                Config.dock.hoverToReveal = value;
+                            }
+                        }
+
+                        ToggleRow {
+                            label: "Monochrome Icons"
+                            checked: Config.dock.monochromeIcons ?? false
+                            onToggled: value => {
+                                Config.dock.monochromeIcons = value;
+                            }
+                        }
+
+                        ToggleRow {
+                            label: "Show Running Indicators"
+                            checked: Config.dock.showRunningIndicators ?? true
+                            onToggled: value => {
+                                Config.dock.showRunningIndicators = value;
+                            }
+                        }
+
+                        ToggleRow {
+                            label: "Show Pin Button"
+                            checked: Config.dock.showPinButton ?? true
+                            onToggled: value => {
+                                Config.dock.showPinButton = value;
+                            }
+                        }
+
+                        ToggleRow {
+                            label: "Show Overview Button"
+                            checked: Config.dock.showOverviewButton ?? true
+                            onToggled: value => {
+                                Config.dock.showOverviewButton = value;
                             }
                         }
                     }
