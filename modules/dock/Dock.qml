@@ -274,6 +274,7 @@ Scope {
                         // Pin button
                         Loader {
                             active: Config.dock?.showPinButton ?? true
+                            visible: active
                             Layout.alignment: Qt.AlignVCenter
                             
                             sourceComponent: Button {
@@ -320,6 +321,7 @@ Scope {
                         // Separator after pin button
                         Loader {
                             active: Config.dock?.showPinButton ?? true
+                            visible: active
                             Layout.alignment: Qt.AlignVCenter
                             
                             sourceComponent: Separator {
@@ -343,6 +345,7 @@ Scope {
                         // Separator before overview button
                         Loader {
                             active: Config.dock?.showOverviewButton ?? true
+                            visible: active
                             Layout.alignment: Qt.AlignVCenter
                             
                             sourceComponent: Separator {
@@ -354,6 +357,7 @@ Scope {
                         // Overview button
                         Loader {
                             active: Config.dock?.showOverviewButton ?? true
+                            visible: active
                             Layout.alignment: Qt.AlignVCenter
                             
                             sourceComponent: Button {
@@ -372,7 +376,7 @@ Scope {
                                 }
                                 
                                 contentItem: Text {
-                                    text: Icons.apps
+                                    text: Icons.overview
                                     font.family: Icons.font
                                     font.pixelSize: 18
                                     color: Colors.overBackground
@@ -406,6 +410,7 @@ Scope {
                         // Pin button
                         Loader {
                             active: Config.dock?.showPinButton ?? true
+                            visible: active
                             Layout.alignment: Qt.AlignHCenter
                             
                             sourceComponent: Button {
@@ -452,6 +457,7 @@ Scope {
                         // Separator after pin button
                         Loader {
                             active: Config.dock?.showPinButton ?? true
+                            visible: active
                             Layout.alignment: Qt.AlignHCenter
                             
                             sourceComponent: Separator {
@@ -475,6 +481,7 @@ Scope {
                         // Separator before overview button
                         Loader {
                             active: Config.dock?.showOverviewButton ?? true
+                            visible: active
                             Layout.alignment: Qt.AlignHCenter
                             
                             sourceComponent: Separator {
@@ -486,6 +493,7 @@ Scope {
                         // Overview button
                         Loader {
                             active: Config.dock?.showOverviewButton ?? true
+                            visible: active
                             Layout.alignment: Qt.AlignHCenter
                             
                             sourceComponent: Button {
@@ -504,7 +512,7 @@ Scope {
                                 }
                                 
                                 contentItem: Text {
-                                    text: Icons.apps
+                                    text: Icons.overview
                                     font.family: Icons.font
                                     font.pixelSize: 18
                                     color: Colors.overBackground
