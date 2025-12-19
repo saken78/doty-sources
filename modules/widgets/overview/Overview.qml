@@ -13,51 +13,49 @@ import qs.config
 Item {
     id: overviewRoot
 
-    property real scale: Config.overview.scale
-    property int rows: Config.overview.rows
-    property int columns: Config.overview.columns
-    property int workspacesShown: rows * columns
-    property real workspaceSpacing: Config.overview.workspaceSpacing
-    property real workspacePadding: 8
-    property color activeBorderColor: Colors.primary
+    // Cache config values to avoid repeated lookups
+    readonly property real scale: Config.overview.scale
+    readonly property int rows: Config.overview.rows
+    readonly property int columns: Config.overview.columns
+    readonly property int workspacesShown: rows * columns
+    readonly property real workspaceSpacing: Config.overview.workspaceSpacing
+    readonly property real workspacePadding: 8
+    readonly property color activeBorderColor: Colors.primary
 
     // Use the screen's monitor instead of focused monitor for multi-monitor support
     property var currentScreen: null  // This will be set from parent
-    readonly property var monitor: {
-        const foundMonitor = currentScreen ? Hyprland.monitorFor(currentScreen) : Hyprland.focusedMonitor;
-        return foundMonitor;
-    }
+    readonly property var monitor: currentScreen ? Hyprland.monitorFor(currentScreen) : Hyprland.focusedMonitor
     readonly property int workspaceGroup: Math.floor((monitor?.activeWorkspace?.id - 1 || 0) / workspacesShown)
+    
+    // Cache these references
     readonly property var windowList: HyprlandData.windowList
-    readonly property var windowByAddress: HyprlandData.windowByAddress
     readonly property var monitors: HyprlandData.monitors
-    readonly property var monitorData: {
-        const found = monitors.find(m => m.id === monitor?.id);
-        return found;
-    }
-    readonly property var toplevels: ToplevelManager.toplevels
+    readonly property int monitorId: monitor?.id ?? -1
+    readonly property var monitorData: monitors.find(m => m.id === monitorId) ?? null
 
     readonly property string barPosition: Config.bar.position
-    readonly property int barReserved: (Config.showBackground ? 44 : 40)
+    readonly property int barReserved: Config.showBackground ? 44 : 40
 
-    property real workspaceImplicitWidth: {
-        const isRotated = (monitorData?.transform % 2 === 1);
-        const monitorScale = monitorData?.scale || 1.0;  // Use monitor's scale, not config scale
+    // Pre-calculate workspace dimensions once
+    readonly property real workspaceImplicitWidth: {
+        if (!monitorData) return 200;
+        const isRotated = (monitorData.transform % 2 === 1);
+        const monitorScale = monitorData.scale || 1.0;
         const width = isRotated ? (monitor?.height || 1920) : (monitor?.width || 1920);
-        let scaledWidth = (width / monitorScale) * scale;  // Apply monitor scale then config scale
+        let scaledWidth = (width / monitorScale) * scale;
         if (barPosition === "left" || barPosition === "right") {
-            // Substraer la zona reservada de la barra en orientación horizontal
             scaledWidth -= barReserved * scale;
         }
         return Math.max(0, Math.round(scaledWidth));
     }
-    property real workspaceImplicitHeight: {
-        const isRotated = (monitorData?.transform % 2 === 1);
-        const monitorScale = monitorData?.scale || 1.0;  // Use monitor's scale, not config scale
+    
+    readonly property real workspaceImplicitHeight: {
+        if (!monitorData) return 150;
+        const isRotated = (monitorData.transform % 2 === 1);
+        const monitorScale = monitorData.scale || 1.0;
         const height = isRotated ? (monitor?.width || 1080) : (monitor?.height || 1080);
-        let scaledHeight = (height / monitorScale) * scale;  // Apply monitor scale then config scale
+        let scaledHeight = (height / monitorScale) * scale;
         if (barPosition === "top" || barPosition === "bottom") {
-            // Substraer la zona reservada de la barra en orientación vertical
             scaledHeight -= barReserved * scale;
         }
         return Math.max(0, Math.round(scaledHeight));
@@ -68,6 +66,9 @@ Item {
 
     implicitWidth: overviewBackground.implicitWidth
     implicitHeight: overviewBackground.implicitHeight
+    
+    // Enable layer for GPU acceleration
+    layer.enabled: true
 
     Keys.onPressed: event => {
         if (event.key === Qt.Key_Escape) {
@@ -192,24 +193,26 @@ Item {
             implicitWidth: workspaceColumnLayout.implicitWidth
             implicitHeight: workspaceColumnLayout.implicitHeight
 
-            Repeater {
-                model: ScriptModel {
-                    values: {
-                        const filteredWindows = overviewRoot.windowList.filter(win => {
-                            const inWorkspaceGroup = (overviewRoot.workspaceGroup * overviewRoot.workspacesShown < win?.workspace?.id && win?.workspace?.id <= (overviewRoot.workspaceGroup + 1) * overviewRoot.workspacesShown);
-                            const inMonitor = overviewRoot.monitor?.id === win.monitor;
-                            return inWorkspaceGroup && inMonitor;
-                        });
+            // Pre-filter windows for this monitor and workspace group
+            readonly property var filteredWindowData: {
+                const minWs = overviewRoot.workspaceGroup * overviewRoot.workspacesShown;
+                const maxWs = (overviewRoot.workspaceGroup + 1) * overviewRoot.workspacesShown;
+                const monId = overviewRoot.monitorId;
+                const toplevels = ToplevelManager.toplevels.values;
+                
+                return overviewRoot.windowList
+                    .filter(win => {
+                        const wsId = win?.workspace?.id;
+                        return wsId > minWs && wsId <= maxWs && win.monitor === monId;
+                    })
+                    .map(win => ({
+                        windowData: win,
+                        toplevel: toplevels.find(t => `0x${t.HyprlandToplevel.address}` === win.address) || null
+                    }));
+            }
 
-                        return filteredWindows.map(win => {
-                            const toplevel = ToplevelManager.toplevels.values.find(t => `0x${t.HyprlandToplevel.address}` === win.address);
-                            return {
-                                windowData: win,
-                                toplevel: toplevel || null
-                            };
-                        });
-                    }
-                }
+            Repeater {
+                model: windowSpace.filteredWindowData
 
                 delegate: OverviewWindow {
                     id: window

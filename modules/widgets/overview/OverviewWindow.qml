@@ -15,7 +15,7 @@ Item {
 
     property var windowData
     property var toplevel
-    property var monitorData: null  // Monitor data passed from Overview
+    property var monitorData: null
     property real scale
     property real availableWorkspaceWidth
     property real availableWorkspaceHeight
@@ -26,31 +26,25 @@ Item {
     property bool pressed: false
     property bool atInitPosition: (initX == x && initY == y)
 
-    // Propiedades de la barra pasadas desde Overview
     property string barPosition: "top"
     property int barReserved: 0
 
-    property real initX: {
+    // Cache calculated values
+    readonly property real initX: {
         let base = (windowData?.at?.[0] || 0) - (monitorData?.x || 0);
-        if (barPosition === "left") {
-            base -= barReserved;
-        }
+        if (barPosition === "left") base -= barReserved;
         return Math.round(Math.max(base * scale, 0) + xOffset);
     }
-    property real initY: {
+    readonly property real initY: {
         let base = (windowData?.at?.[1] || 0) - (monitorData?.y || 0);
-        if (barPosition === "top") {
-            base -= barReserved;
-        }
+        if (barPosition === "top") base -= barReserved;
         return Math.round(Math.max(base * scale, 0) + yOffset);
     }
-    property real targetWindowWidth: Math.round((windowData?.size[0] || 100) * scale)
-    property real targetWindowHeight: Math.round((windowData?.size[1] || 100) * scale)
-
-    property real iconToWindowRatio: 0.35
-    property real iconToWindowRatioCompact: 0.6
-    property string iconPath: AppSearch.guessIcon(windowData?.class || "")
-    property bool compactMode: targetWindowHeight < 60 || targetWindowWidth < 60
+    readonly property real targetWindowWidth: Math.round((windowData?.size[0] || 100) * scale)
+    readonly property real targetWindowHeight: Math.round((windowData?.size[1] || 100) * scale)
+    readonly property bool compactMode: targetWindowHeight < 60 || targetWindowWidth < 60
+    readonly property string iconPath: AppSearch.guessIcon(windowData?.class || "")
+    readonly property int calculatedRadius: Styling.radius(-2) > 0 ? Math.max(Styling.radius(-2) - 8, 0) : 0
 
     signal dragStarted
     signal dragFinished(int targetWorkspace)
@@ -61,13 +55,14 @@ Item {
     y: initY
     width: targetWindowWidth
     height: targetWindowHeight
-    anchors.margins: 4
     z: atInitPosition ? 1 : 99999
 
     Drag.active: false
     Drag.hotSpot.x: width / 2
     Drag.hotSpot.y: height / 2
 
+    // Enable layer for GPU acceleration
+    layer.enabled: true
     clip: true
 
     Behavior on x {
@@ -101,13 +96,13 @@ Item {
 
     ClippingRectangle {
         anchors.fill: parent
-        radius: Styling.radius(-2) > 0 ? Math.max(Styling.radius(-2) - workspaceSpacing, 0) : 0
+        radius: root.calculatedRadius
 
         ScreencopyView {
             id: windowPreview
             anchors.fill: parent
             captureSource: Config.performance.windowPreview && GlobalStates.overviewOpen ? root.toplevel : null
-            live: true
+            live: GlobalStates.overviewOpen
             visible: Config.performance.windowPreview
         }
     }
@@ -116,25 +111,15 @@ Item {
     Rectangle {
         id: previewBackground
         anchors.fill: parent
-        radius: Styling.radius(-2) > 0 ? Math.max(Styling.radius(-2) - workspaceSpacing, 0) : 0
+        radius: root.calculatedRadius
         color: pressed ? Colors.surfaceBright : hovered ? Colors.surface : Colors.background
         border.color: hovered ? Colors.primary : Colors.surfaceContainerHighest
         border.width: 2
-        visible: !windowPreview.hasContent || !Config.performance.windowPreview || !Config.performance.windowPreview
-        clip: true
+        visible: !windowPreview.hasContent || !Config.performance.windowPreview
 
         Behavior on color {
             enabled: Config.animDuration > 0
-            ColorAnimation {
-                duration: Config.animDuration / 2
-            }
-        }
-
-        Behavior on border.color {
-            enabled: Config.animDuration > 0
-            ColorAnimation {
-                duration: Config.animDuration / 2
-            }
+            ColorAnimation { duration: Config.animDuration / 2 }
         }
     }
 
@@ -145,51 +130,15 @@ Item {
         visible: !windowPreview.hasContent || !Config.performance.windowPreview
         z: 10
 
-        Loader {
-            id: windowIconLoader
-            property real iconSize: Math.round(Math.min(root.targetWindowWidth, root.targetWindowHeight) * (root.compactMode ? root.iconToWindowRatioCompact : root.iconToWindowRatio))
-
+        Image {
+            id: windowIcon
+            readonly property real iconSize: Math.round(Math.min(root.targetWindowWidth, root.targetWindowHeight) * (root.compactMode ? 0.6 : 0.35))
             anchors.horizontalCenter: parent.horizontalCenter
-            sourceComponent: Config.tintIcons ? tintedWindowIconComponent : normalWindowIconComponent
-
-            Behavior on width {
-                enabled: Config.animDuration > 0
-                NumberAnimation {
-                    duration: Config.animDuration
-                    easing.type: Easing.OutQuart
-                }
-            }
-            Behavior on height {
-                enabled: Config.animDuration > 0
-                NumberAnimation {
-                    duration: Config.animDuration
-                    easing.type: Easing.OutQuart
-                }
-            }
-        }
-
-        Component {
-            id: normalWindowIconComponent
-            Image {
-                width: windowIconLoader.iconSize
-                height: windowIconLoader.iconSize
-                source: Quickshell.iconPath(root.iconPath, "image-missing")
-                sourceSize: Qt.size(windowIconLoader.iconSize, windowIconLoader.iconSize)
-            }
-        }
-
-        Component {
-            id: tintedWindowIconComponent
-            Tinted {
-                width: windowIconLoader.iconSize
-                height: windowIconLoader.iconSize
-                sourceItem: Image {
-                    width: windowIconLoader.iconSize
-                    height: windowIconLoader.iconSize
-                    source: Quickshell.iconPath(root.iconPath, "image-missing")
-                    sourceSize: Qt.size(windowIconLoader.iconSize, windowIconLoader.iconSize)
-                }
-            }
+            width: iconSize
+            height: iconSize
+            source: Quickshell.iconPath(root.iconPath, "image-missing")
+            sourceSize: Qt.size(iconSize, iconSize)
+            asynchronous: true
         }
 
         Text {
@@ -204,13 +153,6 @@ Item {
             width: Math.min(implicitWidth, root.targetWindowWidth - 8)
             elide: Text.ElideRight
             horizontalAlignment: Text.AlignHCenter
-
-            Behavior on opacity {
-                enabled: Config.animDuration > 0
-                NumberAnimation {
-                    duration: Config.animDuration / 2
-                }
-            }
         }
     }
 
@@ -218,64 +160,29 @@ Item {
     Rectangle {
         id: previewOverlay
         anchors.fill: parent
-        radius: Styling.radius(-2) > 0 ? Math.max(Styling.radius(-2) - workspaceSpacing, 0) : 0
-        color: pressed ? Qt.rgba(Colors.surfaceContainerHighest.r, Colors.surfaceContainerHighest.g, Colors.surfaceContainerHighest.b, 0.5) : hovered ? Qt.rgba(Colors.surfaceContainer.r, Colors.surfaceContainer.g, Colors.surfaceContainer.b, 0.2) : "transparent"
+        radius: root.calculatedRadius
+        color: pressed ? Qt.rgba(Colors.surfaceContainerHighest.r, Colors.surfaceContainerHighest.g, Colors.surfaceContainerHighest.b, 0.5) 
+             : hovered ? Qt.rgba(Colors.surfaceContainer.r, Colors.surfaceContainer.g, Colors.surfaceContainer.b, 0.2) 
+             : "transparent"
         border.color: hovered ? Colors.primary : Colors.surfaceContainerHighest
         border.width: 2
         visible: windowPreview.hasContent && Config.performance.windowPreview
         z: 5
-
-        Behavior on color {
-            enabled: Config.animDuration > 0
-            ColorAnimation {
-                duration: Config.animDuration / 2
-            }
-        }
-
-        Behavior on border.color {
-            enabled: Config.animDuration > 0
-            ColorAnimation {
-                duration: Config.animDuration / 2
-            }
-        }
     }
 
     // Overlay icon when preview is available (smaller, in corner)
-    Loader {
-        id: overlayIconLoader
+    Image {
         visible: windowPreview.hasContent && !root.compactMode && Config.performance.windowPreview
         anchors.bottom: parent.bottom
         anchors.right: parent.right
         anchors.margins: 4
         width: 16
         height: 16
-        sourceComponent: Config.tintIcons ? tintedOverlayIconComponent : normalOverlayIconComponent
+        source: Quickshell.iconPath(root.iconPath, "image-missing")
+        sourceSize: Qt.size(16, 16)
+        asynchronous: true
         opacity: 0.8
         z: 10
-    }
-
-    Component {
-        id: normalOverlayIconComponent
-        Image {
-            width: 16
-            height: 16
-            source: Quickshell.iconPath(root.iconPath, "image-missing")
-            sourceSize: Qt.size(16, 16)
-        }
-    }
-
-    Component {
-        id: tintedOverlayIconComponent
-        Tinted {
-            width: 16
-            height: 16
-            sourceItem: Image {
-                width: 16
-                height: 16
-                source: Quickshell.iconPath(root.iconPath, "image-missing")
-                sourceSize: Qt.size(16, 16)
-            }
-        }
     }
 
     // XWayland indicator
