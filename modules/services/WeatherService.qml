@@ -241,9 +241,11 @@ QtObject {
     // Retry logic
     property int retryCount: 0
     readonly property int maxRetries: 3
+    property bool wasCancelled: false
 
     function updateWeather() {
         if (weatherProcess.running) {
+            root.wasCancelled = true;
             weatherProcess.running = false;
         }
         
@@ -279,6 +281,11 @@ QtObject {
         stdout: StdioCollector {
             waitForEnd: true
             onStreamFinished: {
+                // Skip processing if we cancelled this request
+                if (root.wasCancelled) {
+                    return;
+                }
+                
                 var raw = text.trim();
                 if (raw.length > 0) {
                     try {
@@ -339,11 +346,14 @@ QtObject {
         }
 
         onExited: function (code) {
-            if (code !== 0) {
+            // Code 15 = SIGTERM, means we cancelled the process intentionally
+            if (code !== 0 && code !== 15) {
                 console.warn("WeatherService: Script exited with code", code);
                 root.dataAvailable = false;
                 root.handleError();
             }
+            // Reset cancelled flag after process fully exits
+            root.wasCancelled = false;
         }
     }
 

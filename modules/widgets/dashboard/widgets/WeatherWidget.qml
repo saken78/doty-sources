@@ -784,7 +784,7 @@ Rectangle {
     // TEXT CONTENT
     // ═══════════════════════════════════════════════════════════
 
-    // Temperature and weather description (top left)
+    // Weather description and temperature (top left)
     Item {
         id: textContainer
         anchors.left: parent.left
@@ -797,31 +797,7 @@ Rectangle {
             id: textColumn
             spacing: 2
 
-            Row {
-                spacing: 4
-                
-                // Alert icon when no data
-                Text {
-                    visible: !WeatherService.dataAvailable
-                    text: Icons.alert
-                    font.family: Icons.font
-                    font.pixelSize: Config.theme.fontSize + 6
-                    color: "#FFFFFF"
-                    anchors.verticalCenter: parent.verticalCenter
-                }
-
-                Text {
-                    id: tempText
-                    text: WeatherService.dataAvailable 
-                        ? Math.round(WeatherService.currentTemp) + "°" + Config.weather.unit
-                        : "--°" + Config.weather.unit
-                    color: "#FFFFFF"
-                    font.family: "Noto Sans"
-                    font.pixelSize: Config.theme.fontSize + 6
-                    font.weight: Font.Bold
-                }
-            }
-
+            // Weather description (top)
             Text {
                 id: descText
                 text: WeatherService.dataAvailable 
@@ -831,6 +807,26 @@ Rectangle {
                 font.family: "Noto Sans"
                 font.pixelSize: Config.theme.fontSize - 2
                 font.weight: Font.Bold
+            }
+
+            // Temperature or error icon (bottom)
+            Text {
+                id: tempText
+                visible: WeatherService.dataAvailable
+                text: Math.round(WeatherService.currentTemp) + "°" + Config.weather.unit
+                color: "#FFFFFF"
+                font.family: "Noto Sans"
+                font.pixelSize: Config.theme.fontSize + 10
+                font.weight: Font.Bold
+            }
+
+            // Error icon when no data
+            Text {
+                visible: !WeatherService.dataAvailable
+                text: Icons.alert
+                font.family: Icons.font
+                font.pixelSize: Config.theme.fontSize + 10
+                color: "#FFFFFF"
             }
         }
 
