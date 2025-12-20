@@ -173,8 +173,8 @@ QtObject {
     function getWeatherIntensity(code) {
         // Returns 0.0 - 1.0 intensity
         if (code === 0 || code === 1) return 0.0;
-        if (code === 2) return 0.3;  // Partly cloudy
-        if (code === 3) return 0.7;  // Overcast
+        if (code === 2) return 0.5;  // Partly cloudy
+        if (code === 3) return 1.0;  // Overcast
         if (code === 45) return 0.5;  // Fog
         if (code === 48) return 0.7;  // Rime fog
         if (code === 51 || code === 56) return 0.3;  // Light drizzle
