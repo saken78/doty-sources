@@ -155,7 +155,15 @@ Item {
         popupPadding: 0
 
         contentWidth: 300
-        contentHeight: 100
+        contentHeight: WeatherService.debugMode ? 290 : 100
+
+        Behavior on contentHeight {
+            enabled: Config.animDuration > 0
+            NumberAnimation {
+                duration: Config.animDuration
+                easing.type: Easing.OutCubic
+            }
+        }
 
         onIsOpenChanged: {
             if (isOpen && !WeatherService.dataAvailable) {
@@ -163,16 +171,186 @@ Item {
             }
         }
 
-        // Weather widget with sun arc
+        // Content container
         Item {
             id: popupContent
             anchors.fill: parent
             anchors.margins: Config.theme.srPopup.border[1]
 
+            // Weather widget with sun arc
             WeatherWidget {
-                anchors.fill: parent
+                id: weatherWidget
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.top: parent.top
+                height: 100 - Config.theme.srPopup.border[1] * 2
                 cornerRadius: Styling.radius(4 - Config.theme.srPopup.border[1])
                 showDebugControls: true
+            }
+
+            // Debug panel (below weather widget)
+            Rectangle {
+                id: debugPanel
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.top: weatherWidget.bottom
+                anchors.topMargin: 8
+                height: WeatherService.debugMode ? debugContent.height + 16 : 0
+                radius: Styling.radius(3)
+                color: Colors.surface
+                clip: true
+                visible: height > 0
+
+                Behavior on height {
+                    enabled: Config.animDuration > 0
+                    NumberAnimation {
+                        duration: Config.animDuration
+                        easing.type: Easing.OutCubic
+                    }
+                }
+
+                Column {
+                    id: debugContent
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.top: parent.top
+                    anchors.margins: 8
+                    spacing: 10
+
+                    // Time section
+                    Column {
+                        width: parent.width
+                        spacing: 6
+
+                        Row {
+                            spacing: 4
+                            
+                            Text {
+                                text: "Time:"
+                                color: Colors.overSurface
+                                font.pixelSize: Config.theme.fontSize - 2
+                                opacity: 0.7
+                            }
+                            
+                            Text {
+                                text: {
+                                    var h = Math.floor(WeatherService.debugHour);
+                                    var m = Math.round((WeatherService.debugHour - h) * 60);
+                                    return (h < 10 ? "0" : "") + h + ":" + (m < 10 ? "0" : "") + m;
+                                }
+                                color: Colors.overSurface
+                                font.pixelSize: Config.theme.fontSize - 2
+                                font.weight: Font.Bold
+                            }
+                            
+                            Text {
+                                text: WeatherService.debugIsDay ? "☀" : "☽"
+                                font.pixelSize: Config.theme.fontSize
+                            }
+                        }
+
+                        // Time slider
+                        Rectangle {
+                            width: parent.width
+                            height: 20
+                            radius: 10
+                            color: Colors.background
+
+                            Rectangle {
+                                x: 3
+                                anchors.verticalCenter: parent.verticalCenter
+                                width: Math.max(14, (parent.width - 6) * (WeatherService.debugHour / 24))
+                                height: 14
+                                radius: 7
+                                color: Colors.primary
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                onPositionChanged: function(mouse) {
+                                    if (pressed) {
+                                        var ratio = Math.max(0, Math.min(1, mouse.x / width));
+                                        WeatherService.debugHour = ratio * 24;
+                                    }
+                                }
+                                onPressed: function(mouse) {
+                                    var ratio = Math.max(0, Math.min(1, mouse.x / width));
+                                    WeatherService.debugHour = ratio * 24;
+                                }
+                            }
+                        }
+                    }
+
+                    // Weather section
+                    Column {
+                        width: parent.width
+                        spacing: 6
+
+                        Text {
+                            text: "Weather"
+                            color: Colors.overSurface
+                            font.pixelSize: Config.theme.fontSize - 2
+                            opacity: 0.7
+                        }
+
+                        Grid {
+                            width: parent.width
+                            columns: 6
+                            spacing: 4
+
+                            Repeater {
+                                model: [
+                                    { code: 0, emoji: "☀️", name: "Clear" },
+                                    { code: 1, emoji: "🌤️", name: "Mainly clear" },
+                                    { code: 2, emoji: "⛅", name: "Partly cloudy" },
+                                    { code: 3, emoji: "☁️", name: "Overcast" },
+                                    { code: 45, emoji: "🌫️", name: "Fog" },
+                                    { code: 51, emoji: "🌦️", name: "Drizzle" },
+                                    { code: 61, emoji: "🌧️", name: "Rain" },
+                                    { code: 65, emoji: "🌧️", name: "Heavy rain" },
+                                    { code: 71, emoji: "❄️", name: "Snow" },
+                                    { code: 75, emoji: "❄️", name: "Heavy snow" },
+                                    { code: 95, emoji: "⛈️", name: "Thunder" },
+                                    { code: 96, emoji: "🌩️", name: "Hail" }
+                                ]
+
+                                Rectangle {
+                                    id: weatherBtn
+                                    required property var modelData
+                                    required property int index
+                                    
+                                    width: (debugContent.width - 20) / 6
+                                    height: width
+                                    radius: Styling.radius(1)
+                                    color: WeatherService.debugWeatherCode === modelData.code 
+                                        ? Colors.primary 
+                                        : (weatherBtnMouse.containsMouse ? Colors.background : "transparent")
+                                    border.color: WeatherService.debugWeatherCode === modelData.code 
+                                        ? Colors.primary : Colors.outline
+                                    border.width: 1
+
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: weatherBtn.modelData.emoji
+                                        font.pixelSize: 16
+                                    }
+
+                                    StyledToolTip {
+                                        text: weatherBtn.modelData.name
+                                        visible: weatherBtnMouse.containsMouse
+                                    }
+
+                                    MouseArea {
+                                        id: weatherBtnMouse
+                                        anchors.fill: parent
+                                        hoverEnabled: true
+                                        onClicked: WeatherService.debugWeatherCode = weatherBtn.modelData.code
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
