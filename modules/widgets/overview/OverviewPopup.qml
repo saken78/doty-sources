@@ -95,7 +95,7 @@ PanelWindow {
         id: mainContainer
         anchors.centerIn: parent
         width: Math.max(searchContainer.width, overviewContainer.width + (scrollbarContainer.visible ? scrollbarContainer.width + 8 : 0))
-        height: searchContainer.height + 16 + overviewContainer.height
+        height: searchContainer.height + 8 + overviewContainer.height
 
         opacity: overviewOpen ? 1 : 0
         scale: overviewOpen ? 1 : 0.9
@@ -254,7 +254,7 @@ PanelWindow {
         Item {
             id: overviewContainer
             anchors.top: searchContainer.bottom
-            anchors.topMargin: 16
+            anchors.topMargin: 8
             anchors.horizontalCenter: parent.horizontalCenter
             width: overviewLoader.item ? overviewLoader.item.implicitWidth + 48 : 400
             height: overviewLoader.item ? overviewLoader.item.implicitHeight + 48 : 300
@@ -331,12 +331,11 @@ PanelWindow {
                 contentItem: Rectangle {
                     implicitWidth: 12
                     radius: 6
-                    color: Colors.primary
-                    opacity: externalScrollBar.pressed ? 1.0 : (externalScrollBar.hovered ? 0.9 : 0.7)
+                    color: externalScrollBar.pressed ? Colors.primaryContainer : (externalScrollBar.hovered ? Qt.lighter(Colors.primary, 1.2) : Colors.primary)
                     
-                    Behavior on opacity {
+                    Behavior on color {
                         enabled: Config.animDuration > 0
-                        NumberAnimation { duration: Config.animDuration / 2 }
+                        ColorAnimation { duration: Config.animDuration / 2 }
                     }
                 }
                 

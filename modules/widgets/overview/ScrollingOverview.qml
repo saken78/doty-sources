@@ -191,10 +191,7 @@ Item {
 
     // Size for the overview
     implicitWidth: workspaceWidth + workspacePadding * 2
-    implicitHeight: Math.min(
-        (workspaceHeight + workspacePadding * 2 + workspaceSpacing) * visibleWorkspaces,
-        (workspaceHeight + workspacePadding * 2 + workspaceSpacing) * totalWorkspaces
-    )
+    implicitHeight: workspaceHeight * 3 + workspaceSpacing * 3
 
     // Expose flickable for external scrollbar
     property alias flickable: workspaceFlickable
