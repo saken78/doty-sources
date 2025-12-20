@@ -83,6 +83,7 @@ Rectangle {
     Rectangle {
         id: overcastOverlay
         anchors.fill: parent
+        radius: Styling.radius(0)
         visible: root.isOvercast
         opacity: root.weatherIntensity * 0.7
 
@@ -618,6 +619,7 @@ Rectangle {
         Rectangle {
             id: lightningFlash
             anchors.fill: parent
+            radius: Styling.radius(0)
             color: Qt.rgba(1, 1, 0.9, 0.8)
             opacity: 0
             visible: opacity > 0
