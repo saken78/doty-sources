@@ -9,6 +9,7 @@ with pkgs; [
   terminus_font_ttf
   dejavu_fonts
   liberation_ttf
+  texlivePackages.opensans
 
   # Nerd Fonts
   nerd-fonts.symbols-only

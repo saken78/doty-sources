@@ -1,6 +1,7 @@
 pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Layouts
+import QtQuick.Effects
 import qs.modules.theme
 import qs.modules.services
 import qs.modules.components
@@ -104,20 +105,6 @@ Rectangle {
             NumberAnimation { duration: 500; easing.type: Easing.InOutQuad }
         }
     }
-
-    // Text colors (interpolated)
-    readonly property color textPrimary: blendColors(
-        Qt.color("#1a5276"),  // Day
-        Qt.color("#FFFFFF"),  // Evening
-        Qt.color("#FFFFFF"),  // Night
-        blend
-    )
-    readonly property color textSecondary: blendColors(
-        Qt.color("#2980b9"),  // Day
-        Qt.rgba(1, 1, 1, 0.7),  // Evening
-        Qt.rgba(1, 1, 1, 0.7),  // Night
-        blend
-    )
 
     // ═══════════════════════════════════════════════════════════
     // AMBIENT EFFECTS (stars, sun rays)
@@ -787,25 +774,43 @@ Rectangle {
     // ═══════════════════════════════════════════════════════════
 
     // Temperature and weather description (top left)
-    Column {
+    Item {
+        id: textContainer
         anchors.left: parent.left
         anchors.top: parent.top
         anchors.margins: 12
-        spacing: 2
+        width: textColumn.width
+        height: textColumn.height
 
-        Text {
-            text: Math.round(WeatherService.currentTemp) + "°" + Config.weather.unit
-            color: root.textPrimary
-            font.family: Config.theme.font
-            font.pixelSize: Config.theme.fontSize + 6
-            font.weight: Font.Bold
+        Column {
+            id: textColumn
+            spacing: 2
+
+            Text {
+                id: tempText
+                text: Math.round(WeatherService.currentTemp) + "°" + Config.weather.unit
+                color: "#FFFFFF"
+                font.family: Config.theme.font
+                font.pixelSize: Config.theme.fontSize + 6
+                font.weight: Font.Bold
+            }
+
+            Text {
+                id: descText
+                text: WeatherService.effectiveWeatherDescription
+                color: Qt.rgba(1, 1, 1, 0.85)
+                font.family: Config.theme.font
+                font.pixelSize: Config.theme.fontSize - 2
+            }
         }
 
-        Text {
-            text: WeatherService.effectiveWeatherDescription
-            color: root.textSecondary
-            font.family: Config.theme.font
-            font.pixelSize: Config.theme.fontSize - 2
+        layer.enabled: true
+        layer.effect: MultiEffect {
+            shadowEnabled: true
+            shadowColor: Qt.rgba(0, 0, 0, 0.5)
+            shadowBlur: 0.4
+            shadowHorizontalOffset: 1
+            shadowVerticalOffset: 1
         }
     }
 
