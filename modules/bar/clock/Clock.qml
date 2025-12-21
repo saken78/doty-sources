@@ -322,6 +322,7 @@ Item {
                 enableShadow: false
                 width: popupContent.width + 16
                 height: popupContent.height + 16
+                visible: WeatherService.dataAvailable
 
                 // Content container
                 Column {
