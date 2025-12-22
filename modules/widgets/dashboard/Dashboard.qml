@@ -49,9 +49,12 @@ NotchAnimationBehavior {
     // Focus search input when dashboard opens to different tabs
     onIsVisibleChanged: {
         if (isVisible) {
-            if (GlobalStates.dashboardCurrentTab === 0) {
-                Notifications.hideAllPopups();
+            // Check if current item supports focus, otherwise default logic for launcher
+            if (stack.currentItem && stack.currentItem.focusSearchInput) {
                 focusUnifiedLauncherTimer.restart();
+            } else if (GlobalStates.dashboardCurrentTab === 0) {
+                 Notifications.hideAllPopups();
+                 focusUnifiedLauncherTimer.restart();
             }
         } else {
             // Reset launcher state when dashboard closes
@@ -313,7 +316,7 @@ NotchAnimationBehavior {
                 // Handler para cuando el item actual cambia
                 onCurrentItemChanged: {
                     if (currentItem) {
-                        if (root.state.currentTab === 0 && currentItem.focusSearchInput) {
+                        if (currentItem.focusSearchInput) {
                             focusUnifiedLauncherTimer.restart();
                         }
                     }

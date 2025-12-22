@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import Quickshell.Widgets
 import qs.modules.theme
 import qs.config
 import qs.modules.components
@@ -22,6 +23,21 @@ Item {
         { name: "key", description: "Set API key" },
         { name: "prompt", description: "Set system prompt" }
     ]
+    
+    // Focus Input function for external calls (Dashboard)
+    function focusSearchInput() {
+        inputField.forceActiveFocus();
+    }
+    
+    // Auto-focus when tab becomes visible
+    onVisibleChanged: {
+        if (visible) {
+            // Use a small timer to ensure layout is ready
+            Qt.callLater(() => {
+                focusSearchInput();
+            });
+        }
+    }
     
     // Sidebar Animation
     Behavior on sidebarExpanded {
@@ -395,18 +411,54 @@ Item {
                             spacing: 12
                             
                             // Icon
-                            Rectangle {
+                            Item {
                                 width: 32
                                 height: 32
-                                radius: 16
-                                color: isSystem ? Colors.surfaceDim : (isUser ? Colors.primary : Colors.secondary)
                                 visible: !isSystem
                                 
-                                Text {
-                                    anchors.centerIn: parent
-                                    text: isUser ? Icons.user : Icons.assistant
-                                    font.family: Icons.font
-                                    color: isUser ? Colors.overPrimary : Colors.overSecondary
+                                // Assistant Icon (Robot)
+                                StyledRect {
+                                    anchors.fill: parent
+                                    radius: Styling.radius(16)
+                                    variant: "primary"
+                                    visible: !isUser
+                                    
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: Icons.robot
+                                        font.family: Icons.font
+                                        color: Colors.overPrimary
+                                        font.pixelSize: 20
+                                    }
+                                }
+
+                                // User Icon (Image from ~/.face.icon)
+                                ClippingRectangle {
+                                    anchors.fill: parent
+                                    radius: Styling.radius(16)
+                                    color: Colors.surfaceDim
+                                    visible: isUser
+                                    
+                                    Image {
+                                        anchors.fill: parent
+                                        source: "file:///home/adriano/.face.icon"
+                                        fillMode: Image.PreserveAspectCrop
+                                        // Fallback if image fails loading
+                                        onStatusChanged: {
+                                            if (status === Image.Error) {
+                                                source = "" // Clear to show fallback text below
+                                            }
+                                        }
+
+                                        // Fallback text if image missing
+                                        Text {
+                                            anchors.centerIn: parent
+                                            text: Icons.user
+                                            font.family: Icons.font
+                                            color: Colors.overPrimary
+                                            visible: parent.status !== Image.Ready
+                                        }
+                                    }
                                 }
                             }
                             
@@ -558,13 +610,13 @@ Item {
                                         text: "/" + model.name
                                         font.family: Config.theme.font
                                         font.weight: Font.Bold
-                                        color: highlighted ? Colors.primary : Colors.text
+                                        color: highlighted ? Colors.primary : Colors.overSurface
                                     }
                                     
                                     Text {
                                         text: model.description
                                         font.family: Config.theme.font
-                                        color: highlighted ? Colors.text : Colors.surfaceDim
+                                        color: highlighted ? Colors.overSurface : Colors.surfaceDim
                                         Layout.fillWidth: true
                                         elide: Text.ElideRight
                                     }
@@ -616,7 +668,7 @@ Item {
                                 
                                 background: null
                                 
-                                Keys.onPressed: (event) => {
+                                Keys.onPressed: event => {
                                     if (suggestionsPopup.visible) {
                                         if (event.key === Qt.Key_Up) {
                                             suggestionsPopup.selectPrevious();
