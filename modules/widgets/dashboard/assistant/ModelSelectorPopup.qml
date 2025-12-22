@@ -10,8 +10,8 @@ import qs.modules.components
 Popup {
     id: root
     
-    width: 300
-    height: Math.min(contentItem.implicitHeight + 20, 400)
+    width: 400
+    height: Math.min(contentItem.implicitHeight + 20, 500)
     
     // Center in parent
     x: (parent.width - width) / 2
@@ -21,6 +21,44 @@ Popup {
     focus: true
     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
     
+    onOpened: {
+        searchInput.focusInput();
+        updateFilteredModels();
+    }
+
+    // Initialize fetching if empty (e.g. first run)
+    Component.onCompleted: {
+        if (Ai.models.length === 0) {
+            Ai.fetchAvailableModels();
+        }
+    }
+
+    property int selectedIndex: 0
+    property var filteredModels: []
+    
+    function updateFilteredModels() {
+        let text = searchInput.text.toLowerCase();
+        let allModels = [];
+        for(let i=0; i<Ai.models.length; i++) {
+            allModels.push(Ai.models[i]);
+        }
+        
+        if (text.trim() === "") {
+            filteredModels = allModels;
+        } else {
+            filteredModels = allModels.filter(m => 
+                m.name.toLowerCase().includes(text) || 
+                m.api_format.toLowerCase().includes(text) ||
+                m.model.toLowerCase().includes(text)
+            );
+        }
+        
+        // Reset selection if out of bounds
+        if (selectedIndex >= filteredModels.length) {
+            selectedIndex = Math.max(0, filteredModels.length - 1);
+        }
+    }
+
     background: StyledRect {
         variant: "popup"
         radius: Styling.radius(8)
@@ -30,31 +68,60 @@ Popup {
     }
     
     contentItem: ColumnLayout {
-        spacing: 0
+        spacing: 12
         
-        // Header
+        // Search Header
         RowLayout {
             Layout.fillWidth: true
-            Layout.preferredHeight: 40
-            Layout.margins: 4
-            spacing: 4
+            Layout.preferredHeight: 48
+            spacing: 8
             
-            Item { Layout.fillWidth: true } // Spacer
-            
-            Text {
-                text: "Select Model"
-                font.family: Config.theme.font
-                font.weight: Font.Bold
-                font.pixelSize: 14
-                color: Colors.overSurface
+            SearchInput {
+                id: searchInput
+                Layout.fillWidth: true
+                placeholderText: "Search models..."
+                iconText: Icons.assistant
+                
+                onSearchTextChanged: text => {
+                    root.updateFilteredModels();
+                    root.selectedIndex = 0;
+                }
+                
+                onDownPressed: {
+                    if (root.selectedIndex < root.filteredModels.length - 1) {
+                        root.selectedIndex++;
+                        // Auto-scroll
+                        // Note: A bit complex to scroll precisely with grouping, 
+                        // but we can trust the user's "highlight" requirement is visual mostly.
+                        // Ideally we'd scroll the listview.
+                        modelList.positionViewAtIndex(root.selectedIndex, ListView.Contain);
+                    }
+                }
+                
+                onUpPressed: {
+                    if (root.selectedIndex > 0) {
+                        root.selectedIndex--;
+                        modelList.positionViewAtIndex(root.selectedIndex, ListView.Contain);
+                    }
+                }
+                
+                onAccepted: {
+                    if (root.filteredModels.length > 0 && root.selectedIndex >= 0) {
+                         let m = root.filteredModels[root.selectedIndex];
+                         Ai.setModel(m.name);
+                         root.close();
+                    }
+                }
+                
+                onEscapePressed: {
+                    root.close();
+                }
             }
             
-            Item { Layout.fillWidth: true } // Spacer
-            
-            // Refresh Button
+            // Refresh Button (Icon only)
             Button {
-                Layout.preferredWidth: 24
-                Layout.preferredHeight: 24
+                Layout.preferredWidth: 32
+                Layout.preferredHeight: 32
                 flat: true
                 padding: 0
                 
@@ -65,7 +132,7 @@ Popup {
                         anchors.centerIn: parent
                         text: Icons.arrowCounterClockwise
                         font.family: Icons.font
-                        font.pixelSize: 14
+                        font.pixelSize: 16
                         color: Colors.primary
                         visible: !Ai.fetchingModels
                     }
@@ -112,63 +179,30 @@ Popup {
             id: modelList
             Layout.fillWidth: true
             Layout.fillHeight: true
-            Layout.preferredHeight: Math.min(contentHeight, 350)
+            Layout.preferredHeight: Math.min(contentHeight, 400)
             clip: true
             
-            // Generate valid model data from Ai.models
-            model: {
-                let m = [];
-                for(let i=0; i<Ai.models.length; i++) {
-                    m.push(Ai.models[i]);
-                }
-                return m;
-            }
+            model: root.filteredModels
             
-            // Group by api_format (provider)
-            section.property: "api_format"
-            section.criteria: ViewSection.FullString
-            section.delegate: Item {
-                width: modelList.width
-                height: 30
-                
-                Text {
-                    anchors.left: parent.left
-                    anchors.leftMargin: 12
-                    anchors.verticalCenter: parent.verticalCenter
-                    // Capitalize first letter
-                    text: section.charAt(0).toUpperCase() + section.slice(1)
-                    color: Colors.primary
-                    font.family: Config.theme.font
-                    font.weight: Font.Bold
-                    font.pixelSize: 11
-                }
-            }
+            // Note: Grouping complicates index-based navigation significantly.
+            // For true keyboard nav over a filtered list, flat list is often better UX.
+            // User requested "SearchInput to filter models", so flatness is expected.
+            // We can show the "provider" as a subtitle or badge instead of sections.
             
             delegate: Button {
+                id: delegateBtn
                 width: modelList.width
-                height: 40
+                height: 48
                 flat: true
-                leftPadding: 0
-                rightPadding: 0
+                leftPadding: 8
+                rightPadding: 8
                 
+                property bool isSelected: index === root.selectedIndex
+                property bool isActiveModel: Ai.currentModel.name === modelData.name
+
                 contentItem: RowLayout {
                     anchors.fill: parent
                     spacing: 12
-                    
-                    // Selected Indicator
-                    Item {
-                        Layout.preferredWidth: 4
-                        Layout.fillHeight: true
-                        
-                        Rectangle {
-                            anchors.centerIn: parent
-                            width: 4
-                            height: 16
-                            radius: 2
-                            color: Colors.primary
-                            visible: Ai.currentModel.name === modelData.name
-                        }
-                    }
                     
                     // Icon
                     Item {
@@ -181,33 +215,90 @@ Popup {
                                 switch(modelData.icon) {
                                     case "sparkles": return Icons.sparkle;
                                     case "openai": return Icons.lightning;
-                                    case "wind": return Icons.sparkle; // Fallback
+                                    case "wind": return Icons.sparkle; 
                                     default: return Icons.robot;
                                 }
                             }
                             font.family: Icons.font
-                            font.pixelSize: 16
-                            color: Ai.currentModel.name === modelData.name ? Colors.primary : Colors.overSurface
+                            font.pixelSize: 20
+                            color: delegateBtn.isSelected ? Config.resolveColor(Config.theme.srPrimary.itemColor) : (delegateBtn.isActiveModel ? Colors.primary : Colors.overSurface)
+                            
+                            Behavior on color {
+                                enabled: Config.animDuration > 0
+                                ColorAnimation { duration: Config.animDuration / 2; easing.type: Easing.OutCubic }
+                            }
                         }
                     }
                     
-                    Text {
+                    ColumnLayout {
                         Layout.fillWidth: true
-                        text: modelData.name
-                        color: Ai.currentModel.name === modelData.name ? Colors.primary : Colors.overSurface
-                        font.family: Config.theme.font
-                        font.pixelSize: 13
+                        spacing: 2
+                        
+                        Text {
+                            text: modelData.name
+                            color: delegateBtn.isSelected ? Config.resolveColor(Config.theme.srPrimary.itemColor) : (delegateBtn.isActiveModel ? Colors.primary : Colors.overBackground)
+                            font.family: Config.theme.font
+                            font.pixelSize: 14
+                            font.weight: Font.Medium
+                            Layout.fillWidth: true
+                            elide: Text.ElideRight
+                            
+                            Behavior on color {
+                                enabled: Config.animDuration > 0
+                                ColorAnimation { duration: Config.animDuration / 2; easing.type: Easing.OutCubic }
+                            }
+                        }
+                        
+                        Text {
+                            // Show provider and model ID
+                            text: modelData.api_format.toUpperCase() + " • " + modelData.model
+                            color: delegateBtn.isSelected ? Config.resolveColor(Config.theme.srPrimary.itemColor) : Colors.outline
+                            font.family: Config.theme.font
+                            font.pixelSize: 11
+                            Layout.fillWidth: true
+                            elide: Text.ElideRight
+                            
+                            Behavior on color {
+                                enabled: Config.animDuration > 0
+                                ColorAnimation { duration: Config.animDuration / 2; easing.type: Easing.OutCubic }
+                            }
+                        }
+                    }
+                    
+                    // Active Check
+                    Text {
+                        text: Icons.accept
+                        font.family: Icons.font
+                        font.pixelSize: 16
+                        color: Colors.primary
+                        visible: delegateBtn.isActiveModel
                     }
                 }
                 
-                background: StyledRect {
-                    variant: parent.hovered ? "focus" : "transparent"
-                    radius: Styling.radius(4)
+                background: Rectangle {
+                   color: "transparent"
+                   
+                   // Hover/Selection Highlight
+                   Rectangle {
+                       anchors.fill: parent
+                       color: Colors.surface
+                       visible: delegateBtn.isSelected || delegateBtn.hovered
+                       opacity: 0.5
+                       radius: Styling.radius(4)
+                   }
                 }
                 
                 onClicked: {
                     Ai.setModel(modelData.name);
                     root.close();
+                }
+                
+                // Mouse hover updates selection
+                MouseArea {
+                    anchors.fill: parent
+                    onEntered: root.selectedIndex = index
+                    propagateComposedEvents: true
+                    onClicked: mouse => mouse.accepted = false // Pass to Button
                 }
             }
         }

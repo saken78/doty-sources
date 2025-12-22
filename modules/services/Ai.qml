@@ -18,40 +18,9 @@ Singleton {
     property string chatDir: dataDir + "/chats"
     property string tmpDir: "/tmp/ambxst-ai"
 
-    property list<AiModel> models: [
-        AiModel {
-            name: "Gemini Pro"
-            icon: "sparkles"
-            description: "Google's most capable AI model"
-            endpoint: "https://generativelanguage.googleapis.com/v1beta/models/"
-            model: "gemini-pro"
-            api_format: "gemini"
-            requires_key: true
-            key_id: "GEMINI_API_KEY"
-        },
-        AiModel {
-            name: "GPT-4o"
-            icon: "openai"
-            description: "OpenAI's latest flagship model"
-            endpoint: "https://api.openai.com/v1"
-            model: "gpt-4o"
-            api_format: "openai"
-            requires_key: true
-            key_id: "OPENAI_API_KEY"
-        },
-        AiModel {
-            name: "Mistral Large"
-            icon: "wind"
-            description: "Mistral's flagship model"
-            endpoint: "https://api.mistral.ai/v1"
-            model: "mistral-large-latest"
-            api_format: "mistral"
-            requires_key: true
-            key_id: "MISTRAL_API_KEY"
-        }
-    ]
+    property list<AiModel> models: []
 
-    property AiModel currentModel: models[0]
+    property AiModel currentModel: models.length > 0 ? models[0] : null
     property bool persistenceReady: false
 
     onCurrentModelChanged: {
@@ -84,6 +53,11 @@ Singleton {
         // Try restoration immediately if possible, or wait for signal
         if (StateService.initialized) {
             restoreModel();
+        }
+        
+        // Dynamic fetch if no models
+        if (models.length === 0) {
+            fetchAvailableModels();
         }
         
         // Initialize chat
@@ -625,7 +599,11 @@ Singleton {
         if (pendingFetches <= 0) {
             fetchingModels = false;
             pendingFetches = 0;
-            // Force update UI if needed (models list change triggers it)
+            
+            // Auto-select first model if none selected
+            if (!currentModel && models.length > 0) {
+                 currentModel = models[0];
+            }
         }
     }
     
