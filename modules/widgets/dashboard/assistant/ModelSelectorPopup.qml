@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtQuick.Effects
 import Quickshell.Widgets
 import qs.modules.theme
 import qs.config
@@ -43,20 +44,21 @@ Popup {
     function getProviderIcon(provider) {
         if (!provider) return "";
         let p = provider.toLowerCase();
+        // Path relative to this file: modules/widgets/dashboard/assistant/ModelSelectorPopup.qml
         let path = "../../../../assets/aiproviders/";
         
-        if (p.includes("google") || p.includes("gemini")) return Qt.resolvedUrl(path + "gemini.svg");
-        if (p.includes("openai") || p.includes("gpt")) return Qt.resolvedUrl(path + "openai.svg");
-        if (p.includes("mistral")) return Qt.resolvedUrl(path + "mistral.svg");
-        if (p.includes("anthropic") || p.includes("claude")) return Qt.resolvedUrl(path + "anthropic.svg");
-        if (p.includes("deepseek")) return Qt.resolvedUrl(path + "deepseek.svg");
-        if (p.includes("ollama")) return Qt.resolvedUrl(path + "ollama.svg");
-        if (p.includes("openrouter")) return Qt.resolvedUrl(path + "openrouter.svg");
-        if (p.includes("github")) return Qt.resolvedUrl(path + "github.svg");
-        if (p.includes("perplexity")) return Qt.resolvedUrl(path + "perplexity.svg");
-        if (p.includes("groq")) return Qt.resolvedUrl(path + "groq.svg");
-        if (p.includes("xai")) return Qt.resolvedUrl(path + "xai.svg");
-        if (p.includes("lmstudio") || p.includes("lm_studio")) return Qt.resolvedUrl(path + "lmstudio.svg");
+        if (p.includes("google") || p.includes("gemini")) return path + "gemini.svg";
+        if (p.includes("openai") || p.includes("gpt")) return path + "openai.svg";
+        if (p.includes("mistral")) return path + "mistral.svg";
+        if (p.includes("anthropic") || p.includes("claude")) return path + "anthropic.svg";
+        if (p.includes("deepseek")) return path + "deepseek.svg";
+        if (p.includes("ollama")) return path + "ollama.svg";
+        if (p.includes("openrouter")) return path + "openrouter.svg";
+        if (p.includes("github")) return path + "github.svg";
+        if (p.includes("perplexity")) return path + "perplexity.svg";
+        if (p.includes("groq")) return path + "groq.svg";
+        if (p.includes("xai")) return path + "xai.svg";
+        if (p.includes("lmstudio") || p.includes("lm_studio")) return path + "lmstudio.svg";
         
         return "";
     }
@@ -342,30 +344,55 @@ Popup {
                     spacing: 12
                     
                     // Icon
-                    Item {
-                        Layout.preferredWidth: 24
-                        Layout.preferredHeight: 24
+                    StyledRect {
+                        id: iconRect
+                        Layout.preferredWidth: 32
+                        Layout.preferredHeight: 32
                         Layout.alignment: Qt.AlignVCenter
                         
-                        property string providerIcon: root.getProviderIcon(modelData.api_format)
-                        property string finalIconSource: modelData.icon.endsWith(".svg") ? modelData.icon : (providerIcon !== "" ? providerIcon : "")
+                        variant: delegateBtn.isSelected ? "overprimary" : "common"
+                        radius: Styling.radius(-4)
+                        
+                        property string finalIconSource: {
+                            var src = "";
+                            if (typeof modelData !== "undefined" && modelData !== null) {
+                                // Check explicit icon first
+                                if (modelData.icon && typeof modelData.icon === "string" && modelData.icon.indexOf(".svg") !== -1) {
+                                    src = modelData.icon;
+                                }
+                                // Fallback to provider icon
+                                else if (modelData.api_format) {
+                                    src = root.getProviderIcon(modelData.api_format);
+                                }
+                            }
+                            return src;
+                        }
                         
                         // SVG Icon (if available)
                         Image {
                             anchors.centerIn: parent
-                            width: 24
-                            height: 24
-                            source: parent.finalIconSource
-                            visible: source !== ""
+                            width: 18
+                            height: 18
+                            source: iconRect.finalIconSource
+                            visible: iconRect.finalIconSource.length > 0
                             fillMode: Image.PreserveAspectFit
                             mipmap: true
+                            asynchronous: true
+                            
+                            layer.enabled: true
+                            layer.effect: MultiEffect {
+                                colorization: 1.0
+                                colorizationColor: iconRect.itemColor
+                            }
                         }
 
                         // Font Icon (fallback)
                         Text {
                             anchors.centerIn: parent
                             text: {
-                                if (parent.finalIconSource !== "") return "";
+                                if (iconRect.finalIconSource.length > 0) return "";
+                                if (typeof modelData === "undefined" || modelData === null) return Icons.robot;
+                                
                                 switch(modelData.icon) {
                                     case "sparkles": return Icons.sparkle;
                                     case "openai": return Icons.lightning;
@@ -374,14 +401,19 @@ Popup {
                                 }
                             }
                             font.family: Icons.font
-                            font.pixelSize: 20
-                            visible: parent.finalIconSource === ""
-                            color: delegateBtn.isSelected ? Config.resolveColor(Config.theme.srPrimary.itemColor) : (delegateBtn.isActiveModel ? Colors.primary : Colors.overSurface)
+                            font.pixelSize: 18
+                            visible: iconRect.finalIconSource.length === 0
+                            color: iconRect.itemColor
                             
                             Behavior on color {
                                 enabled: Config.animDuration > 0
                                 ColorAnimation { duration: Config.animDuration / 2; easing.type: Easing.OutCubic }
                             }
+                        }
+                        
+                        Behavior on color {
+                            enabled: Config.animDuration > 0
+                            ColorAnimation { duration: Config.animDuration / 2; easing.type: Easing.OutCubic }
                         }
                     }
                     
