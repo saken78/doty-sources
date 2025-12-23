@@ -40,6 +40,27 @@ Popup {
     property int selectedIndex: -1  // Start with no selection like App Launcher
     property var filteredModels: []
     
+    function getProviderIcon(provider) {
+        if (!provider) return "";
+        let p = provider.toLowerCase();
+        let path = "../../../../assets/aiproviders/";
+        
+        if (p.includes("google") || p.includes("gemini")) return Qt.resolvedUrl(path + "gemini.svg");
+        if (p.includes("openai") || p.includes("gpt")) return Qt.resolvedUrl(path + "openai.svg");
+        if (p.includes("mistral")) return Qt.resolvedUrl(path + "mistral.svg");
+        if (p.includes("anthropic") || p.includes("claude")) return Qt.resolvedUrl(path + "anthropic.svg");
+        if (p.includes("deepseek")) return Qt.resolvedUrl(path + "deepseek.svg");
+        if (p.includes("ollama")) return Qt.resolvedUrl(path + "ollama.svg");
+        if (p.includes("openrouter")) return Qt.resolvedUrl(path + "openrouter.svg");
+        if (p.includes("github")) return Qt.resolvedUrl(path + "github.svg");
+        if (p.includes("perplexity")) return Qt.resolvedUrl(path + "perplexity.svg");
+        if (p.includes("groq")) return Qt.resolvedUrl(path + "groq.svg");
+        if (p.includes("xai")) return Qt.resolvedUrl(path + "xai.svg");
+        if (p.includes("lmstudio") || p.includes("lm_studio")) return Qt.resolvedUrl(path + "lmstudio.svg");
+        
+        return "";
+    }
+    
     function updateFilteredModels() {
         let text = searchInput.text.toLowerCase();
         let allModels = [];
@@ -326,13 +347,16 @@ Popup {
                         Layout.preferredHeight: 24
                         Layout.alignment: Qt.AlignVCenter
                         
+                        property string providerIcon: root.getProviderIcon(modelData.api_format)
+                        property string finalIconSource: modelData.icon.endsWith(".svg") ? modelData.icon : (providerIcon !== "" ? providerIcon : "")
+                        
                         // SVG Icon (if available)
                         Image {
                             anchors.centerIn: parent
                             width: 24
                             height: 24
-                            source: modelData.icon.endsWith(".svg") ? modelData.icon : ""
-                            visible: modelData.icon.endsWith(".svg")
+                            source: parent.finalIconSource
+                            visible: source !== ""
                             fillMode: Image.PreserveAspectFit
                             mipmap: true
                         }
@@ -341,7 +365,7 @@ Popup {
                         Text {
                             anchors.centerIn: parent
                             text: {
-                                if (modelData.icon.endsWith(".svg")) return "";
+                                if (parent.finalIconSource !== "") return "";
                                 switch(modelData.icon) {
                                     case "sparkles": return Icons.sparkle;
                                     case "openai": return Icons.lightning;
@@ -351,7 +375,7 @@ Popup {
                             }
                             font.family: Icons.font
                             font.pixelSize: 20
-                            visible: !modelData.icon.endsWith(".svg")
+                            visible: parent.finalIconSource === ""
                             color: delegateBtn.isSelected ? Config.resolveColor(Config.theme.srPrimary.itemColor) : (delegateBtn.isActiveModel ? Colors.primary : Colors.overSurface)
                             
                             Behavior on color {
