@@ -434,7 +434,27 @@ Item {
                     width: root.contentWidth
                     anchors.horizontalCenter: parent.horizontalCenter
                     title: "Compositor"
-                    // statusText can be added if we track unsaved changes
+                    statusText: GlobalStates.compositorHasChanges ? "Unsaved changes" : ""
+                    statusColor: Colors.error
+
+                    actions: [
+                        {
+                            icon: Icons.arrowCounterClockwise,
+                            tooltip: "Discard changes",
+                            enabled: GlobalStates.compositorHasChanges,
+                            onClicked: function () {
+                                GlobalStates.discardCompositorChanges();
+                            }
+                        },
+                        {
+                            icon: Icons.disk,
+                            tooltip: "Apply changes",
+                            enabled: GlobalStates.compositorHasChanges,
+                            onClicked: function () {
+                                GlobalStates.applyCompositorChanges();
+                            }
+                        }
+                    ]
                 }
             }
 
@@ -506,6 +526,7 @@ Item {
                                 ]
                                 currentIndex: Config.hyprland.layout === "master" ? 1 : 0
                                 onIndexChanged: index => {
+                                    GlobalStates.markCompositorChanged();
                                     Config.hyprland.layout = index === 1 ? "master" : "dwindle";
                                 }
                             }
@@ -514,7 +535,10 @@ Item {
                         ToggleRow {
                             label: "Sync Border Size"
                             checked: Config.hyprland.syncBorderWidth ?? false
-                            onToggled: value => Config.hyprland.syncBorderWidth = value
+                            onToggled: value => {
+                                GlobalStates.markCompositorChanged();
+                                Config.hyprland.syncBorderWidth = value;
+                            }
                         }
 
                         NumberInputRow {
@@ -525,6 +549,7 @@ Item {
                             suffix: "px"
                             enabled: !Config.hyprland.syncBorderWidth
                             onValueEdited: newValue => {
+                                GlobalStates.markCompositorChanged();
                                 Config.hyprland.borderSize = newValue;
                             }
                         }
@@ -532,7 +557,10 @@ Item {
                         ToggleRow {
                             label: "Sync Rounding"
                             checked: Config.hyprland.syncRoundness ?? true
-                            onToggled: value => Config.hyprland.syncRoundness = value
+                            onToggled: value => {
+                                GlobalStates.markCompositorChanged();
+                                Config.hyprland.syncRoundness = value;
+                            }
                         }
 
                         NumberInputRow {
@@ -543,6 +571,7 @@ Item {
                             suffix: "px"
                             enabled: !Config.hyprland.syncRoundness
                             onValueEdited: newValue => {
+                                GlobalStates.markCompositorChanged();
                                 Config.hyprland.rounding = newValue;
                             }
                         }
@@ -554,6 +583,7 @@ Item {
                             maxValue: 50
                             suffix: "px"
                             onValueEdited: newValue => {
+                                GlobalStates.markCompositorChanged();
                                 Config.hyprland.gapsIn = newValue;
                             }
                         }
@@ -565,6 +595,7 @@ Item {
                             maxValue: 50
                             suffix: "px"
                             onValueEdited: newValue => {
+                                GlobalStates.markCompositorChanged();
                                 Config.hyprland.gapsOut = newValue;
                             }
                         }
@@ -575,7 +606,10 @@ Item {
                             minValue: 0
                             maxValue: 360
                             suffix: "deg"
-                            onValueEdited: newValue => Config.hyprland.borderAngle = newValue
+                            onValueEdited: newValue => {
+                                GlobalStates.markCompositorChanged();
+                                Config.hyprland.borderAngle = newValue;
+                            }
                         }
 
                         NumberInputRow {
@@ -584,7 +618,10 @@ Item {
                             minValue: 0
                             maxValue: 360
                             suffix: "deg"
-                            onValueEdited: newValue => Config.hyprland.inactiveBorderAngle = newValue
+                            onValueEdited: newValue => {
+                                GlobalStates.markCompositorChanged();
+                                Config.hyprland.inactiveBorderAngle = newValue;
+                            }
                         }
                     }
 
@@ -607,7 +644,10 @@ Item {
                         ToggleRow {
                             label: "Sync Border Color"
                             checked: Config.hyprland.syncBorderColor ?? false
-                            onToggled: value => Config.hyprland.syncBorderColor = value
+                            onToggled: value => {
+                                GlobalStates.markCompositorChanged();
+                                Config.hyprland.syncBorderColor = value;
+                            }
                         }
 
                         // Active Border Color
@@ -616,7 +656,10 @@ Item {
                             colors: Config.hyprland.activeBorderColor || ["primary"]
                             dialogTitle: "Edit Active Border Color"
                             enabled: !Config.hyprland.syncBorderColor
-                            onColorsEdited: newColors => Config.hyprland.activeBorderColor = newColors
+                            onColorsEdited: newColors => {
+                                GlobalStates.markCompositorChanged();
+                                Config.hyprland.activeBorderColor = newColors;
+                            }
                         }
 
                          // Inactive Border Color
@@ -624,7 +667,10 @@ Item {
                             label: "Inactive Border"
                             colors: Config.hyprland.inactiveBorderColor || ["surface"]
                             dialogTitle: "Edit Inactive Border Color"
-                            onColorsEdited: newColors => Config.hyprland.inactiveBorderColor = newColors
+                            onColorsEdited: newColors => {
+                                GlobalStates.markCompositorChanged();
+                                Config.hyprland.inactiveBorderColor = newColors;
+                            }
                         }
                     }
 
@@ -648,6 +694,7 @@ Item {
                             label: "Enabled"
                             checked: Config.hyprland.shadowEnabled ?? true
                             onToggled: value => {
+                                GlobalStates.markCompositorChanged();
                                 Config.hyprland.shadowEnabled = value;
                             }
                         }
@@ -655,13 +702,19 @@ Item {
                         ToggleRow {
                             label: "Sync Color"
                             checked: Config.hyprland.syncShadowColor ?? false
-                            onToggled: value => Config.hyprland.syncShadowColor = value
+                            onToggled: value => {
+                                GlobalStates.markCompositorChanged();
+                                Config.hyprland.syncShadowColor = value;
+                            }
                         }
 
                         ToggleRow {
                             label: "Sync Opacity"
                             checked: Config.hyprland.syncShadowOpacity ?? false
-                            onToggled: value => Config.hyprland.syncShadowOpacity = value
+                            onToggled: value => {
+                                GlobalStates.markCompositorChanged();
+                                Config.hyprland.syncShadowOpacity = value;
+                            }
                         }
 
                         NumberInputRow {
@@ -671,6 +724,7 @@ Item {
                             maxValue: 100
                             suffix: "px"
                             onValueEdited: newValue => {
+                                GlobalStates.markCompositorChanged();
                                 Config.hyprland.shadowRange = newValue;
                             }
                         }
@@ -680,7 +734,10 @@ Item {
                             value: Config.hyprland.shadowRenderPower ?? 3
                             minValue: 1
                             maxValue: 4
-                            onValueEdited: newValue => Config.hyprland.shadowRenderPower = newValue
+                            onValueEdited: newValue => {
+                                GlobalStates.markCompositorChanged();
+                                Config.hyprland.shadowRenderPower = newValue;
+                            }
                         }
 
                         DecimalInputRow {
@@ -688,7 +745,10 @@ Item {
                             value: Config.hyprland.shadowScale ?? 1.0
                             minValue: 0.0
                             maxValue: 1.0
-                            onValueEdited: newValue => Config.hyprland.shadowScale = newValue
+                            onValueEdited: newValue => {
+                                GlobalStates.markCompositorChanged();
+                                Config.hyprland.shadowScale = newValue;
+                            }
                         }
 
                         DecimalInputRow {
@@ -697,19 +757,28 @@ Item {
                             minValue: 0.0
                             maxValue: 1.0
                             enabled: !Config.hyprland.syncShadowOpacity
-                            onValueEdited: newValue => Config.hyprland.shadowOpacity = newValue
+                            onValueEdited: newValue => {
+                                GlobalStates.markCompositorChanged();
+                                Config.hyprland.shadowOpacity = newValue;
+                            }
                         }
 
                         ToggleRow {
                             label: "Sharp"
                             checked: Config.hyprland.shadowSharp ?? false
-                            onToggled: value => Config.hyprland.shadowSharp = value
+                            onToggled: value => {
+                                GlobalStates.markCompositorChanged();
+                                Config.hyprland.shadowSharp = value;
+                            }
                         }
 
                         ToggleRow {
                             label: "Ignore Window"
                             checked: Config.hyprland.shadowIgnoreWindow ?? true
-                            onToggled: value => Config.hyprland.shadowIgnoreWindow = value
+                            onToggled: value => {
+                                GlobalStates.markCompositorChanged();
+                                Config.hyprland.shadowIgnoreWindow = value;
+                            }
                         }
                     }
 
@@ -733,6 +802,7 @@ Item {
                             label: "Enabled"
                             checked: Config.hyprland.blurEnabled ?? true
                             onToggled: value => {
+                                GlobalStates.markCompositorChanged();
                                 Config.hyprland.blurEnabled = value;
                             }
                         }
@@ -743,6 +813,7 @@ Item {
                             minValue: 0
                             maxValue: 20
                             onValueEdited: newValue => {
+                                GlobalStates.markCompositorChanged();
                                 Config.hyprland.blurSize = newValue;
                             }
                         }
@@ -753,6 +824,7 @@ Item {
                             minValue: 0
                             maxValue: 4
                             onValueEdited: newValue => {
+                                GlobalStates.markCompositorChanged();
                                 Config.hyprland.blurPasses = newValue;
                             }
                         }
@@ -760,19 +832,28 @@ Item {
                         ToggleRow {
                             label: "Xray"
                             checked: Config.hyprland.blurXray ?? false
-                            onToggled: value => Config.hyprland.blurXray = value
+                            onToggled: value => {
+                                GlobalStates.markCompositorChanged();
+                                Config.hyprland.blurXray = value;
+                            }
                         }
 
                         ToggleRow {
                             label: "New Optimizations"
                             checked: Config.hyprland.blurNewOptimizations ?? true
-                            onToggled: value => Config.hyprland.blurNewOptimizations = value
+                            onToggled: value => {
+                                GlobalStates.markCompositorChanged();
+                                Config.hyprland.blurNewOptimizations = value;
+                            }
                         }
 
                         ToggleRow {
                             label: "Ignore Opacity"
                             checked: Config.hyprland.blurIgnoreOpacity ?? true
-                            onToggled: value => Config.hyprland.blurIgnoreOpacity = value
+                            onToggled: value => {
+                                GlobalStates.markCompositorChanged();
+                                Config.hyprland.blurIgnoreOpacity = value;
+                            }
                         }
 
                         DecimalInputRow {
@@ -780,7 +861,10 @@ Item {
                             value: Config.hyprland.blurNoise ?? 0.01
                             minValue: 0.0
                             maxValue: 1.0
-                            onValueEdited: newValue => Config.hyprland.blurNoise = newValue
+                            onValueEdited: newValue => {
+                                GlobalStates.markCompositorChanged();
+                                Config.hyprland.blurNoise = newValue;
+                            }
                         }
 
                         DecimalInputRow {
@@ -788,7 +872,10 @@ Item {
                             value: Config.hyprland.blurContrast ?? 0.89
                             minValue: 0.0
                             maxValue: 2.0
-                            onValueEdited: newValue => Config.hyprland.blurContrast = newValue
+                            onValueEdited: newValue => {
+                                GlobalStates.markCompositorChanged();
+                                Config.hyprland.blurContrast = newValue;
+                            }
                         }
 
                         DecimalInputRow {
@@ -796,7 +883,10 @@ Item {
                             value: Config.hyprland.blurBrightness ?? 0.81
                             minValue: 0.0
                             maxValue: 2.0
-                            onValueEdited: newValue => Config.hyprland.blurBrightness = newValue
+                            onValueEdited: newValue => {
+                                GlobalStates.markCompositorChanged();
+                                Config.hyprland.blurBrightness = newValue;
+                            }
                         }
                         
                         DecimalInputRow {
@@ -804,7 +894,10 @@ Item {
                             value: Config.hyprland.blurVibrancy ?? 0.17
                             minValue: 0.0
                             maxValue: 1.0
-                            onValueEdited: newValue => Config.hyprland.blurVibrancy = newValue
+                            onValueEdited: newValue => {
+                                GlobalStates.markCompositorChanged();
+                                Config.hyprland.blurVibrancy = newValue;
+                            }
                         }
                     }
                     

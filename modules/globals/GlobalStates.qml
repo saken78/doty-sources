@@ -358,4 +358,86 @@ Singleton {
             Config.pauseAutoSave = false;
         }
     }
+
+    // ═══════════════════════════════════════════════════════════════
+    // COMPOSITOR SETTINGS STATE
+    // ═══════════════════════════════════════════════════════════════
+    property bool compositorHasChanges: false
+    property var compositorSnapshot: null
+
+    // Compositor config properties (Hyprland)
+    readonly property var _compositorProps: [
+        "layout",
+        "syncBorderWidth", "borderSize",
+        "syncRoundness", "rounding",
+        "gapsIn", "gapsOut",
+        "borderAngle", "inactiveBorderAngle",
+        "syncBorderColor", "activeBorderColor", "inactiveBorderColor",
+        "shadowEnabled", "syncShadowColor", "syncShadowOpacity",
+        "shadowRange", "shadowRenderPower", "shadowScale",
+        "shadowOpacity", "shadowSharp", "shadowIgnoreWindow",
+        "blurEnabled", "blurSize", "blurPasses", "blurXray",
+        "blurNewOptimizations", "blurIgnoreOpacity",
+        "blurNoise", "blurContrast", "blurBrightness", "blurVibrancy"
+    ]
+
+    // Create a deep copy of the current compositor config
+    function createCompositorSnapshot() {
+        var snapshot = {};
+        for (var i = 0; i < _compositorProps.length; i++) {
+            var prop = _compositorProps[i];
+            var val = Config.hyprland[prop];
+            // Deep copy arrays
+            if (Array.isArray(val)) {
+                snapshot[prop] = JSON.parse(JSON.stringify(val));
+            } else {
+                snapshot[prop] = val;
+            }
+        }
+        return snapshot;
+    }
+
+    // Restore compositor config from snapshot
+    function restoreCompositorSnapshot(snapshot) {
+        if (!snapshot) return;
+        for (var i = 0; i < _compositorProps.length; i++) {
+            var prop = _compositorProps[i];
+            if (snapshot[prop] !== undefined) {
+                var val = snapshot[prop];
+                // Deep copy arrays
+                if (Array.isArray(val)) {
+                    Config.hyprland[prop] = JSON.parse(JSON.stringify(val));
+                } else {
+                    Config.hyprland[prop] = val;
+                }
+            }
+        }
+    }
+
+    function markCompositorChanged() {
+        // Take a snapshot before the first change
+        if (!compositorHasChanges) {
+            compositorSnapshot = createCompositorSnapshot();
+            Config.pauseAutoSave = true;
+        }
+        compositorHasChanges = true;
+    }
+
+    function applyCompositorChanges() {
+        if (compositorHasChanges) {
+            Config.loader.writeAdapter();
+            compositorHasChanges = false;
+            compositorSnapshot = null;
+            Config.pauseAutoSave = false;
+        }
+    }
+
+    function discardCompositorChanges() {
+        if (compositorHasChanges && compositorSnapshot) {
+            restoreCompositorSnapshot(compositorSnapshot);
+            compositorHasChanges = false;
+            compositorSnapshot = null;
+            Config.pauseAutoSave = false;
+        }
+    }
 }
