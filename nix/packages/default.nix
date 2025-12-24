@@ -63,6 +63,10 @@ let
 
     export AMBXST_QS="${quickshellPkg}/bin/qs"
 
+    # Set QML2_IMPORT_PATH to include modules from envAmbxst (like syntax-highlighting)
+    export QML2_IMPORT_PATH="${envAmbxst}/lib/qt-6/qml:$QML2_IMPORT_PATH"
+    export QML_IMPORT_PATH="$QML2_IMPORT_PATH"
+
     # Delegate execution to CLI
     exec ${self}/cli.sh "$@"
   '';
