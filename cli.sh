@@ -350,6 +350,11 @@ help | --help | -h)
   pkill -x easyeffects 2>/dev/null || true
   nohup easyeffects --gapplication-service >/dev/null 2>&1 &
 
+  # Set QS_ICON_THEME environment variable
+  if command -v gsettings >/dev/null 2>&1; then
+      export QS_ICON_THEME=$(gsettings get org.gnome.desktop.interface icon-theme | tr -d "'")
+  fi
+
   # Launch QuickShell with the main shell.qml
   if [ -n "$NIXGL_BIN" ]; then
     exec "$NIXGL_BIN" "$QS_BIN" -p "${SCRIPT_DIR}/shell.qml"
