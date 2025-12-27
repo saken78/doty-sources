@@ -48,7 +48,7 @@ QtObject {
 
     property Process checkProcess: Process {
         id: checkProcess
-        command: ["bash", "-c", "pgrep -f 'gpu-screen-recorder' | grep -v $$ > /dev/null"]
+        command: ["bash", "-c", "pgrep -f 'wf-recorder' | grep -v $$ > /dev/null"]
         onExited: exitCode => {
             var wasRecording = root.isRecording;
             root.isRecording = (exitCode === 0);
@@ -67,7 +67,7 @@ QtObject {
 
     property Process timeProcess: Process {
         id: timeProcess
-        command: ["bash", "-c", "pid=$(pgrep -f 'gpu-screen-recorder' | head -n 1); if [ -n \"$pid\" ]; then ps -o etime= -p \"$pid\"; fi"]
+        command: ["bash", "-c", "pid=$(pgrep -f 'wf-recorder' | head -n 1); if [ -n \"$pid\" ]; then ps -o etime= -p \"$pid\"; fi"]
         stdout: StdioCollector {
             onTextChanged: {
                 root.duration = text.trim();
@@ -79,36 +79,31 @@ QtObject {
         if (isRecording) {
             stopProcess.running = true;
         } else {
-            // Default behavior: Portal, no audio
-            startRecording("portal", "", false, false);
+            // Default behavior: Screen, no audio
+            startRecording("screen", "", false, false);
         }
     }
 
     function startRecording(mode, regionStr, recordAudioOutput, recordAudioInput) {
         if (isRecording) return;
         
-        var cmd = "gpu-screen-recorder -o \"" + root.videosDir + "/$(date +%Y-%m-%d-%H-%M-%S).mp4\"";
-        
-        // Quality and Codec settings
-        cmd += " -q ultra -k h265 -f 60";
+        var scriptPath = Quickshell.env("PWD") + "/scripts/wf-record.sh";
+        var cmd = scriptPath + " -o \"" + root.videosDir + "/$(date +%Y-%m-%d-%H-%M-%S).mp4\"";
         
         // Mode
-        if (mode === "screen") {
-            cmd += " -w screen";
-        } else if (mode === "portal") {
-            cmd += " -w portal";
-        } else if (mode === "region") {
-            cmd += " -w region -region " + regionStr;
+        if (mode === "region") {
+            cmd += " -m region -g \"" + regionStr + "\"";
         } else {
-            cmd += " -w portal";
+            // Default to screen
+            cmd += " -m screen";
         }
         
         // Audio
         if (recordAudioOutput) {
-            cmd += " -a default_output";
+            cmd += " --audio-output";
         }
         if (recordAudioInput) {
-            cmd += " -a default_input";
+            cmd += " --audio-input";
         }
         
         console.log("[ScreenRecorder] Starting with command: " + cmd);
@@ -172,6 +167,6 @@ QtObject {
     
     property Process stopProcess: Process {
         id: stopProcess
-        command: ["killall", "-SIGINT", "gpu-screen-recorder"]
+        command: ["killall", "-SIGINT", "wf-recorder"]
     }
 }

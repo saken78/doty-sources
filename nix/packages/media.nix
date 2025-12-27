@@ -2,10 +2,11 @@
 { pkgs, wrapWithNixGL }:
 
 with pkgs; [
-  (wrapWithNixGL gpu-screen-recorder)
+  (wrapWithNixGL wf-recorder)
   (wrapWithNixGL mpvpaper)
 
   ffmpeg
+  x264
   playerctl
 
   # Audio
