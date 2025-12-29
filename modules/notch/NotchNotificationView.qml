@@ -648,13 +648,14 @@ Item {
                             }
 
                             // Botones de acción (solo visible con hover)
-                            Item {
-                                id: actionButtonsRow
-                                width: parent.width
-                                implicitHeight: (hovered && notification && notification.actions.length > 0 && !notification.isCached) ? 32 : 0
-                                height: implicitHeight
-                                clip: true
-                                z: 200
+                                Item {
+                                    id: actionButtonsRow
+                                    width: parent.width
+                                    implicitHeight: (hovered && notification && notification.actions.length > 0 && !notification.isCached) ? 32 : 0
+                                    height: implicitHeight
+                                    visible: implicitHeight > 0
+                                    clip: true
+                                    z: 200
 
                                 RowLayout {
                                     anchors.fill: parent

@@ -245,7 +245,7 @@ PanelWindow {
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.topMargin: 4
             width: Math.round(popupHovered ? 420 + 48 : 320 + 48)
-            height: shouldShowNotificationPopup ? (popupHovered ? notificationPopup.implicitHeight + 48 : notificationPopup.implicitHeight + 32) : 0
+            height: shouldShowNotificationPopup ? (popupHovered ? notificationPopup.implicitHeight + 32 : notificationPopup.implicitHeight + 32) : 0
             clip: false
             visible: height > 0
             z: 999
