@@ -143,7 +143,7 @@ Item {
                     text: Icons.plus
                     font.family: Icons.font
                     font.pixelSize: 16
-                    color: addButton.itemColor
+                    color: addButton.item
                 }
 
                 MouseArea {
@@ -399,7 +399,7 @@ Item {
                     text: Icons.broom
                     font.family: Icons.font
                     font.pixelSize: 16
-                    color: resetButton.itemColor
+                    color: resetButton.item
                 }
 
                 MouseArea {
@@ -475,7 +475,7 @@ Item {
                         font.family: Styling.defaultFont
                         font.pixelSize: Styling.fontSize(-2)
                         font.bold: true
-                        color: positionPanel.itemColor
+                        color: positionPanel.item
                         opacity: 0.6
                         Layout.alignment: Qt.AlignHCenter
                     }
@@ -505,7 +505,7 @@ Item {
 
                                 font.family: "monospace"
                                 font.pixelSize: Styling.fontSize(-1)
-                                color: positionInputContainer.itemColor
+                                color: positionInputContainer.item
                                 horizontalAlignment: Text.AlignHCenter
                                 verticalAlignment: Text.AlignVCenter
                                 selectByMouse: true
@@ -543,7 +543,7 @@ Item {
                                 text: Icons.trash
                                 font.family: Icons.font
                                 font.pixelSize: 12
-                                color: deleteStopButton.itemColor
+                                color: deleteStopButton.item
                             }
 
                             MouseArea {

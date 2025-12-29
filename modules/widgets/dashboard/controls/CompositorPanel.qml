@@ -470,7 +470,7 @@ Item {
                 layer.enabled: true
                 layer.effect: MultiEffect {
                     colorization: 1.0
-                    colorizationColor: tabBtn.itemColor
+                    colorizationColor: tabBtn.item
                 }
             }
 
@@ -480,7 +480,7 @@ Item {
                 text: tabBtn.icon
                 font.family: Icons.font
                 font.pixelSize: 14
-                color: tabBtn.itemColor
+                color: tabBtn.item
             }
 
             // Label
@@ -489,7 +489,7 @@ Item {
                 font.family: Config.theme.font
                 font.pixelSize: Styling.fontSize(0)
                 font.bold: true
-                color: tabBtn.itemColor
+                color: tabBtn.item
             }
         }
     }

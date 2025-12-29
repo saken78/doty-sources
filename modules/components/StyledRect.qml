@@ -48,7 +48,7 @@ ClippingRectangle {
     readonly property var borderData: variantConfig.border
 
     readonly property color itemColor: Config.resolveColor(variantConfig.itemColor)
-    property alias item: root.itemColor
+    property color item: itemColor
 
     readonly property real rectOpacity: backgroundOpacity >= 0 ? backgroundOpacity : variantConfig.opacity
 

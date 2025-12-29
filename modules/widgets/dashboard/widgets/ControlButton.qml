@@ -29,7 +29,7 @@ StyledRect {
     Text {
         anchors.centerIn: parent
         text: root.iconName
-        color: root.itemColor
+        color: root.item
         font.family: Icons.font
         font.pixelSize: 18
         horizontalAlignment: Text.AlignHCenter

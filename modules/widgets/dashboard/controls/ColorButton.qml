@@ -58,7 +58,7 @@ StyledRect {
                 font.family: Styling.defaultFont
                 font.pixelSize: Styling.fontSize(-2)
                 font.bold: true
-                color: root.itemColor
+                color: root.item
                 opacity: 0.6
                 visible: root.label !== ""
             }
@@ -68,7 +68,7 @@ StyledRect {
                 font.family: Styling.defaultFont
                 font.pixelSize: Styling.fontSize(0)
                 font.bold: true
-                color: root.itemColor
+                color: root.item
                 elide: Text.ElideRight
                 Layout.fillWidth: true
             }
@@ -78,7 +78,7 @@ StyledRect {
             text: Icons.caretRight
             font.family: Icons.font
             font.pixelSize: root.compact ? 12 : 14
-            color: root.itemColor
+            color: root.item
             opacity: 0.5
         }
     }

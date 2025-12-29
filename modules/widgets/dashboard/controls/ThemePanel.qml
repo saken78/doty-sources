@@ -964,7 +964,7 @@ Item {
                                             text: Config.theme.shadowColor
                                             font.family: Config.theme.font
                                             font.pixelSize: Styling.fontSize(0)
-                                            color: shadowColorButton.itemColor
+                                            color: shadowColorButton.item
                                             elide: Text.ElideRight
                                         }
                                     }
@@ -1109,7 +1109,7 @@ Item {
                                                                     text: Icons.accept
                                                                     font.family: Icons.font
                                                                     font.pixelSize: 16
-                                                                    color: variantTagRow.itemColor
+                                                                    color: variantTagRow.item
                                                                     visible: variantTagRow.isSelected
                                                                     opacity: variantTagRow.isSelected ? 1 : 0
 
@@ -1137,7 +1137,7 @@ Item {
                                                                 font.family: Config.theme.font
                                                                 font.pixelSize: Config.theme.fontSize
                                                                 font.bold: true
-                                                                color: variantTagRow.itemColor
+                                                                color: variantTagRow.item
 
                                                                 Behavior on color {
                                                                     enabled: (Config.animDuration ?? 0) > 0
@@ -1265,7 +1265,7 @@ Item {
                                                             text: Icons.accept
                                                             font.family: Icons.font
                                                             font.pixelSize: 16
-                                                            color: variantTag.itemColor
+                                                            color: variantTag.item
                                                             visible: variantTag.isSelected
                                                             opacity: variantTag.isSelected ? 1 : 0
 
@@ -1293,7 +1293,7 @@ Item {
                                                         font.family: Config.theme.font
                                                         font.pixelSize: Config.theme.fontSize
                                                         font.bold: true
-                                                        color: variantTag.itemColor
+                                                        color: variantTag.item
 
                                                         Behavior on color {
                                                             enabled: (Config.animDuration ?? 0) > 0
@@ -1352,7 +1352,7 @@ Item {
                                         text: variantSelectorPane.variantExpanded ? Icons.caretUp : Icons.caretDown
                                         font.family: Icons.font
                                         font.pixelSize: 16
-                                        color: expandToggleButton.itemColor
+                                        color: expandToggleButton.item
                                     }
 
                                     MouseArea {

@@ -30,7 +30,7 @@ Button {
             font.family: Config.theme.font
             font.pixelSize: Config.theme.fontSize
             font.weight: Font.Bold
-            color: buttonBackground.itemColor
+            color: buttonBackground.item
             anchors.verticalCenter: parent.verticalCenter
             leftPadding: 4
             rightPadding: 4
@@ -41,7 +41,7 @@ Button {
             textFormat: Text.RichText
             font.family: Icons.font
             font.pixelSize: Config.theme.fontSize
-            color: buttonBackground.itemColor
+            color: buttonBackground.item
             anchors.verticalCenter: parent.verticalCenter
         }
     }

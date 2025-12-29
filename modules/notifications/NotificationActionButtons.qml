@@ -38,7 +38,7 @@ Item {
 
                 background: Item {
                     id: buttonBg
-                    property color textColor: root.urgency == NotificationUrgency.Critical ? Colors.shadow : styledBg.itemColor
+                    property color textColor: root.urgency == NotificationUrgency.Critical ? Colors.shadow : styledBg.item
                     
                     Rectangle {
                         anchors.fill: parent

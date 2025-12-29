@@ -307,7 +307,7 @@ Item {
                                             font.family: Config.theme.font
                                             font.pixelSize: Styling.fontSize(0)
                                             font.weight: unitButton.isSelected ? Font.Bold : Font.Normal
-                                            color: unitButton.itemColor
+                                            color: unitButton.item
                                         }
 
                                         MouseArea {
@@ -509,7 +509,7 @@ Item {
                                         text: Icons.plus
                                         font.family: Icons.font
                                         font.pixelSize: 14
-                                        color: addDiskButton.itemColor
+                                        color: addDiskButton.item
                                         anchors.verticalCenter: parent.verticalCenter
                                     }
 
@@ -517,7 +517,7 @@ Item {
                                         text: "Add Disk"
                                         font.family: Config.theme.font
                                         font.pixelSize: Styling.fontSize(0)
-                                        color: addDiskButton.itemColor
+                                        color: addDiskButton.item
                                         anchors.verticalCenter: parent.verticalCenter
                                     }
                                 }
@@ -638,7 +638,7 @@ Item {
                                             anchors.centerIn: parent
                                             text: Icons.trash
                                             font.family: Icons.font
-                                            color: deleteListenerBtn.itemColor
+                                            color: deleteListenerBtn.item
                                         }
 
                                         MouseArea {
@@ -709,7 +709,7 @@ Item {
                                 font.family: Config.theme.font
                                 font.pixelSize: Styling.fontSize(0)
                                 font.bold: true
-                                color: addListenerBtn.itemColor
+                                color: addListenerBtn.item
                             }
 
                             MouseArea {

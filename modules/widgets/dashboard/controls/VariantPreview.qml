@@ -54,7 +54,7 @@ Item {
                 text: Icons.cube
                 font.family: Icons.font
                 font.pixelSize: 24
-                color: previewRect.itemColor
+                color: previewRect.item
             }
 
             MouseArea {

@@ -84,7 +84,7 @@ Item {
                                     text: Icons.speakerHigh
                                     font.family: Icons.font
                                     font.pixelSize: 14
-                                    color: outputBtn.itemColor
+                                    color: outputBtn.item
                                     anchors.verticalCenter: parent.verticalCenter
                                 }
                                 
@@ -93,7 +93,7 @@ Item {
                                     font.family: Config.theme.font
                                     font.pixelSize: Styling.fontSize(-1)
                                     font.weight: Font.Medium
-                                    color: outputBtn.itemColor
+                                    color: outputBtn.item
                                     anchors.verticalCenter: parent.verticalCenter
                                 }
                             }
@@ -128,7 +128,7 @@ Item {
                                     text: Icons.mic
                                     font.family: Icons.font
                                     font.pixelSize: 14
-                                    color: inputBtn.itemColor
+                                    color: inputBtn.item
                                     anchors.verticalCenter: parent.verticalCenter
                                 }
                                 
@@ -137,7 +137,7 @@ Item {
                                     font.family: Config.theme.font
                                     font.pixelSize: Styling.fontSize(-1)
                                     font.weight: Font.Medium
-                                    color: inputBtn.itemColor
+                                    color: inputBtn.item
                                     anchors.verticalCenter: parent.verticalCenter
                                 }
                             }

@@ -80,7 +80,7 @@ Item {
             text: root.getLayoutIcon(GlobalStates.hyprlandLayout)
             font.family: Icons.font
             font.pixelSize: 18
-            color: root.popupOpen ? buttonBg.itemColor : Styling.styledRectItem("overprimary")
+            color: root.popupOpen ? buttonBg.item : Styling.styledRectItem("overprimary")
         }
 
         MouseArea {
@@ -153,7 +153,7 @@ Item {
                             text: root.getLayoutIcon(layoutButton.modelData)
                             font.family: Icons.font
                             font.pixelSize: 14
-                            color: layoutButton.itemColor
+                            color: layoutButton.item
                         }
 
                         Text {
@@ -162,7 +162,7 @@ Item {
                             font.family: Styling.defaultFont
                             font.pixelSize: Styling.fontSize(0)
                             font.bold: true
-                            color: layoutButton.itemColor
+                            color: layoutButton.item
                         }
                     }
 

@@ -659,7 +659,7 @@ Rectangle {
                                 text: root.clearButtonConfirmState ? Icons.xeyes : Icons.broom
                                 font.family: Icons.font
                                 font.pixelSize: 20
-                                color: root.clearButtonConfirmState ? clearButton.itemColor : Styling.styledRectItem("overprimary")
+                                color: root.clearButtonConfirmState ? clearButton.item : Styling.styledRectItem("overprimary")
                                 horizontalAlignment: Text.AlignHCenter
                                 verticalAlignment: Text.AlignVCenter
                                 textFormat: Text.RichText
@@ -672,7 +672,7 @@ Rectangle {
                                 font.family: Config.theme.font
                                 font.weight: Font.Bold
                                 font.pixelSize: Config.theme.fontSize
-                                color: clearButton.itemColor
+                                color: clearButton.item
                                 opacity: root.clearButtonConfirmState ? 1.0 : 0.0
                                 visible: opacity > 0
                                 verticalAlignment: Text.AlignVCenter
@@ -908,7 +908,7 @@ Rectangle {
                                 Text {
                                     id: emojiIcon
                                     anchors.centerIn: parent
-                                    color: emojiIconBackground.itemColor
+                                    color: emojiIconBackground.item
                                     text: modelData.emoji
                                     font.pixelSize: 24
                                     horizontalAlignment: Text.AlignHCenter
@@ -1338,7 +1338,7 @@ Rectangle {
                                     Text {
                                         id: recentEmojiIcon
                                         anchors.centerIn: parent
-                                        color: recentEmojiIconBackground.itemColor
+                                        color: recentEmojiIconBackground.item
                                         text: modelData.emoji
                                         font.pixelSize: 24
                                         horizontalAlignment: Text.AlignHCenter

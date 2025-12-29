@@ -66,7 +66,7 @@ Item {
                     text: Icons.arrowLeft
                     font.family: Icons.font
                     font.pixelSize: 16
-                    color: backButton.itemColor
+                    color: backButton.item
                 }
 
                 MouseArea {
@@ -191,7 +191,7 @@ Item {
                         text: Icons.picker
                         font.family: Icons.font
                         font.pixelSize: 14
-                        color: pickerButton.itemColor
+                        color: pickerButton.item
                     }
 
                     MouseArea {
@@ -265,7 +265,7 @@ Item {
                             text: colorItem.modelData
                             font.family: Styling.defaultFont
                             font.pixelSize: Styling.fontSize(-2)
-                            color: colorItemRect.itemColor
+                            color: colorItemRect.item
                             Layout.fillWidth: true
                             elide: Text.ElideRight
                         }

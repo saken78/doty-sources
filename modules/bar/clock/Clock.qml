@@ -67,7 +67,7 @@ Item {
             Text {
                 id: dayDisplay
                 text: root.weatherAvailable ? WeatherService.weatherSymbol : root.currentDayAbbrev
-                color: root.popupOpen ? buttonBg.itemColor : Colors.overBackground
+                color: root.popupOpen ? buttonBg.item : Colors.overBackground
                 font.pixelSize: root.weatherAvailable ? 16 : Config.theme.fontSize
                 font.family: root.weatherAvailable ? Config.theme.font : Config.theme.font
                 font.bold: !root.weatherAvailable
@@ -81,7 +81,7 @@ Item {
             Text {
                 id: timeDisplay
                 text: root.currentTime
-                color: root.popupOpen ? buttonBg.itemColor : Colors.overBackground
+                color: root.popupOpen ? buttonBg.item : Colors.overBackground
                 font.pixelSize: Config.theme.fontSize
                 font.family: Config.theme.font
                 font.bold: true
@@ -98,7 +98,7 @@ Item {
             Text {
                 id: dayDisplayV
                 text: root.weatherAvailable ? WeatherService.weatherSymbol : root.currentDayAbbrev
-                color: root.popupOpen ? buttonBg.itemColor : Colors.overBackground
+                color: root.popupOpen ? buttonBg.item : Colors.overBackground
                 font.pixelSize: root.weatherAvailable ? 16 : Config.theme.fontSize
                 font.family: Config.theme.font
                 font.bold: !root.weatherAvailable
@@ -116,7 +116,7 @@ Item {
             Text {
                 id: hoursDisplayV
                 text: root.currentHours
-                color: root.popupOpen ? buttonBg.itemColor : Colors.overBackground
+                color: root.popupOpen ? buttonBg.item : Colors.overBackground
                 font.pixelSize: Config.theme.fontSize
                 font.family: Config.theme.font
                 font.bold: true
@@ -128,7 +128,7 @@ Item {
             Text {
                 id: minutesDisplayV
                 text: root.currentMinutes
-                color: root.popupOpen ? buttonBg.itemColor : Colors.overBackground
+                color: root.popupOpen ? buttonBg.item : Colors.overBackground
                 font.pixelSize: Config.theme.fontSize
                 font.family: Config.theme.font
                 font.bold: true

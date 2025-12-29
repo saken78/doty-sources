@@ -527,7 +527,7 @@ Item {
                                 text: categoryTag.modelData.icon
                                 font.family: Icons.font
                                 font.pixelSize: 14
-                                color: categoryTag.itemColor
+                                color: categoryTag.item
                                 anchors.verticalCenter: parent.verticalCenter
                             }
 
@@ -536,7 +536,7 @@ Item {
                                 font.family: Config.theme.font
                                 font.pixelSize: Styling.fontSize(0)
                                 font.weight: categoryTag.isSelected ? Font.Bold : Font.Normal
-                                color: categoryTag.itemColor
+                                color: categoryTag.item
                                 anchors.verticalCenter: parent.verticalCenter
                             }
                         }
@@ -776,7 +776,7 @@ Item {
                                 text: Icons.caretLeft
                                 font.family: Icons.font
                                 font.pixelSize: 16
-                                color: backButton.itemColor
+                                color: backButton.item
                             }
 
                             MouseArea {
@@ -846,7 +846,7 @@ Item {
                                     text: Icons.accept
                                     font.family: Icons.font
                                     font.pixelSize: 14
-                                    color: saveButton.itemColor
+                                    color: saveButton.item
                                     anchors.verticalCenter: parent.verticalCenter
                                 }
 
@@ -855,7 +855,7 @@ Item {
                                     font.family: Config.theme.font
                                     font.pixelSize: Styling.fontSize(0)
                                     font.weight: Font.Medium
-                                    color: saveButton.itemColor
+                                    color: saveButton.item
                                     anchors.verticalCenter: parent.verticalCenter
                                 }
                             }
@@ -1041,7 +1041,7 @@ Item {
                                         text: Icons.caretLeft
                                         font.family: Icons.font
                                         font.pixelSize: 12
-                                        color: prevKeyBtn.itemColor
+                                        color: prevKeyBtn.item
                                     }
 
                                     MouseArea {
@@ -1072,7 +1072,7 @@ Item {
                                         text: Icons.caretRight
                                         font.family: Icons.font
                                         font.pixelSize: 12
-                                        color: nextKeyBtn.itemColor
+                                        color: nextKeyBtn.item
                                     }
 
                                     MouseArea {
@@ -1102,7 +1102,7 @@ Item {
                                         text: Icons.plus
                                         font.family: Icons.font
                                         font.pixelSize: 12
-                                        color: addKeyBtn.itemColor
+                                        color: addKeyBtn.item
                                     }
 
                                     MouseArea {
@@ -1148,7 +1148,7 @@ Item {
                                             font.family: Config.theme.font
                                             font.pixelSize: Styling.fontSize(0)
                                             font.weight: modTag.isSelected ? Font.Bold : Font.Normal
-                                            color: modTag.itemColor
+                                            color: modTag.item
                                         }
 
                                         MouseArea {
@@ -1274,7 +1274,7 @@ Item {
                                         text: Icons.caretLeft
                                         font.family: Icons.font
                                         font.pixelSize: 12
-                                        color: prevActionBtn.itemColor
+                                        color: prevActionBtn.item
                                     }
 
                                     MouseArea {
@@ -1305,7 +1305,7 @@ Item {
                                         text: Icons.caretRight
                                         font.family: Icons.font
                                         font.pixelSize: 12
-                                        color: nextActionBtn.itemColor
+                                        color: nextActionBtn.item
                                     }
 
                                     MouseArea {
@@ -1334,7 +1334,7 @@ Item {
                                         text: Icons.plus
                                         font.family: Icons.font
                                         font.pixelSize: 12
-                                        color: addActionBtn.itemColor
+                                        color: addActionBtn.item
                                     }
 
                                     MouseArea {
@@ -1541,7 +1541,7 @@ Item {
                                                     text: Icons.accept
                                                     font.family: Icons.font
                                                     font.pixelSize: 14
-                                                    color: layoutTag.itemColor
+                                                    color: layoutTag.item
                                                     visible: layoutTag.isSelected
                                                     opacity: layoutTag.isSelected ? 1 : 0
 
@@ -1569,7 +1569,7 @@ Item {
                                                 font.family: Config.theme.font
                                                 font.pixelSize: Styling.fontSize(0)
                                                 font.weight: layoutTag.isSelected ? Font.Bold : Font.Normal
-                                                color: layoutTag.itemColor
+                                                color: layoutTag.item
                                             }
                                         }
 
@@ -1692,7 +1692,7 @@ Item {
                     font.family: Config.theme.font
                     font.pixelSize: Styling.fontSize(0)
                     font.weight: Font.Medium
-                    color: bindItem.itemColor
+                    color: bindItem.item
                     elide: Text.ElideRight
                     Layout.fillWidth: true
                 }

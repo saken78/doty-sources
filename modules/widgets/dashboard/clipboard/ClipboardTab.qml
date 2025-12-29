@@ -927,7 +927,7 @@ Item {
                             textFormat: Text.RichText
                             font.family: Icons.font
                             font.pixelSize: 20
-                            color: root.clearButtonConfirmState ? clearButton.itemColor : Styling.styledRectItem("overprimary")
+                            color: root.clearButtonConfirmState ? clearButton.item : Styling.styledRectItem("overprimary")
                             horizontalAlignment: Text.AlignHCenter
                             verticalAlignment: Text.AlignVCenter
                         }
@@ -939,7 +939,7 @@ Item {
                             font.family: Config.theme.font
                             font.weight: Font.Bold
                             font.pixelSize: Config.theme.fontSize
-                            color: clearButton.itemColor
+                            color: clearButton.item
                             opacity: root.clearButtonConfirmState ? 1.0 : 0.0
                             visible: opacity > 0
                             verticalAlignment: Text.AlignVCenter
@@ -2102,7 +2102,7 @@ Item {
                                                 return Icons.globe; // Fallback for URLs (failed favicon or no favicon)
                                             return Icons.clip;
                                         }
-                                        color: iconBackground.itemColor
+                                        color: iconBackground.item
                                         font.family: Icons.font
                                         font.pixelSize: 16
                                         textFormat: Text.RichText

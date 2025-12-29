@@ -349,7 +349,7 @@ Item {
                         text: optionButton.modelData.icon ?? ""
                         font.family: Icons.font
                         font.pixelSize: 14
-                        color: optionButton.itemColor
+                        color: optionButton.item
                         visible: (optionButton.modelData.icon ?? "") !== ""
                     }
 
@@ -359,7 +359,7 @@ Item {
                         font.family: Config.theme.font
                         font.pixelSize: Styling.fontSize(0)
                         font.bold: true
-                        color: optionButton.itemColor
+                        color: optionButton.item
                     }
 
                     MouseArea {
@@ -434,7 +434,7 @@ Item {
                         font.family: Config.theme.font
                         font.pixelSize: Styling.fontSize(-1)
                         font.bold: screenButton.isSelected
-                        color: screenButton.itemColor
+                        color: screenButton.item
                     }
 
                     MouseArea {

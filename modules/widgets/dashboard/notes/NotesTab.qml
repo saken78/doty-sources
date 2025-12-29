@@ -1674,7 +1674,7 @@ Item {
                                         return Icons.file;
                                     }
                                 }
-                                color: iconBackground.itemColor
+                                color: iconBackground.item
                                 font.family: Icons.font
                                 font.pixelSize: 16
                                 textFormat: Text.RichText

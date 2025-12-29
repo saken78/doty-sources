@@ -262,7 +262,7 @@ FocusScope {
                                     text: Icons.accept
                                     font.family: Icons.font
                                     font.pixelSize: 16
-                                    color: filterTag.itemColor
+                                    color: filterTag.item
                                     visible: isActive
                                     opacity: isActive ? 1 : 0
 
@@ -289,7 +289,7 @@ FocusScope {
                                 text: label
                                 font.family: Config.theme.font
                                 font.pixelSize: Config.theme.fontSize
-                                color: filterTag.itemColor
+                                color: filterTag.item
 
                                 Behavior on color {
                                     enabled: Config.animDuration > 0

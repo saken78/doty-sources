@@ -406,7 +406,7 @@ Popup {
                                 brightness: 1.0
                                 contrast: 0.0
                                 colorization: 1.0
-                                colorizationColor: iconRect.itemColor
+                                colorizationColor: iconRect.item
                             }
                         }
 
@@ -433,7 +433,7 @@ Popup {
                             font.family: Icons.font
                             font.pixelSize: 18
                             visible: iconRect.finalIconSource.length === 0
-                            color: iconRect.itemColor
+                            color: iconRect.item
 
                             Behavior on color {
                                 enabled: Config.animDuration > 0

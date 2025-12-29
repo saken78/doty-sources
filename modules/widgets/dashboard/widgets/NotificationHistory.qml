@@ -101,7 +101,7 @@ Item {
                             font.family: Config.defaultFont
                             font.pixelSize: Config.theme.fontSize
                             font.weight: Font.Bold
-                            color: titleRect.itemColor
+                            color: titleRect.item
                             horizontalAlignment: Text.AlignHCenter
                         }
                     }
@@ -113,7 +113,7 @@ Item {
                         Layout.fillHeight: true
                         radius: Notifications.silent ? Styling.radius(-4) : Styling.radius(0)
 
-                        readonly property color dndItemColor: Notifications.silent ? itemColor : Styling.styledRectItem("overprimary")
+                        readonly property color dndItem: Notifications.silent ? itemColor : Styling.styledRectItem("overprimary")
 
                         Text {
                             anchors.centerIn: parent
@@ -121,7 +121,7 @@ Item {
                             textFormat: Text.RichText
                             font.family: Icons.font
                             font.pixelSize: 18
-                            color: dndToggle.dndItemColor
+                            color: dndToggle.dndItem
                         }
 
                         MouseArea {
@@ -140,7 +140,7 @@ Item {
                         Layout.fillHeight: true
                         radius: Styling.radius(0)
 
-                        readonly property color clearItemColor: broomHover.pressed ? itemColor : Styling.styledRectItem("overerror")
+                        readonly property color clearItem: broomHover.pressed ? itemColor : Styling.styledRectItem("overerror")
 
                         Text {
                             anchors.centerIn: parent
@@ -148,7 +148,7 @@ Item {
                             textFormat: Text.RichText
                             font.family: Icons.font
                             font.pixelSize: 18
-                            color: clearButton.clearItemColor
+                            color: clearButton.clearItem
                         }
 
                         MouseArea {

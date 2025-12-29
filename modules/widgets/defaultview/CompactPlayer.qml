@@ -534,14 +534,14 @@ Item {
                             text: compactPlayer.getPlayerIcon(playerItem.modelData)
                             font.family: Icons.font
                             font.pixelSize: 16
-                            color: playerItem.itemColor
+                            color: playerItem.item
                         }
 
                         Text {
                             text: playerItem.modelData.trackTitle || playerItem.modelData.identity || "Unknown Player"
                             font.family: Styling.defaultFont
                             font.pixelSize: Styling.fontSize(0)
-                            color: playerItem.itemColor
+                            color: playerItem.item
                             Layout.fillWidth: true
                             elide: Text.ElideRight
                         }

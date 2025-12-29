@@ -441,7 +441,7 @@ WlSessionLockSurface {
                             text: authenticating ? Icons.spinnerGap : Icons.user
                             font.family: Icons.font
                             font.pixelSize: 24
-                            color: passwordFieldBg.itemColor
+                            color: passwordFieldBg.item
                             Layout.preferredWidth: 24
                             Layout.preferredHeight: 24
                             Layout.alignment: Qt.AlignVCenter
@@ -479,10 +479,10 @@ WlSessionLockSurface {
                             Layout.fillWidth: true
                             Layout.alignment: Qt.AlignVCenter
                             placeholderText: usernameCollector.text.trim()
-                            placeholderTextColor: Qt.rgba(passwordFieldBg.itemColor.r, passwordFieldBg.itemColor.g, passwordFieldBg.itemColor.b, 0.5)
+                            placeholderTextColor: Qt.rgba(passwordFieldBg.item.r, passwordFieldBg.item.g, passwordFieldBg.item.b, 0.5)
                             font.family: Config.theme.font
                             font.pixelSize: Styling.fontSize(0)
-                            color: passwordFieldBg.itemColor
+                            color: passwordFieldBg.item
                             background: null
                             echoMode: TextInput.Password
                             verticalAlignment: TextInput.AlignVCenter

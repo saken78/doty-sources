@@ -421,7 +421,7 @@ Item {
                         background: Item {
                             id: delegateBtnBg
                             property bool isCritical: latestNotification && latestNotification.urgency == NotificationUrgency.Critical
-                            property color textColor: isCritical ? Colors.shadow : styledBg.itemColor
+                            property color textColor: isCritical ? Colors.shadow : styledBg.item
 
                             Rectangle {
                                 anchors.fill: parent

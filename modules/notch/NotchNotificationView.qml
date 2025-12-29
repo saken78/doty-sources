@@ -676,7 +676,7 @@ Item {
 
                                                 background: Item {
                                                     id: notchActionBg
-                                                    property color textColor: notification && notification.urgency == NotificationUrgency.Critical ? Colors.shadow : notchActionStyled.itemColor
+                                                    property color textColor: notification && notification.urgency == NotificationUrgency.Critical ? Colors.shadow : notchActionStyled.item
                                                     
                                                     Rectangle {
                                                         anchors.fill: parent

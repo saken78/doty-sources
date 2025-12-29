@@ -151,7 +151,7 @@ Item {
             text: Battery.available ? (Battery.isPluggedIn ? Icons.plug : Icons.lightning) : PowerProfile.getProfileIcon(PowerProfile.currentProfile)
             font.family: Icons.font
             font.pixelSize: Battery.available ? 14 : 18
-            color: root.popupOpen ? buttonBg.itemColor : Colors.overBackground
+            color: root.popupOpen ? buttonBg.item : Colors.overBackground
             
             Behavior on color {
                 enabled: Config.animDuration > 0
@@ -290,7 +290,7 @@ Item {
                             text: PowerProfile.getProfileIcon(profileButton.modelData)
                             font.family: Icons.font
                             font.pixelSize: 14
-                            color: profileButton.itemColor
+                            color: profileButton.item
                         }
 
                         Text {
@@ -299,7 +299,7 @@ Item {
                             font.family: Styling.defaultFont
                             font.pixelSize: Styling.fontSize(0)
                             font.bold: true
-                            color: profileButton.itemColor
+                            color: profileButton.item
                         }
                     }
 

@@ -64,7 +64,7 @@ Item {
                             font.family: Config.defaultFont
                             font.pixelSize: Config.theme.fontSize
                             font.weight: Font.Bold
-                            color: titleRect.itemColor
+                            color: titleRect.item
                             horizontalAlignment: Text.AlignHCenter
                         }
                     }
@@ -76,13 +76,13 @@ Item {
                         Layout.fillHeight: true
                         radius: Styling.radius(0)
 
-                        readonly property color buttonItemColor: leftMouseArea.pressed ? itemColor : Styling.styledRectItem("overprimary")
+                        readonly property color buttonItem: leftMouseArea.pressed ? itemColor : Styling.styledRectItem("overprimary")
 
                         Text {
                             anchors.centerIn: parent
                             text: Icons.caretLeft
                             font.pixelSize: 16
-                            color: leftButton.buttonItemColor
+                            color: leftButton.buttonItem
                         }
 
                         MouseArea {
@@ -101,13 +101,13 @@ Item {
                         Layout.fillHeight: true
                         radius: Styling.radius(0)
 
-                        readonly property color buttonItemColor: rightMouseArea.pressed ? itemColor : Styling.styledRectItem("overprimary")
+                        readonly property color buttonItem: rightMouseArea.pressed ? itemColor : Styling.styledRectItem("overprimary")
 
                         Text {
                             anchors.centerIn: parent
                             text: Icons.caretRight
                             font.pixelSize: 16
-                            color: rightButton.buttonItemColor
+                            color: rightButton.buttonItem
                         }
 
                         MouseArea {
