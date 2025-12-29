@@ -12,7 +12,7 @@ Item {
     id: root
 
     required property WifiAccessPoint network
-    
+
     property bool expanded: false
 
     implicitHeight: contentColumn.implicitHeight + 16
@@ -63,14 +63,17 @@ Item {
                     anchors.centerIn: parent
                     text: {
                         const strength = root.network?.strength ?? 0;
-                        if (strength > 80) return Icons.wifiHigh;
-                        if (strength > 55) return Icons.wifiMedium;
-                        if (strength > 30) return Icons.wifiLow;
+                        if (strength > 80)
+                            return Icons.wifiHigh;
+                        if (strength > 55)
+                            return Icons.wifiMedium;
+                        if (strength > 30)
+                            return Icons.wifiLow;
                         return Icons.wifiNone;
                     }
                     font.family: Icons.font
                     font.pixelSize: 20
-                    color: root.network?.active ? Colors.primary : Colors.overBackground
+                    color: root.network?.active ? Styling.styledRectItem("overprimary") : Colors.overBackground
                 }
 
                 // Lock icon for secure networks
@@ -105,8 +108,10 @@ Item {
                     Layout.fillWidth: true
                     visible: root.network?.active || root.expanded
                     text: {
-                        if (root.network?.active) return "Connected";
-                        if (root.network?.isSecure) return "Secured";
+                        if (root.network?.active)
+                            return "Connected";
+                        if (root.network?.isSecure)
+                            return "Secured";
                         return "Open";
                     }
                     font.family: Config.theme.font
@@ -116,7 +121,9 @@ Item {
 
                     Behavior on opacity {
                         enabled: Config.animDuration > 0
-                        NumberAnimation { duration: Config.animDuration / 2 }
+                        NumberAnimation {
+                            duration: Config.animDuration / 2
+                        }
                     }
                 }
             }
@@ -149,7 +156,9 @@ Item {
 
             Behavior on opacity {
                 enabled: Config.animDuration > 0
-                NumberAnimation { duration: Config.animDuration / 2 }
+                NumberAnimation {
+                    duration: Config.animDuration / 2
+                }
             }
 
             // Password input (shown when required)
@@ -161,7 +170,7 @@ Item {
                 passwordMode: true
                 implicitHeight: 40
                 variant: "internalbg"
-                
+
                 onAccepted: {
                     if (text.length > 0) {
                         NetworkService.changePassword(root.network, text);
@@ -175,7 +184,9 @@ Item {
                 Layout.fillWidth: true
                 spacing: 8
 
-                Item { Layout.fillWidth: true }
+                Item {
+                    Layout.fillWidth: true
+                }
 
                 Button {
                     id: actionButton
@@ -192,9 +203,7 @@ Item {
                         text: root.network?.active ? "Disconnect" : "Connect"
                         font.family: Config.theme.font
                         font.pixelSize: Styling.fontSize(-1)
-                        color: root.network?.active 
-                            ? Colors.overSurfaceVariant 
-                            : Styling.styledRectItem("primary")
+                        color: root.network?.active ? Colors.overSurfaceVariant : Styling.styledRectItem("primary")
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
                     }

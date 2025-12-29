@@ -52,19 +52,19 @@ Item {
         id: sectionBtn
         required property string text
         required property string sectionId
-        
+
         property bool isHovered: false
-        
+
         variant: isHovered ? "focus" : "pane"
         Layout.fillWidth: true
         Layout.preferredHeight: 56
         radius: Styling.radius(0)
-        
+
         RowLayout {
             anchors.fill: parent
             anchors.margins: 16
             spacing: 16
-            
+
             Text {
                 text: sectionBtn.text
                 font.family: Config.theme.font
@@ -73,7 +73,7 @@ Item {
                 color: Colors.overBackground
                 Layout.fillWidth: true
             }
-            
+
             Text {
                 text: Icons.caretRight
                 font.family: Icons.font
@@ -81,7 +81,7 @@ Item {
                 color: Colors.overSurfaceVariant
             }
         }
-        
+
         MouseArea {
             anchors.fill: parent
             hoverEnabled: true
@@ -137,12 +137,14 @@ Item {
                 x: toggleSwitch.leftPadding
                 y: parent.height / 2 - height / 2
                 radius: height / 2
-                color: toggleSwitch.checked ? Colors.primary : Colors.surfaceBright
-                border.color: toggleSwitch.checked ? Colors.primary : Colors.outline
+                color: toggleSwitch.checked ? Styling.styledRectItem("overprimary") : Colors.surfaceBright
+                border.color: toggleSwitch.checked ? Styling.styledRectItem("overprimary") : Colors.outline
 
                 Behavior on color {
                     enabled: Config.animDuration > 0
-                    ColorAnimation { duration: Config.animDuration / 2 }
+                    ColorAnimation {
+                        duration: Config.animDuration / 2
+                    }
                 }
 
                 Rectangle {
@@ -155,7 +157,10 @@ Item {
 
                     Behavior on x {
                         enabled: Config.animDuration > 0
-                        NumberAnimation { duration: Config.animDuration / 2; easing.type: Easing.OutCubic }
+                        NumberAnimation {
+                            duration: Config.animDuration / 2
+                            easing.type: Easing.OutCubic
+                        }
                     }
                 }
             }
@@ -201,7 +206,10 @@ Item {
                 clip: true
                 verticalAlignment: TextInput.AlignVCenter
                 horizontalAlignment: TextInput.AlignHCenter
-                validator: IntValidator { bottom: numberInputRowRoot.minValue; top: numberInputRowRoot.maxValue }
+                validator: IntValidator {
+                    bottom: numberInputRowRoot.minValue
+                    top: numberInputRowRoot.maxValue
+                }
 
                 // Sync text when external value changes
                 readonly property int configValue: numberInputRowRoot.value
@@ -303,7 +311,8 @@ Item {
 
         function getIndexFromValue(val: string): int {
             for (let i = 0; i < options.length; i++) {
-                if (options[i].value === val) return i;
+                if (options[i].value === val)
+                    return i;
             }
             return 0;
         }
@@ -529,15 +538,19 @@ Item {
                                 }
                             }
                         ];
-                        
+
                         if (root.currentSection !== "") {
-                            return [{
-                                icon: Icons.arrowLeft,
-                                tooltip: "Back",
-                                onClicked: function() { root.currentSection = ""; }
-                            }].concat(baseActions);
+                            return [
+                                {
+                                    icon: Icons.arrowLeft,
+                                    tooltip: "Back",
+                                    onClicked: function () {
+                                        root.currentSection = "";
+                                    }
+                                }
+                            ].concat(baseActions);
                         }
-                        
+
                         return baseActions;
                     }
                 }
@@ -562,14 +575,38 @@ Item {
                         Layout.fillWidth: true
                         spacing: 8
 
-                        SectionButton { text: "Bar"; sectionId: "bar" }
-                        SectionButton { text: "Notch"; sectionId: "notch" }
-                        SectionButton { text: "Workspaces"; sectionId: "workspaces" }
-                        SectionButton { text: "Overview"; sectionId: "overview" }
-                        SectionButton { text: "Dock"; sectionId: "dock" }
-                        SectionButton { text: "Lockscreen"; sectionId: "lockscreen" }
-                        SectionButton { text: "Desktop"; sectionId: "desktop" }
-                        SectionButton { text: "System"; sectionId: "system" }
+                        SectionButton {
+                            text: "Bar"
+                            sectionId: "bar"
+                        }
+                        SectionButton {
+                            text: "Notch"
+                            sectionId: "notch"
+                        }
+                        SectionButton {
+                            text: "Workspaces"
+                            sectionId: "workspaces"
+                        }
+                        SectionButton {
+                            text: "Overview"
+                            sectionId: "overview"
+                        }
+                        SectionButton {
+                            text: "Dock"
+                            sectionId: "dock"
+                        }
+                        SectionButton {
+                            text: "Lockscreen"
+                            sectionId: "lockscreen"
+                        }
+                        SectionButton {
+                            text: "Desktop"
+                            sectionId: "desktop"
+                        }
+                        SectionButton {
+                            text: "System"
+                            sectionId: "system"
+                        }
                     }
 
                     // ═══════════════════════════════════════════════════════════════
@@ -592,10 +629,26 @@ Item {
                         SelectorRow {
                             label: ""
                             options: [
-                                { label: "Top", value: "top", icon: Icons.arrowUp },
-                                { label: "Bottom", value: "bottom", icon: Icons.arrowDown },
-                                { label: "Left", value: "left", icon: Icons.arrowLeft },
-                                { label: "Right", value: "right", icon: Icons.arrowRight }
+                                {
+                                    label: "Top",
+                                    value: "top",
+                                    icon: Icons.arrowUp
+                                },
+                                {
+                                    label: "Bottom",
+                                    value: "bottom",
+                                    icon: Icons.arrowDown
+                                },
+                                {
+                                    label: "Left",
+                                    value: "left",
+                                    icon: Icons.arrowLeft
+                                },
+                                {
+                                    label: "Right",
+                                    value: "right",
+                                    icon: Icons.arrowRight
+                                }
                             ]
                             value: Config.bar.position ?? "top"
                             onValueSelected: newValue => {
@@ -675,7 +728,10 @@ Item {
                         }
                     }
 
-                    Separator { Layout.fillWidth: true; visible: false }
+                    Separator {
+                        Layout.fillWidth: true
+                        visible: false
+                    }
 
                     // ═══════════════════════════════════════════════════════════════
                     // NOTCH SECTION
@@ -697,8 +753,14 @@ Item {
                         SelectorRow {
                             label: ""
                             options: [
-                                { label: "Default", value: "default" },
-                                { label: "Island", value: "island" }
+                                {
+                                    label: "Default",
+                                    value: "default"
+                                },
+                                {
+                                    label: "Island",
+                                    value: "island"
+                                }
                             ]
                             value: Config.notch.theme ?? "default"
                             onValueSelected: newValue => {
@@ -724,7 +786,10 @@ Item {
                         }
                     }
 
-                    Separator { Layout.fillWidth: true; visible: false }
+                    Separator {
+                        Layout.fillWidth: true
+                        visible: false
+                    }
 
                     // ═══════════════════════════════════════════════════════════════
                     // WORKSPACES SECTION
@@ -801,7 +866,10 @@ Item {
                         }
                     }
 
-                    Separator { Layout.fillWidth: true; visible: false }
+                    Separator {
+                        Layout.fillWidth: true
+                        visible: false
+                    }
 
                     // ═══════════════════════════════════════════════════════════════
                     // OVERVIEW SECTION
@@ -862,7 +930,7 @@ Item {
                                 id: overviewScaleSlider
                                 Layout.fillWidth: true
                                 Layout.preferredHeight: 20
-                                progressColor: Colors.primary
+                                progressColor: Styling.styledRectItem("overprimary")
                                 tooltipText: `${(value * 0.2).toFixed(2)}`
                                 scroll: true
                                 stepSize: 0.05  // 0.05 * 0.2 = 0.01 scale steps
@@ -912,7 +980,10 @@ Item {
                         }
                     }
 
-                    Separator { Layout.fillWidth: true; visible: false }
+                    Separator {
+                        Layout.fillWidth: true
+                        visible: false
+                    }
 
                     // ═══════════════════════════════════════════════════════════════
                     // DOCK SECTION
@@ -945,9 +1016,18 @@ Item {
                         SelectorRow {
                             label: ""
                             options: [
-                                { label: "Default", value: "default" },
-                                { label: "Floating", value: "floating" },
-                                { label: "Integrated", value: "integrated" }
+                                {
+                                    label: "Default",
+                                    value: "default"
+                                },
+                                {
+                                    label: "Floating",
+                                    value: "floating"
+                                },
+                                {
+                                    label: "Integrated",
+                                    value: "integrated"
+                                }
                             ]
                             value: Config.dock.theme ?? "default"
                             onValueSelected: newValue => {
@@ -963,9 +1043,21 @@ Item {
                             options: {
                                 const isIntegrated = (Config.dock.theme ?? "default") === "integrated";
                                 return [
-                                    { label: isIntegrated ? "Start" : "Left", value: "left", icon: isIntegrated ? Icons.alignLeft : Icons.arrowLeft },
-                                    { label: isIntegrated ? "Center" : "Bottom", value: "bottom", icon: isIntegrated ? Icons.alignCenter : Icons.arrowDown },
-                                    { label: isIntegrated ? "End" : "Right", value: "right", icon: isIntegrated ? Icons.alignRight : Icons.arrowRight }
+                                    {
+                                        label: isIntegrated ? "Start" : "Left",
+                                        value: "left",
+                                        icon: isIntegrated ? Icons.alignLeft : Icons.arrowLeft
+                                    },
+                                    {
+                                        label: isIntegrated ? "Center" : "Bottom",
+                                        value: "bottom",
+                                        icon: isIntegrated ? Icons.alignCenter : Icons.arrowDown
+                                    },
+                                    {
+                                        label: isIntegrated ? "End" : "Right",
+                                        value: "right",
+                                        icon: isIntegrated ? Icons.alignRight : Icons.arrowRight
+                                    }
                                 ];
                             }
                             value: Config.dock.position ?? "bottom"
@@ -1123,7 +1215,10 @@ Item {
                         }
                     }
 
-                    Separator { Layout.fillWidth: true; visible: false }
+                    Separator {
+                        Layout.fillWidth: true
+                        visible: false
+                    }
 
                     // ═══════════════════════════════════════════════════════════════
                     // LOCKSCREEN SECTION
@@ -1145,8 +1240,16 @@ Item {
                         SelectorRow {
                             label: ""
                             options: [
-                                { label: "Top", value: "top", icon: Icons.arrowUp },
-                                { label: "Bottom", value: "bottom", icon: Icons.arrowDown }
+                                {
+                                    label: "Top",
+                                    value: "top",
+                                    icon: Icons.arrowUp
+                                },
+                                {
+                                    label: "Bottom",
+                                    value: "bottom",
+                                    icon: Icons.arrowDown
+                                }
                             ]
                             value: Config.lockscreen.position ?? "bottom"
                             onValueSelected: newValue => {
@@ -1158,7 +1261,10 @@ Item {
                         }
                     }
 
-                    Separator { Layout.fillWidth: true; visible: false }
+                    Separator {
+                        Layout.fillWidth: true
+                        visible: false
+                    }
 
                     // ═══════════════════════════════════════════════════════════════
                     // DESKTOP SECTION
@@ -1239,124 +1345,127 @@ Item {
                                 compact: false
 
                                 onOpenColorPicker: (colorNames, currentColor, dialogTitle) => {
-                                    root.openColorPicker(colorNames, currentColor, dialogTitle, function(color) {
+                                    root.openColorPicker(colorNames, currentColor, dialogTitle, function (color) {
                                         if (color !== Config.desktop.textColor) {
                                             GlobalStates.markShellChanged();
                                             Config.desktop.textColor = color;
                                         }
                                     });
-                        }
-                    }
-
-                    Separator { Layout.fillWidth: true; visible: false }
-
-                    // ═══════════════════════════════════════════════════════════════
-                    // SYSTEM SECTION
-                    // ═══════════════════════════════════════════════════════════════
-                    ColumnLayout {
-                        visible: root.currentSection === "system"
-                        Layout.fillWidth: true
-                        spacing: 8
-
-                        Text {
-                            text: "System"
-                            font.family: Config.theme.font
-                            font.pixelSize: Styling.fontSize(-1)
-                            font.weight: Font.Medium
-                            color: Colors.overSurfaceVariant
-                            Layout.bottomMargin: -4
-                        }
-
-                        Text {
-                            text: "OCR Languages"
-                            font.family: Config.theme.font
-                            font.pixelSize: Styling.fontSize(-2)
-                            color: Colors.primary
-                            font.bold: true
-                            Layout.topMargin: 8
-                        }
-
-                        ToggleRow {
-                            label: "English"
-                            checked: Config.system.ocr.eng ?? true
-                            onToggled: value => {
-                                if (value !== Config.system.ocr.eng) {
-                                    GlobalStates.markShellChanged();
-                                    Config.system.ocr.eng = value;
                                 }
                             }
-                        }
 
-                        ToggleRow {
-                            label: "Spanish"
-                            checked: Config.system.ocr.spa ?? true
-                            onToggled: value => {
-                                if (value !== Config.system.ocr.spa) {
-                                    GlobalStates.markShellChanged();
-                                    Config.system.ocr.spa = value;
-                                }
+                            Separator {
+                                Layout.fillWidth: true
+                                visible: false
                             }
-                        }
 
-                        ToggleRow {
-                            label: "Latin"
-                            checked: Config.system.ocr.lat ?? false
-                            onToggled: value => {
-                                if (value !== Config.system.ocr.lat) {
-                                    GlobalStates.markShellChanged();
-                                    Config.system.ocr.lat = value;
+                            // ═══════════════════════════════════════════════════════════════
+                            // SYSTEM SECTION
+                            // ═══════════════════════════════════════════════════════════════
+                            ColumnLayout {
+                                visible: root.currentSection === "system"
+                                Layout.fillWidth: true
+                                spacing: 8
+
+                                Text {
+                                    text: "System"
+                                    font.family: Config.theme.font
+                                    font.pixelSize: Styling.fontSize(-1)
+                                    font.weight: Font.Medium
+                                    color: Colors.overSurfaceVariant
+                                    Layout.bottomMargin: -4
                                 }
-                            }
-                        }
 
-                        ToggleRow {
-                            label: "Japanese"
-                            checked: Config.system.ocr.jpn ?? false
-                            onToggled: value => {
-                                if (value !== Config.system.ocr.jpn) {
-                                    GlobalStates.markShellChanged();
-                                    Config.system.ocr.jpn = value;
+                                Text {
+                                    text: "OCR Languages"
+                                    font.family: Config.theme.font
+                                    font.pixelSize: Styling.fontSize(-2)
+                                    color: Styling.styledRectItem("overprimary")
+                                    font.bold: true
+                                    Layout.topMargin: 8
                                 }
-                            }
-                        }
 
-                        ToggleRow {
-                            label: "Chinese (Simplified)"
-                            checked: Config.system.ocr.chi_sim ?? false
-                            onToggled: value => {
-                                if (value !== Config.system.ocr.chi_sim) {
-                                    GlobalStates.markShellChanged();
-                                    Config.system.ocr.chi_sim = value;
+                                ToggleRow {
+                                    label: "English"
+                                    checked: Config.system.ocr.eng ?? true
+                                    onToggled: value => {
+                                        if (value !== Config.system.ocr.eng) {
+                                            GlobalStates.markShellChanged();
+                                            Config.system.ocr.eng = value;
+                                        }
+                                    }
                                 }
-                            }
-                        }
 
-                        ToggleRow {
-                            label: "Chinese (Traditional)"
-                            checked: Config.system.ocr.chi_tra ?? false
-                            onToggled: value => {
-                                if (value !== Config.system.ocr.chi_tra) {
-                                    GlobalStates.markShellChanged();
-                                    Config.system.ocr.chi_tra = value;
+                                ToggleRow {
+                                    label: "Spanish"
+                                    checked: Config.system.ocr.spa ?? true
+                                    onToggled: value => {
+                                        if (value !== Config.system.ocr.spa) {
+                                            GlobalStates.markShellChanged();
+                                            Config.system.ocr.spa = value;
+                                        }
+                                    }
                                 }
-                            }
-                        }
 
-                        ToggleRow {
-                            label: "Korean"
-                            checked: Config.system.ocr.kor ?? false
-                            onToggled: value => {
-                                if (value !== Config.system.ocr.kor) {
-                                    GlobalStates.markShellChanged();
-                                    Config.system.ocr.kor = value;
+                                ToggleRow {
+                                    label: "Latin"
+                                    checked: Config.system.ocr.lat ?? false
+                                    onToggled: value => {
+                                        if (value !== Config.system.ocr.lat) {
+                                            GlobalStates.markShellChanged();
+                                            Config.system.ocr.lat = value;
+                                        }
+                                    }
+                                }
+
+                                ToggleRow {
+                                    label: "Japanese"
+                                    checked: Config.system.ocr.jpn ?? false
+                                    onToggled: value => {
+                                        if (value !== Config.system.ocr.jpn) {
+                                            GlobalStates.markShellChanged();
+                                            Config.system.ocr.jpn = value;
+                                        }
+                                    }
+                                }
+
+                                ToggleRow {
+                                    label: "Chinese (Simplified)"
+                                    checked: Config.system.ocr.chi_sim ?? false
+                                    onToggled: value => {
+                                        if (value !== Config.system.ocr.chi_sim) {
+                                            GlobalStates.markShellChanged();
+                                            Config.system.ocr.chi_sim = value;
+                                        }
+                                    }
+                                }
+
+                                ToggleRow {
+                                    label: "Chinese (Traditional)"
+                                    checked: Config.system.ocr.chi_tra ?? false
+                                    onToggled: value => {
+                                        if (value !== Config.system.ocr.chi_tra) {
+                                            GlobalStates.markShellChanged();
+                                            Config.system.ocr.chi_tra = value;
+                                        }
+                                    }
+                                }
+
+                                ToggleRow {
+                                    label: "Korean"
+                                    checked: Config.system.ocr.kor ?? false
+                                    onToggled: value => {
+                                        if (value !== Config.system.ocr.kor) {
+                                            GlobalStates.markShellChanged();
+                                            Config.system.ocr.kor = value;
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
-        }
-    }
         }
     }
 

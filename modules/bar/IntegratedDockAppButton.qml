@@ -30,12 +30,8 @@ Button {
     readonly property real indicatorDotSize: 4
 
     enabled: !isSeparator
-    implicitWidth: isSeparator 
-        ? (isVertical ? iconSize : 2) 
-        : iconSize + 8
-    implicitHeight: isSeparator 
-        ? (isVertical ? 2 : iconSize) 
-        : iconSize + 8
+    implicitWidth: isSeparator ? (isVertical ? iconSize : 2) : iconSize + 8
+    implicitHeight: isSeparator ? (isVertical ? 2 : iconSize) : iconSize + 8
 
     padding: 0
     topPadding: 0
@@ -47,20 +43,20 @@ Button {
         Rectangle {
             anchors.fill: parent
             radius: Styling.radius(-3)
-            color: root.appIsActive 
-                ? Colors.primary 
-                : (root.hovered || root.pressed)
-                    ? Qt.rgba(Colors.primary.r, Colors.primary.g, Colors.primary.b, 0.15)
-                    : "transparent"
+            color: root.appIsActive ? Styling.styledRectItem("overprimary") : (root.hovered || root.pressed) ? Qt.rgba(Styling.styledRectItem("overprimary").r, Styling.styledRectItem("overprimary").g, Styling.styledRectItem("overprimary").b, 0.15) : "transparent"
             opacity: root.pressed ? 1 : (root.appIsActive ? 0.3 : 0.7)
 
             Behavior on color {
                 enabled: Config.animDuration > 0
-                ColorAnimation { duration: Config.animDuration / 2 }
+                ColorAnimation {
+                    duration: Config.animDuration / 2
+                }
             }
             Behavior on opacity {
                 enabled: Config.animDuration > 0
-                NumberAnimation { duration: Config.animDuration / 2 }
+                NumberAnimation {
+                    duration: Config.animDuration / 2
+                }
             }
         }
     }
@@ -129,11 +125,13 @@ Button {
                             width: root.instanceCount <= 3 ? 6 : root.indicatorDotSize
                             height: root.indicatorDotSize
                             radius: height / 2
-                            color: root.appIsActive ? Colors.primary : Qt.rgba(Colors.overBackground.r, Colors.overBackground.g, Colors.overBackground.b, 0.4)
+                            color: root.appIsActive ? Styling.styledRectItem("overprimary") : Qt.rgba(Colors.overBackground.r, Colors.overBackground.g, Colors.overBackground.b, 0.4)
 
                             Behavior on color {
                                 enabled: Config.animDuration > 0
-                                ColorAnimation { duration: Config.animDuration / 2 }
+                                ColorAnimation {
+                                    duration: Config.animDuration / 2
+                                }
                             }
                         }
                     }
@@ -154,11 +152,13 @@ Button {
                             width: root.indicatorDotSize
                             height: root.instanceCount <= 3 ? 6 : root.indicatorDotSize
                             radius: width / 2
-                            color: root.appIsActive ? Colors.primary : Qt.rgba(Colors.overBackground.r, Colors.overBackground.g, Colors.overBackground.b, 0.4)
+                            color: root.appIsActive ? Styling.styledRectItem("overprimary") : Qt.rgba(Colors.overBackground.r, Colors.overBackground.g, Colors.overBackground.b, 0.4)
 
                             Behavior on color {
                                 enabled: Config.animDuration > 0
-                                ColorAnimation { duration: Config.animDuration / 2 }
+                                ColorAnimation {
+                                    duration: Config.animDuration / 2
+                                }
                             }
                         }
                     }
@@ -169,7 +169,8 @@ Button {
 
     // Left click: launch or cycle through windows
     onClicked: {
-        if (isSeparator) return;
+        if (isSeparator)
+            return;
 
         if (appToplevel.toplevelCount === 0) {
             // Launch the app
@@ -190,7 +191,8 @@ Button {
         acceptedButtons: Qt.MiddleButton | Qt.RightButton
 
         onClicked: mouse => {
-            if (root.isSeparator) return;
+            if (root.isSeparator)
+                return;
 
             if (mouse.button === Qt.MiddleButton) {
                 // Launch new instance

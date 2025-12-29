@@ -22,7 +22,8 @@ Popup {
     // Helper to check if current color is hex
     readonly property bool isHexColor: currentColor && currentColor.toString().startsWith("#")
     readonly property string currentHex: {
-        if (!currentColor) return "000000";
+        if (!currentColor)
+            return "000000";
         const val = currentColor.toString();
         if (val.startsWith("#")) {
             return val.replace("#", "").toUpperCase();
@@ -49,7 +50,7 @@ Popup {
             Layout.margins: 2
             color: hexInput.activeFocus ? Colors.surfaceContainerHigh : Colors.surfaceContainer
             radius: Styling.radius(-2)
-            border.color: hexInput.activeFocus ? Colors.primary : Colors.outlineVariant
+            border.color: hexInput.activeFocus ? Styling.styledRectItem("overprimary") : Colors.outlineVariant
             border.width: 1
 
             RowLayout {
@@ -213,7 +214,7 @@ Popup {
                         text: Icons.accept
                         font.family: Icons.font
                         font.pixelSize: 14
-                        color: Colors.primary
+                        color: Styling.styledRectItem("overprimary")
                         visible: root.currentColor === colorItem.modelData
                     }
                 }

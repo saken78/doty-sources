@@ -111,28 +111,28 @@ Item {
     }
 
     property int previewImageSize: 200
-    
+
     // Track the item ID for which we have loaded content/preview
     // This ensures we never show data from a different item
     property string currentItemId: ""
     property string currentFullContent: ""
     property bool loadingLinkPreview: false
     property int linkPreviewCacheRevision: 0  // Increments when cache updates, triggers favicon rebinding
-    
+
     // Get the currently selected item (convenience property)
     readonly property var currentSelectedItem: {
         if (selectedIndex < 0 || selectedIndex >= allItems.length)
             return null;
         return allItems[selectedIndex];
     }
-    
+
     // Check if the loaded content matches the currently selected item
     readonly property bool contentMatchesSelection: {
         if (!currentSelectedItem)
             return false;
         return currentItemId === currentSelectedItem.id;
     }
-    
+
     // Safe accessor for full content - returns content only if it matches selection
     // Falls back to item.preview if content not yet loaded
     readonly property string safeCurrentContent: {
@@ -142,23 +142,23 @@ Item {
             return currentFullContent;
         return currentSelectedItem.preview || "";
     }
-    
+
     // Get link preview data for the currently selected item from cache
     // Only returns data if we have confirmed the content is for this item
     property var linkPreviewData: {
         var _rev = linkPreviewCacheRevision;  // Depend on cache revision for reactivity
-        
+
         // Must have a selected item
         if (!currentSelectedItem)
             return null;
-        
+
         // Must be a text item (not image or file)
         if (currentSelectedItem.isImage || currentSelectedItem.isFile)
             return null;
-        
+
         // Determine the URL to look up
         var urlToLookup = "";
-        
+
         // If we have loaded content for THIS item, use it
         if (contentMatchesSelection && currentFullContent) {
             urlToLookup = currentFullContent.trim();
@@ -170,10 +170,10 @@ Item {
                 urlToLookup = preview.trim();
             }
         }
-        
+
         if (!urlToLookup || !ClipboardUtils.isUrl(urlToLookup))
             return null;
-        
+
         return ClipboardService.linkPreviewCache[urlToLookup] || null;
     }
 
@@ -221,14 +221,14 @@ Item {
         var content = item.preview || "";
         if (!ClipboardUtils.isUrl(content))
             return "";
-        
+
         // Check if we have cached link preview data with a favicon
         var trimmedUrl = content.trim();
         var cachedData = ClipboardService.linkPreviewCache[trimmedUrl];
         if (cachedData && cachedData.favicon) {
             return cachedData.favicon;
         }
-        
+
         // Prefer Google service (PNG) over direct .ico to avoid Qt decode warnings
         return ClipboardUtils.getFaviconFallbackUrl(content);
     }
@@ -245,7 +245,7 @@ Item {
     function getUsableFavicon(faviconUrl) {
         return faviconUrl || "";
     }
-    
+
     // Helper function to get fallback favicon for link preview
     function getUsableFaviconFallback(originalUrl) {
         return ClipboardUtils.getFaviconFallbackUrl(originalUrl);
@@ -484,8 +484,8 @@ Item {
             var itemsToRemove = itemsModel.count - modelIndex;
             itemsModel.remove(modelIndex, itemsToRemove);
         }
-        
-        // Only trigger later scroll animation enable if strictly needed, 
+
+        // Only trigger later scroll animation enable if strictly needed,
         // but since we aren't clearing, we might not need to toggle it at all.
 
         // If we have a pending item to select (after pin/alias operations), find it
@@ -515,11 +515,11 @@ Item {
 
         // Default behavior when no pending item
         if (searchText.length > 0 && allItems.length > 0) {
-             // Only force selection to 0 if we were previously unselected or invalid
-             if (selectedIndex < 0 || selectedIndex >= allItems.length) {
+            // Only force selection to 0 if we were previously unselected or invalid
+            if (selectedIndex < 0 || selectedIndex >= allItems.length) {
                 selectedIndex = 0;
                 resultsList.currentIndex = 0;
-             }
+            }
         } else if (searchText.length === 0) {
             // When clearing search, only reset if we haven't navigated or if list is empty
             if (!hasNavigatedFromSearch || allItems.length === 0) {
@@ -630,7 +630,7 @@ Item {
             root.currentItemId = "";
             root.currentFullContent = "";
             root.loadingLinkPreview = false;
-            
+
             if (root.selectedIndex >= 0 && root.selectedIndex < root.allItems.length) {
                 let item = root.allItems[root.selectedIndex];
                 if (item.isImage && !ClipboardService.getImageData(item.id)) {
@@ -664,7 +664,7 @@ Item {
         function onLinkPreviewFetched(url, metadata, requestItemId) {
             // Increment cache revision to trigger rebinding of linkPreviewData and favicons
             root.linkPreviewCacheRevision++;
-            
+
             // Only clear loading state if this response is for the currently selected item
             if (root.currentSelectedItem && root.currentSelectedItem.id === requestItemId) {
                 root.loadingLinkPreview = false;
@@ -1750,7 +1750,7 @@ Item {
                                             {
                                                 text: "Copy",
                                                 icon: Icons.copy,
-                                                highlightColor: Colors.primary,
+                                                highlightColor: Styling.styledRectItem("overprimary"),
                                                 textColor: Styling.styledRectItem("primary"),
                                                 action: function () {
                                                     root.copyToClipboard(modelData.id);
@@ -1764,7 +1764,7 @@ Item {
                                             options.push({
                                                 text: "Open",
                                                 icon: Icons.popOpen,
-                                                highlightColor: Colors.primary,
+                                                highlightColor: Styling.styledRectItem("overprimary"),
                                                 textColor: Styling.styledRectItem("primary"),
                                                 action: function () {
                                                     root.openItem(modelData.id);
@@ -1775,7 +1775,7 @@ Item {
                                         options.push({
                                             text: modelData.pinned ? "Unpin" : "Pin",
                                             icon: modelData.pinned ? Icons.unpin : Icons.pin,
-                                            highlightColor: Colors.primary,
+                                            highlightColor: Styling.styledRectItem("overprimary"),
                                             textColor: Styling.styledRectItem("primary"),
                                             action: function () {
                                                 root.pendingItemIdToSelect = modelData.id;
@@ -1918,14 +1918,16 @@ Item {
                                                 cursorShape: Qt.PointingHandCursor
 
                                                 onEntered: {
-                                                    if (optionsListView.isScrolling) return;
+                                                    if (optionsListView.isScrolling)
+                                                        return;
                                                     optionsListView.currentIndex = index;
                                                     root.selectedOptionIndex = index;
                                                     root.keyboardNavigation = false;
                                                 }
 
                                                 onClicked: {
-                                                    if (optionsListView.isScrolling) return;
+                                                    if (optionsListView.isScrolling)
+                                                        return;
                                                     if (modelData && modelData.action) {
                                                         modelData.action();
                                                     }
@@ -1982,7 +1984,7 @@ Item {
                                 }
 
                                 contentItem: Rectangle {
-                                    color: Colors.primary
+                                    color: Styling.styledRectItem("overprimary")
                                     radius: Styling.radius(0)
                                 }
 
@@ -2064,7 +2066,7 @@ Item {
                                         var url = root.getFaviconUrl(modelData);
                                         return (url && url !== "") ? url : "";
                                     }
-                                    
+
                                     property string faviconFallbackUrl: {
                                         if (iconType !== "link")
                                             return "";
@@ -2159,7 +2161,7 @@ Item {
                                     height: 14
                                     radius: 7
                                     visible: modelData.pinned && !isInDeleteMode && !isInAliasMode
-                                    color: Colors.primary
+                                    color: Styling.styledRectItem("overprimary")
 
                                     Text {
                                         anchors.centerIn: parent
@@ -2546,7 +2548,7 @@ Item {
                             textFormat: Text.RichText
                             font.family: Icons.font
                             font.pixelSize: 48
-                            color: Colors.primary
+                            color: Styling.styledRectItem("overprimary")
                         }
                     }
 
@@ -2610,7 +2612,7 @@ Item {
                                     y: 0
                                     width: 4
                                     height: parent.height
-                                    color: Colors.primary
+                                    color: Styling.styledRectItem("overprimary")
 
                                     // Rounded corners only on the left side
                                     topLeftRadius: Config.roundness > 0 ? Config.roundness + 4 : 0
@@ -2716,7 +2718,7 @@ Item {
                                                 width: 60
                                                 height: 60
                                                 radius: 30
-                                                color: Colors.primary
+                                                color: Styling.styledRectItem("overprimary")
                                                 opacity: 0.9
 
                                                 Text {
@@ -2742,7 +2744,7 @@ Item {
                                                     text: Icons.spinnerGap
                                                     font.family: Icons.font
                                                     font.pixelSize: 32
-                                                    color: Colors.primary
+                                                    color: Styling.styledRectItem("overprimary")
                                                     textFormat: Text.RichText
 
                                                     RotationAnimator on rotation {
@@ -2913,7 +2915,7 @@ Item {
                                                     text: Icons.spinnerGap
                                                     font.family: Icons.font
                                                     font.pixelSize: 24
-                                                    color: Colors.primary
+                                                    color: Styling.styledRectItem("overprimary")
                                                     textFormat: Text.RichText
                                                 }
                                             }
@@ -2939,7 +2941,7 @@ Item {
                                         text: Icons.spinnerGap
                                         font.family: Icons.font
                                         font.pixelSize: 20
-                                        color: Colors.primary
+                                        color: Styling.styledRectItem("overprimary")
                                         textFormat: Text.RichText
 
                                         RotationAnimator on rotation {
@@ -2960,136 +2962,137 @@ Item {
                                 }
                             }
 
-                                    // URL preview with favicon (fallback when no embed available)
-                                    Item {
-                                        width: parent.width
-                                        height: urlPreview.visible ? 60 : 0
-                                        visible: previewPanel.currentItem && ClipboardUtils.isUrl(root.safeCurrentContent) && !root.loadingLinkPreview && (!root.linkPreviewData || (!root.linkPreviewData.title && !root.linkPreviewData.description && !root.linkPreviewData.image))
+                            // URL preview with favicon (fallback when no embed available)
+                            Item {
+                                width: parent.width
+                                height: urlPreview.visible ? 60 : 0
+                                visible: previewPanel.currentItem && ClipboardUtils.isUrl(root.safeCurrentContent) && !root.loadingLinkPreview && (!root.linkPreviewData || (!root.linkPreviewData.title && !root.linkPreviewData.description && !root.linkPreviewData.image))
 
-                                        Rectangle {
-                                            id: urlPreview
-                                            anchors.centerIn: parent
-                                            width: parent.width
-                                            height: 60
-                                            color: urlPreviewMouseArea.containsMouse ? Colors.surfaceBright : Colors.surface
-                                            radius: Styling.radius(4)
+                                Rectangle {
+                                    id: urlPreview
+                                    anchors.centerIn: parent
+                                    width: parent.width
+                                    height: 60
+                                    color: urlPreviewMouseArea.containsMouse ? Colors.surfaceBright : Colors.surface
+                                    radius: Styling.radius(4)
 
-                                            Behavior on color {
-                                                enabled: Config.animDuration > 0
-                                                ColorAnimation {
-                                                    duration: Config.animDuration / 2
-                                                    easing.type: Easing.OutQuart
-                                                }
-                                            }
+                                    Behavior on color {
+                                        enabled: Config.animDuration > 0
+                                        ColorAnimation {
+                                            duration: Config.animDuration / 2
+                                            easing.type: Easing.OutQuart
+                                        }
+                                    }
 
-                                            MouseArea {
-                                                id: urlPreviewMouseArea
-                                                anchors.fill: parent
-                                                hoverEnabled: true
-                                                cursorShape: Qt.PointingHandCursor
+                                    MouseArea {
+                                        id: urlPreviewMouseArea
+                                        anchors.fill: parent
+                                        hoverEnabled: true
+                                        cursorShape: Qt.PointingHandCursor
 
-                                                onClicked: {
-                                                    if (previewPanel.currentItem) {
-                                                        root.openItem(previewPanel.currentItem.id);
-                                                    }
-                                                }
-                                            }
-
-                                            Row {
-                                                anchors.fill: parent
-                                                anchors.margins: 12
-                                                spacing: 12
-
-                                                // Favicon or fallback icon
-                                                Rectangle {
-                                                    width: 36
-                                                    height: 36
-                                                    color: Colors.surfaceBright
-                                                    radius: Styling.radius(-4)
-
-                                                    Image {
-                                                        id: previewFavicon
-                                                        anchors.centerIn: parent
-                                                        width: 24
-                                                        height: 24
-                                                        visible: previewPanel.currentItem !== null && status === Image.Ready
-                                                        fillMode: Image.PreserveAspectFit
-                                                        asynchronous: true
-                                                        cache: true
-
-                                                        property bool triedFallback: false
-                                                    property string primarySource: {
-                                                        if (!previewPanel.currentItem) return "";
-                                                        // Use Google service (PNG) as primary to avoid ICO decode errors
-                                                        return ClipboardUtils.getFaviconFallbackUrl(root.safeCurrentContent);
-                                                    }
-
-                                                    source: primarySource
-
-                                                    onPrimarySourceChanged: {
-                                                        triedFallback = false;
-                                                        source = primarySource;
-                                                    }
-
-                                                    onStatusChanged: {
-                                                        if (status === Image.Error) {
-                                                            if (!triedFallback) {
-                                                                triedFallback = true;
-                                                                var content = root.safeCurrentContent;
-                                                                // Fallback to direct .ico if Google fails
-                                                                source = ClipboardUtils.getFaviconUrl(content);
-                                                            }
-                                                        }
-                                                    }
-                                                    }
-
-                                                    Text {
-                                                        anchors.centerIn: parent
-                                                        visible: !previewFavicon.visible
-                                                        text: Icons.globe
-                                                        font.family: Icons.font
-                                                        font.pixelSize: 20
-                                                        color: Colors.primary
-                                                        textFormat: Text.RichText
-                                                    }
-                                                }
-
-                                                Column {
-                                                    width: parent.width - 48 - parent.spacing
-                                                    height: parent.height
-                                                    spacing: 4
-
-                                                    Text {
-                                                        text: "Link"
-                                                        font.family: Config.theme.font
-                                                        font.pixelSize: Config.theme.fontSize - 1
-                                                        font.weight: Font.Medium
-                                                        color: Colors.outline
-                                                    }
-
-                                                    Text {
-                                                        text: {
-                                                            if (!previewPanel.currentItem)
-                                                                return "";
-                                                            var url = root.safeCurrentContent;
-                                                            try {
-                                                                var urlObj = new URL(url.trim());
-                                                                return urlObj.hostname;
-                                                            } catch (e) {
-                                                                return url.substring(0, 40) + (url.length > 40 ? "..." : "");
-                                                            }
-                                                        }
-                                                        font.family: Config.theme.font
-                                                        font.pixelSize: Config.theme.fontSize
-                                                        font.weight: Font.Bold
-                                                        color: Colors.overBackground
-                                                        elide: Text.ElideRight
-                                                        width: parent.width
-                                                    }
-                                                }
+                                        onClicked: {
+                                            if (previewPanel.currentItem) {
+                                                root.openItem(previewPanel.currentItem.id);
                                             }
                                         }
                                     }
+
+                                    Row {
+                                        anchors.fill: parent
+                                        anchors.margins: 12
+                                        spacing: 12
+
+                                        // Favicon or fallback icon
+                                        Rectangle {
+                                            width: 36
+                                            height: 36
+                                            color: Colors.surfaceBright
+                                            radius: Styling.radius(-4)
+
+                                            Image {
+                                                id: previewFavicon
+                                                anchors.centerIn: parent
+                                                width: 24
+                                                height: 24
+                                                visible: previewPanel.currentItem !== null && status === Image.Ready
+                                                fillMode: Image.PreserveAspectFit
+                                                asynchronous: true
+                                                cache: true
+
+                                                property bool triedFallback: false
+                                                property string primarySource: {
+                                                    if (!previewPanel.currentItem)
+                                                        return "";
+                                                    // Use Google service (PNG) as primary to avoid ICO decode errors
+                                                    return ClipboardUtils.getFaviconFallbackUrl(root.safeCurrentContent);
+                                                }
+
+                                                source: primarySource
+
+                                                onPrimarySourceChanged: {
+                                                    triedFallback = false;
+                                                    source = primarySource;
+                                                }
+
+                                                onStatusChanged: {
+                                                    if (status === Image.Error) {
+                                                        if (!triedFallback) {
+                                                            triedFallback = true;
+                                                            var content = root.safeCurrentContent;
+                                                            // Fallback to direct .ico if Google fails
+                                                            source = ClipboardUtils.getFaviconUrl(content);
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                            Text {
+                                                anchors.centerIn: parent
+                                                visible: !previewFavicon.visible
+                                                text: Icons.globe
+                                                font.family: Icons.font
+                                                font.pixelSize: 20
+                                                color: Styling.styledRectItem("overprimary")
+                                                textFormat: Text.RichText
+                                            }
+                                        }
+
+                                        Column {
+                                            width: parent.width - 48 - parent.spacing
+                                            height: parent.height
+                                            spacing: 4
+
+                                            Text {
+                                                text: "Link"
+                                                font.family: Config.theme.font
+                                                font.pixelSize: Config.theme.fontSize - 1
+                                                font.weight: Font.Medium
+                                                color: Colors.outline
+                                            }
+
+                                            Text {
+                                                text: {
+                                                    if (!previewPanel.currentItem)
+                                                        return "";
+                                                    var url = root.safeCurrentContent;
+                                                    try {
+                                                        var urlObj = new URL(url.trim());
+                                                        return urlObj.hostname;
+                                                    } catch (e) {
+                                                        return url.substring(0, 40) + (url.length > 40 ? "..." : "");
+                                                    }
+                                                }
+                                                font.family: Config.theme.font
+                                                font.pixelSize: Config.theme.fontSize
+                                                font.weight: Font.Bold
+                                                color: Colors.overBackground
+                                                elide: Text.ElideRight
+                                                width: parent.width
+                                            }
+                                        }
+                                    }
+                                }
+                            }
 
                             Text {
                                 id: previewText
@@ -3150,7 +3153,7 @@ Item {
                                     textFormat: Text.RichText
                                     font.family: Icons.font
                                     font.pixelSize: 48
-                                    color: Colors.primary
+                                    color: Styling.styledRectItem("overprimary")
                                 }
                             }
 
@@ -3413,7 +3416,7 @@ Item {
                                     text: Icons.popOpen
                                     font.family: Icons.font
                                     font.pixelSize: 20
-                                    color: metadataOpenButtonMouseArea.containsMouse ? Colors.primary : Colors.overBackground
+                                    color: metadataOpenButtonMouseArea.containsMouse ? Styling.styledRectItem("overprimary") : Colors.overBackground
                                     textFormat: Text.RichText
 
                                     Behavior on color {
@@ -3482,7 +3485,7 @@ Item {
                                     text: Icons.handGrab
                                     font.family: Icons.font
                                     font.pixelSize: 20
-                                    color: metadataDragArea.containsMouse ? Colors.primary : Colors.overBackground
+                                    color: metadataDragArea.containsMouse ? Styling.styledRectItem("overprimary") : Colors.overBackground
                                     textFormat: Text.RichText
 
                                     Behavior on color {

@@ -52,7 +52,7 @@ FloatingWindow {
                         font.family: Styling.defaultFont
                         font.pixelSize: Styling.fontSize(0) + 2
                         font.bold: true
-                        color: Colors.primary
+                        color: Styling.styledRectItem("overprimary")
                         Layout.fillWidth: true
                     }
 
@@ -104,8 +104,10 @@ FloatingWindow {
                         }
 
                         onClicked: {
-                            if (GlobalStates.themeHasChanges) GlobalStates.discardThemeChanges();
-                            if (GlobalStates.shellHasChanges) GlobalStates.discardShellChanges();
+                            if (GlobalStates.themeHasChanges)
+                                GlobalStates.discardThemeChanges();
+                            if (GlobalStates.shellHasChanges)
+                                GlobalStates.discardShellChanges();
                         }
 
                         ToolTip.visible: hovered
@@ -123,7 +125,7 @@ FloatingWindow {
                         readonly property bool hasChanges: parent.parent.hasAnyChanges
 
                         background: Rectangle {
-                            color: applyButton.hasChanges ? Colors.primary : Colors.surfaceContainer
+                            color: applyButton.hasChanges ? Styling.styledRectItem("overprimary") : Colors.surfaceContainer
                             radius: Styling.radius(-4)
                             opacity: applyButton.hasChanges ? (applyButton.hovered ? 0.8 : 1.0) : 0.5
                         }
@@ -150,8 +152,10 @@ FloatingWindow {
                         }
 
                         onClicked: {
-                            if (GlobalStates.themeHasChanges) GlobalStates.applyThemeChanges();
-                            if (GlobalStates.shellHasChanges) GlobalStates.applyShellChanges();
+                            if (GlobalStates.themeHasChanges)
+                                GlobalStates.applyThemeChanges();
+                            if (GlobalStates.shellHasChanges)
+                                GlobalStates.applyShellChanges();
                         }
 
                         ToolTip.visible: hovered
@@ -180,8 +184,10 @@ FloatingWindow {
                         }
 
                         onClicked: {
-                            if (GlobalStates.themeHasChanges) GlobalStates.discardThemeChanges();
-                            if (GlobalStates.shellHasChanges) GlobalStates.discardShellChanges();
+                            if (GlobalStates.themeHasChanges)
+                                GlobalStates.discardThemeChanges();
+                            if (GlobalStates.shellHasChanges)
+                                GlobalStates.discardShellChanges();
                             GlobalStates.settingsVisible = false;
                         }
                     }
@@ -212,7 +218,7 @@ FloatingWindow {
                             font.family: Styling.defaultFont
                             font.pixelSize: Styling.fontSize(0)
                             font.bold: true
-                            color: Colors.primary
+                            color: Styling.styledRectItem("overprimary")
                             Layout.alignment: Qt.AlignHCenter
                             Layout.bottomMargin: 8
                         }
@@ -244,7 +250,7 @@ FloatingWindow {
                                 readonly property bool isSelected: tabStack.currentIndex === index
 
                                 background: Rectangle {
-                                    color: tabButton.isSelected ? Colors.primary : (tabButton.hovered ? Colors.surfaceContainerHigh : Colors.surfaceContainer)
+                                    color: tabButton.isSelected ? Styling.styledRectItem("overprimary") : (tabButton.hovered ? Colors.surfaceContainerHigh : Colors.surfaceContainer)
                                     radius: Styling.radius(-2)
 
                                     Behavior on color {

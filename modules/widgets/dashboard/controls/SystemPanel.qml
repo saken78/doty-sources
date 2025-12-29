@@ -21,19 +21,19 @@ Item {
         id: sectionBtn
         required property string text
         required property string sectionId
-        
+
         property bool isHovered: false
-        
+
         variant: isHovered ? "focus" : "pane"
         Layout.fillWidth: true
         Layout.preferredHeight: 56
         radius: Styling.radius(0)
-        
+
         RowLayout {
             anchors.fill: parent
             anchors.margins: 16
             spacing: 16
-            
+
             Text {
                 text: sectionBtn.text
                 font.family: Config.theme.font
@@ -42,7 +42,7 @@ Item {
                 color: Colors.overBackground
                 Layout.fillWidth: true
             }
-            
+
             Text {
                 text: Icons.caretRight
                 font.family: Icons.font
@@ -50,7 +50,7 @@ Item {
                 color: Colors.overSurfaceVariant
             }
         }
-        
+
         MouseArea {
             anchors.fill: parent
             hoverEnabled: true
@@ -88,11 +88,15 @@ Item {
 
                     actions: {
                         if (root.currentSection !== "") {
-                            return [{
-                                icon: Icons.arrowLeft,
-                                tooltip: "Back",
-                                onClicked: function() { root.currentSection = ""; }
-                            }];
+                            return [
+                                {
+                                    icon: Icons.arrowLeft,
+                                    tooltip: "Back",
+                                    onClicked: function () {
+                                        root.currentSection = "";
+                                    }
+                                }
+                            ];
                         }
                         return [];
                     }
@@ -118,11 +122,26 @@ Item {
                         Layout.fillWidth: true
                         spacing: 8
 
-                        SectionButton { text: "Prefixes"; sectionId: "prefixes" }
-                        SectionButton { text: "Weather"; sectionId: "weather" }
-                        SectionButton { text: "Performance"; sectionId: "performance" }
-                        SectionButton { text: "System Resources"; sectionId: "system" }
-                        SectionButton { text: "Idle"; sectionId: "idle" }
+                        SectionButton {
+                            text: "Prefixes"
+                            sectionId: "prefixes"
+                        }
+                        SectionButton {
+                            text: "Weather"
+                            sectionId: "weather"
+                        }
+                        SectionButton {
+                            text: "Performance"
+                            sectionId: "performance"
+                        }
+                        SectionButton {
+                            text: "System Resources"
+                            sectionId: "system"
+                        }
+                        SectionButton {
+                            text: "Idle"
+                            sectionId: "idle"
+                        }
                     }
 
                     // =====================
@@ -155,7 +174,9 @@ Item {
                             Layout.fillWidth: true
                             label: "Clipboard"
                             prefixValue: Config.prefix.clipboard
-                            onPrefixEdited: newValue => { Config.prefix.clipboard = newValue }
+                            onPrefixEdited: newValue => {
+                                Config.prefix.clipboard = newValue;
+                            }
                         }
 
                         // Emoji prefix
@@ -163,7 +184,9 @@ Item {
                             Layout.fillWidth: true
                             label: "Emoji"
                             prefixValue: Config.prefix.emoji
-                            onPrefixEdited: newValue => { Config.prefix.emoji = newValue }
+                            onPrefixEdited: newValue => {
+                                Config.prefix.emoji = newValue;
+                            }
                         }
 
                         // Tmux prefix
@@ -171,7 +194,9 @@ Item {
                             Layout.fillWidth: true
                             label: "Tmux"
                             prefixValue: Config.prefix.tmux
-                            onPrefixEdited: newValue => { Config.prefix.tmux = newValue }
+                            onPrefixEdited: newValue => {
+                                Config.prefix.tmux = newValue;
+                            }
                         }
 
                         // Wallpapers prefix
@@ -179,7 +204,9 @@ Item {
                             Layout.fillWidth: true
                             label: "Wallpapers"
                             prefixValue: Config.prefix.wallpapers
-                            onPrefixEdited: newValue => { Config.prefix.wallpapers = newValue }
+                            onPrefixEdited: newValue => {
+                                Config.prefix.wallpapers = newValue;
+                            }
                         }
 
                         // Notes prefix
@@ -187,7 +214,9 @@ Item {
                             Layout.fillWidth: true
                             label: "Notes"
                             prefixValue: Config.prefix.notes
-                            onPrefixEdited: newValue => { Config.prefix.notes = newValue }
+                            onPrefixEdited: newValue => {
+                                Config.prefix.notes = newValue;
+                            }
                         }
                     }
 
@@ -283,8 +312,14 @@ Item {
 
                                 Repeater {
                                     model: [
-                                        { id: "C", label: "Celsius" },
-                                        { id: "F", label: "Fahrenheit" }
+                                        {
+                                            id: "C",
+                                            label: "Celsius"
+                                        },
+                                        {
+                                            id: "F",
+                                            label: "Fahrenheit"
+                                        }
                                     ]
 
                                     delegate: StyledRect {
@@ -355,7 +390,9 @@ Item {
                             label: "Blur Transition"
                             description: "Animated blur when opening panels"
                             checked: Config.performance.blurTransition
-                            onToggled: checked => { Config.performance.blurTransition = checked }
+                            onToggled: checked => {
+                                Config.performance.blurTransition = checked;
+                            }
                         }
 
                         // Window Preview toggle
@@ -364,7 +401,9 @@ Item {
                             label: "Window Preview"
                             description: "Show window thumbnails in overview"
                             checked: Config.performance.windowPreview
-                            onToggled: checked => { Config.performance.windowPreview = checked }
+                            onToggled: checked => {
+                                Config.performance.windowPreview = checked;
+                            }
                         }
 
                         // Wavy Line toggle
@@ -373,7 +412,9 @@ Item {
                             label: "Wavy Line"
                             description: "Animated wavy line effect"
                             checked: Config.performance.wavyLine
-                            onToggled: checked => { Config.performance.wavyLine = checked }
+                            onToggled: checked => {
+                                Config.performance.wavyLine = checked;
+                            }
                         }
                     }
 
@@ -623,10 +664,12 @@ Item {
                                         font.family: Config.theme.font
                                         font.pixelSize: Styling.fontSize(-1)
                                         font.bold: true
-                                        color: Colors.primary
+                                        color: Styling.styledRectItem("overprimary")
                                     }
-                                    Item { Layout.fillWidth: true }
-                                    
+                                    Item {
+                                        Layout.fillWidth: true
+                                    }
+
                                     StyledRect {
                                         id: deleteListenerBtn
                                         variant: "error"
@@ -647,7 +690,8 @@ Item {
                                             onClicked: {
                                                 // Create a copy of the list to ensure change detection
                                                 var list = [];
-                                                for(var i=0; i<Config.system.idle.listeners.length; i++) list.push(Config.system.idle.listeners[i]);
+                                                for (var i = 0; i < Config.system.idle.listeners.length; i++)
+                                                    list.push(Config.system.idle.listeners[i]);
                                                 list.splice(index, 1);
                                                 Config.system.idle.listeners = list;
                                                 GlobalStates.markShellChanged();
@@ -663,7 +707,8 @@ Item {
                                     maxValue: 7200
                                     onValueEdited: val => {
                                         var list = [];
-                                        for(var i=0; i<Config.system.idle.listeners.length; i++) list.push(Config.system.idle.listeners[i]);
+                                        for (var i = 0; i < Config.system.idle.listeners.length; i++)
+                                            list.push(Config.system.idle.listeners[i]);
                                         list[index].timeout = val;
                                         Config.system.idle.listeners = list;
                                         GlobalStates.markShellChanged();
@@ -675,7 +720,8 @@ Item {
                                     value: modelData.onTimeout || ""
                                     onValueEdited: val => {
                                         var list = [];
-                                        for(var i=0; i<Config.system.idle.listeners.length; i++) list.push(Config.system.idle.listeners[i]);
+                                        for (var i = 0; i < Config.system.idle.listeners.length; i++)
+                                            list.push(Config.system.idle.listeners[i]);
                                         list[index].onTimeout = val;
                                         Config.system.idle.listeners = list;
                                         GlobalStates.markShellChanged();
@@ -687,7 +733,8 @@ Item {
                                     value: modelData.onResume || ""
                                     onValueEdited: val => {
                                         var list = [];
-                                        for(var i=0; i<Config.system.idle.listeners.length; i++) list.push(Config.system.idle.listeners[i]);
+                                        for (var i = 0; i < Config.system.idle.listeners.length; i++)
+                                            list.push(Config.system.idle.listeners[i]);
                                         list[index].onResume = val;
                                         Config.system.idle.listeners = list;
                                         GlobalStates.markShellChanged();
@@ -717,8 +764,9 @@ Item {
                                 cursorShape: Qt.PointingHandCursor
                                 onClicked: {
                                     var list = [];
-                                    if(Config.system.idle.listeners) {
-                                        for(var i=0; i<Config.system.idle.listeners.length; i++) list.push(Config.system.idle.listeners[i]);
+                                    if (Config.system.idle.listeners) {
+                                        for (var i = 0; i < Config.system.idle.listeners.length; i++)
+                                            list.push(Config.system.idle.listeners[i]);
                                     }
                                     list.push({
                                         "timeout": 60,
@@ -784,7 +832,10 @@ Item {
                 clip: true
                 verticalAlignment: TextInput.AlignVCenter
                 horizontalAlignment: TextInput.AlignHCenter
-                validator: IntValidator { bottom: numberInputRowRoot.minValue; top: numberInputRowRoot.maxValue }
+                validator: IntValidator {
+                    bottom: numberInputRowRoot.minValue
+                    top: numberInputRowRoot.maxValue
+                }
 
                 // Sync text when external value changes
                 readonly property int configValue: numberInputRowRoot.value
@@ -921,7 +972,9 @@ Item {
             }
         }
 
-        Item { Layout.fillWidth: true }
+        Item {
+            Layout.fillWidth: true
+        }
     }
 
     // ToggleRow component for boolean toggles

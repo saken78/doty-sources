@@ -22,19 +22,19 @@ Item {
         id: sectionBtn
         required property string text
         required property string sectionId
-        
+
         property bool isHovered: false
-        
+
         variant: isHovered ? "focus" : "pane"
         Layout.fillWidth: true
         Layout.preferredHeight: 56
         radius: Styling.radius(0)
-        
+
         RowLayout {
             anchors.fill: parent
             anchors.margins: 16
             spacing: 16
-            
+
             Text {
                 text: sectionBtn.text
                 font.family: Config.theme.font
@@ -43,7 +43,7 @@ Item {
                 color: Colors.overBackground
                 Layout.fillWidth: true
             }
-            
+
             Text {
                 text: Icons.caretRight
                 font.family: Icons.font
@@ -51,7 +51,7 @@ Item {
                 color: Colors.overSurfaceVariant
             }
         }
-        
+
         MouseArea {
             anchors.fill: parent
             hoverEnabled: true
@@ -99,7 +99,7 @@ Item {
     readonly property var allVariants: {
         let variants = [];
         let theme = Config.theme;
-        
+
         // Get all property names from theme that start with "sr"
         for (let prop in theme) {
             if (prop.startsWith("sr") && theme[prop] && typeof theme[prop] === "object") {
@@ -111,7 +111,7 @@ Item {
                 });
             }
         }
-        
+
         return variants;
     }
 
@@ -193,15 +193,19 @@ Item {
                                 }
                             }
                         ];
-                        
+
                         if (root.currentSection !== "") {
-                            return [{
-                                icon: Icons.arrowLeft,
-                                tooltip: "Back",
-                                onClicked: function() { root.currentSection = ""; }
-                            }].concat(baseActions);
+                            return [
+                                {
+                                    icon: Icons.arrowLeft,
+                                    tooltip: "Back",
+                                    onClicked: function () {
+                                        root.currentSection = "";
+                                    }
+                                }
+                            ].concat(baseActions);
                         }
-                        
+
                         return baseActions;
                     }
                 }
@@ -226,9 +230,18 @@ Item {
                         Layout.fillWidth: true
                         spacing: 8
 
-                        SectionButton { text: "General"; sectionId: "general" }
-                        SectionButton { text: "Shadow"; sectionId: "shadow" }
-                        SectionButton { text: "Colors"; sectionId: "colors" }
+                        SectionButton {
+                            text: "General"
+                            sectionId: "general"
+                        }
+                        SectionButton {
+                            text: "Shadow"
+                            sectionId: "shadow"
+                        }
+                        SectionButton {
+                            text: "Colors"
+                            sectionId: "colors"
+                        }
                     }
 
                     // General section
@@ -291,12 +304,14 @@ Item {
                                         x: tintIconsSwitch.leftPadding
                                         y: parent.height / 2 - height / 2
                                         radius: height / 2
-                                        color: tintIconsSwitch.checked ? Colors.primary : Colors.surfaceBright
-                                        border.color: tintIconsSwitch.checked ? Colors.primary : Colors.outline
+                                        color: tintIconsSwitch.checked ? Styling.styledRectItem("overprimary") : Colors.surfaceBright
+                                        border.color: tintIconsSwitch.checked ? Styling.styledRectItem("overprimary") : Colors.outline
 
                                         Behavior on color {
                                             enabled: Config.animDuration > 0
-                                            ColorAnimation { duration: Config.animDuration / 2 }
+                                            ColorAnimation {
+                                                duration: Config.animDuration / 2
+                                            }
                                         }
 
                                         Rectangle {
@@ -309,7 +324,10 @@ Item {
 
                                             Behavior on x {
                                                 enabled: Config.animDuration > 0
-                                                NumberAnimation { duration: Config.animDuration / 2; easing.type: Easing.OutCubic }
+                                                NumberAnimation {
+                                                    duration: Config.animDuration / 2
+                                                    easing.type: Easing.OutCubic
+                                                }
                                             }
                                         }
                                     }
@@ -355,12 +373,14 @@ Item {
                                         x: enableCornersSwitch.leftPadding
                                         y: parent.height / 2 - height / 2
                                         radius: height / 2
-                                        color: enableCornersSwitch.checked ? Colors.primary : Colors.surfaceBright
-                                        border.color: enableCornersSwitch.checked ? Colors.primary : Colors.outline
+                                        color: enableCornersSwitch.checked ? Styling.styledRectItem("overprimary") : Colors.surfaceBright
+                                        border.color: enableCornersSwitch.checked ? Styling.styledRectItem("overprimary") : Colors.outline
 
                                         Behavior on color {
                                             enabled: Config.animDuration > 0
-                                            ColorAnimation { duration: Config.animDuration / 2 }
+                                            ColorAnimation {
+                                                duration: Config.animDuration / 2
+                                            }
                                         }
 
                                         Rectangle {
@@ -373,7 +393,10 @@ Item {
 
                                             Behavior on x {
                                                 enabled: Config.animDuration > 0
-                                                NumberAnimation { duration: Config.animDuration / 2; easing.type: Easing.OutCubic }
+                                                NumberAnimation {
+                                                    duration: Config.animDuration / 2
+                                                    easing.type: Easing.OutCubic
+                                                }
                                             }
                                         }
                                     }
@@ -398,7 +421,7 @@ Item {
                                     id: animDurationSlider
                                     Layout.fillWidth: true
                                     Layout.preferredHeight: 20
-                                    progressColor: Colors.primary
+                                    progressColor: Styling.styledRectItem("overprimary")
                                     tooltipText: `${Math.round(value * 1000)}ms`
                                     scroll: true
                                     stepSize: 0.01  // 10ms steps (1/100 of 1000ms)
@@ -433,7 +456,9 @@ Item {
                                 }
                             }
 
-                            Separator { Layout.fillWidth: true }
+                            Separator {
+                                Layout.fillWidth: true
+                            }
 
                             Text {
                                 text: "Fonts"
@@ -510,7 +535,10 @@ Item {
                                         clip: true
                                         verticalAlignment: TextInput.AlignVCenter
                                         horizontalAlignment: TextInput.AlignHCenter
-                                        validator: IntValidator { bottom: 8; top: 32 }
+                                        validator: IntValidator {
+                                            bottom: 8
+                                            top: 32
+                                        }
 
                                         readonly property int configValue: Config.theme.fontSize
 
@@ -606,7 +634,10 @@ Item {
                                         clip: true
                                         verticalAlignment: TextInput.AlignVCenter
                                         horizontalAlignment: TextInput.AlignHCenter
-                                        validator: IntValidator { bottom: 8; top: 32 }
+                                        validator: IntValidator {
+                                            bottom: 8
+                                            top: 32
+                                        }
 
                                         readonly property int configValue: Config.theme.monoFontSize
 
@@ -636,7 +667,9 @@ Item {
                                 }
                             }
 
-                            Separator { Layout.fillWidth: true }
+                            Separator {
+                                Layout.fillWidth: true
+                            }
 
                             Text {
                                 text: "Roundness"
@@ -655,7 +688,7 @@ Item {
                                     id: roundnessSlider
                                     Layout.fillWidth: true
                                     Layout.preferredHeight: 20
-                                    progressColor: Colors.primary
+                                    progressColor: Styling.styledRectItem("overprimary")
                                     tooltipText: `${Math.round(value * 20)}`
                                     scroll: true
                                     stepSize: 0.05  // 1/20 = 0.05 for integer steps in 0-20 range
@@ -733,7 +766,7 @@ Item {
                                     id: shadowOpacitySlider
                                     Layout.fillWidth: true
                                     Layout.preferredHeight: 20
-                                    progressColor: Colors.primary
+                                    progressColor: Styling.styledRectItem("overprimary")
                                     tooltipText: `${Math.round(value * 100)}%`
                                     scroll: true
                                     stepSize: 0.01
@@ -784,7 +817,7 @@ Item {
                                     id: shadowBlurSlider
                                     Layout.fillWidth: true
                                     Layout.preferredHeight: 20
-                                    progressColor: Colors.primary
+                                    progressColor: Styling.styledRectItem("overprimary")
                                     tooltipText: `${(value * 4).toFixed(1)}`
                                     scroll: true
                                     stepSize: 0.01
@@ -836,7 +869,7 @@ Item {
                                     id: shadowXOffsetSlider
                                     Layout.fillWidth: true
                                     Layout.preferredHeight: 20
-                                    progressColor: Colors.primary
+                                    progressColor: Styling.styledRectItem("overprimary")
                                     tooltipText: `${Math.round((value - 0.5) * 40)}`
                                     scroll: true
                                     stepSize: 0.025  // 1/40 for integer steps in -20 to +20 range
@@ -887,7 +920,7 @@ Item {
                                     id: shadowYOffsetSlider
                                     Layout.fillWidth: true
                                     Layout.preferredHeight: 20
-                                    progressColor: Colors.primary
+                                    progressColor: Styling.styledRectItem("overprimary")
                                     tooltipText: `${Math.round((value - 0.5) * 40)}`
                                     scroll: true
                                     stepSize: 0.025  // 1/40 for integer steps in -20 to +20 range
@@ -971,7 +1004,7 @@ Item {
 
                                     Rectangle {
                                         anchors.fill: parent
-                                        color: Colors.primary
+                                        color: Styling.styledRectItem("overprimary")
                                         radius: shadowColorButton.radius ?? 0
                                         opacity: shadowColorButton.isHovered ? 0.15 : 0
 
@@ -992,15 +1025,10 @@ Item {
                                         onExited: shadowColorButton.isHovered = false
 
                                         onClicked: {
-                                            root.openColorPicker(
-                                                Colors.availableColorNames,
-                                                Config.theme.shadowColor,
-                                                "Select Shadow Color",
-                                                function(color) {
-                                                    GlobalStates.markThemeChanged();
-                                                    Config.theme.shadowColor = color;
-                                                }
-                                            );
+                                            root.openColorPicker(Colors.availableColorNames, Config.theme.shadowColor, "Select Shadow Color", function (color) {
+                                                GlobalStates.markThemeChanged();
+                                                Config.theme.shadowColor = color;
+                                            });
                                         }
                                     }
                                 }
@@ -1010,8 +1038,8 @@ Item {
 
                     // Variant selector section
                     Item {
-                        visible: root.currentSection === "colors"
                         id: variantSelectorPane
+                        visible: root.currentSection === "colors"
                         Layout.fillWidth: true
                         Layout.preferredHeight: variantSelectorContent.implicitHeight
 
@@ -1152,7 +1180,7 @@ Item {
 
                                                     Rectangle {
                                                         anchors.fill: parent
-                                                        color: Colors.primary
+                                                        color: Styling.styledRectItem("overprimary")
                                                         radius: variantTagRow.radius ?? 0
                                                         opacity: variantTagRow.isHovered ? 0.15 : 0
 
@@ -1198,7 +1226,7 @@ Item {
 
                                         contentItem: Rectangle {
                                             implicitHeight: 8
-                                            color: Colors.primary
+                                            color: Styling.styledRectItem("overprimary")
                                             radius: 4
                                         }
 
@@ -1309,7 +1337,7 @@ Item {
                                             Rectangle {
                                                 id: hoverOverlay
                                                 anchors.fill: parent
-                                                color: Colors.primary
+                                                color: Styling.styledRectItem("overprimary")
                                                 radius: variantTag.radius ?? 0
                                                 opacity: variantTag.isHovered ? 0.15 : 0
 

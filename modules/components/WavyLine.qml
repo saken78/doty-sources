@@ -6,7 +6,7 @@ Item {
     id: root
     property real amplitudeMultiplier: 0.5
     property real frequency: 6
-    property color color: Colors.primaryFixed
+    property color color: Styling.styledRectItem("overprimary")
     property real lineWidth: 4
     property real fullLength: width
     property real speed: 2.4

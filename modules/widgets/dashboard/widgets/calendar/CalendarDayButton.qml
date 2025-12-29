@@ -24,7 +24,7 @@ Rectangle {
         anchors.centerIn: parent
         width: Math.min(parent.width, parent.height)
         height: width
-        color: (isToday === 1) ? Colors.primary : "transparent"
+        color: (isToday === 1) ? Styling.styledRectItem("overprimary") : "transparent"
         radius: parent.radius
 
         Text {

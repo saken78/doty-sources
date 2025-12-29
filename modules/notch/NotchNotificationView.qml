@@ -64,7 +64,7 @@ Item {
         z: 50
 
         // Navegación con rueda del ratón cuando hay múltiples notificaciones
-        onWheel: (wheel) => {
+        onWheel: wheel => {
             if (Notifications.popupList.length > 1) {
                 if (wheel.angleDelta.y > 0) {
                     // Scroll hacia arriba - ir a la notificación anterior
@@ -77,7 +77,7 @@ Item {
         }
 
         // Middle-click para descartar notificación
-        onPressed: (mouse) => {
+        onPressed: mouse => {
             if (mouse.button === Qt.MiddleButton && currentNotification) {
                 if (Notifications.popupList.length > 1) {
                     root.isNavigating = true;
@@ -456,7 +456,7 @@ Item {
                                                             font.pixelSize: Config.theme.fontSize
                                                             font.weight: Font.Bold
                                                             font.underline: notification && notification.urgency == NotificationUrgency.Critical && hovered
-                                                            color: notification && notification.urgency == NotificationUrgency.Critical ? Colors.criticalText : Colors.primary
+                                                            color: notification && notification.urgency == NotificationUrgency.Critical ? Colors.criticalText : Styling.styledRectItem("overprimary")
                                                             elide: Text.ElideRight
                                                             maximumLineCount: 1
                                                             wrapMode: Text.NoWrap
@@ -531,7 +531,7 @@ Item {
                                                     font.family: Config.theme.font
                                                     font.pixelSize: Config.theme.fontSize
                                                     font.weight: Font.Bold
-                                                    color: notification && notification.urgency == NotificationUrgency.Critical ? Colors.criticalText : Colors.primary
+                                                    color: notification && notification.urgency == NotificationUrgency.Critical ? Colors.criticalText : Styling.styledRectItem("overprimary")
                                                     elide: Text.ElideRight
                                                     maximumLineCount: 1
                                                     wrapMode: Text.NoWrap
@@ -602,7 +602,7 @@ Item {
                                                 background: Item {
                                                     id: notchDismissBg
                                                     property color iconColor: notification && notification.urgency == NotificationUrgency.Critical ? Colors.shadow : (dismissButton.pressed ? Colors.overError : Colors.error)
-                                                    
+
                                                     Rectangle {
                                                         anchors.fill: parent
                                                         visible: notification && notification.urgency == NotificationUrgency.Critical
@@ -648,14 +648,14 @@ Item {
                             }
 
                             // Botones de acción (solo visible con hover)
-                                Item {
-                                    id: actionButtonsRow
-                                    width: parent.width
-                                    implicitHeight: (hovered && notification && notification.actions.length > 0 && !notification.isCached) ? 32 : 0
-                                    height: implicitHeight
-                                    visible: implicitHeight > 0
-                                    clip: true
-                                    z: 200
+                            Item {
+                                id: actionButtonsRow
+                                width: parent.width
+                                implicitHeight: (hovered && notification && notification.actions.length > 0 && !notification.isCached) ? 32 : 0
+                                height: implicitHeight
+                                visible: implicitHeight > 0
+                                clip: true
+                                z: 200
 
                                 RowLayout {
                                     anchors.fill: parent
@@ -664,57 +664,57 @@ Item {
                                     Repeater {
                                         model: notification ? notification.actions : []
 
-                                            Button {
-                                                Layout.fillWidth: true
-                                                Layout.preferredHeight: 32
-                                                z: 200
+                                        Button {
+                                            Layout.fillWidth: true
+                                            Layout.preferredHeight: 32
+                                            z: 200
 
-                                                text: modelData.text
-                                                font.family: Config.theme.font
-                                                font.pixelSize: Config.theme.fontSize
-                                                font.weight: Font.Bold
-                                                hoverEnabled: true
+                                            text: modelData.text
+                                            font.family: Config.theme.font
+                                            font.pixelSize: Config.theme.fontSize
+                                            font.weight: Font.Bold
+                                            hoverEnabled: true
 
-                                                background: Item {
-                                                    id: notchActionBg
-                                                    property color textColor: notification && notification.urgency == NotificationUrgency.Critical ? Colors.shadow : notchActionStyled.item
-                                                    
-                                                    Rectangle {
-                                                        anchors.fill: parent
-                                                        visible: notification && notification.urgency == NotificationUrgency.Critical
-                                                        color: parent.parent.hovered ? Qt.lighter(Colors.criticalRed, 1.3) : Colors.criticalRed
-                                                        radius: Styling.radius(4)
+                                            background: Item {
+                                                id: notchActionBg
+                                                property color textColor: notification && notification.urgency == NotificationUrgency.Critical ? Colors.shadow : notchActionStyled.item
 
-                                                        Behavior on color {
-                                                            enabled: Config.animDuration > 0
-                                                            ColorAnimation {
-                                                                duration: Config.animDuration
-                                                            }
+                                                Rectangle {
+                                                    anchors.fill: parent
+                                                    visible: notification && notification.urgency == NotificationUrgency.Critical
+                                                    color: parent.parent.hovered ? Qt.lighter(Colors.criticalRed, 1.3) : Colors.criticalRed
+                                                    radius: Styling.radius(4)
+
+                                                    Behavior on color {
+                                                        enabled: Config.animDuration > 0
+                                                        ColorAnimation {
+                                                            duration: Config.animDuration
                                                         }
                                                     }
-
-                                                    StyledRect {
-                                                        id: notchActionStyled
-                                                        anchors.fill: parent
-                                                        visible: !(notification && notification.urgency == NotificationUrgency.Critical)
-                                                        variant: parent.parent.pressed ? "primary" : (parent.parent.hovered ? "focus" : "common")
-                                                        radius: Styling.radius(4)
-                                                    }
                                                 }
 
-                                                contentItem: Text {
-                                                    text: parent.text
-                                                    font: parent.font
-                                                    color: notchActionBg.textColor
-                                                    horizontalAlignment: Text.AlignHCenter
-                                                    verticalAlignment: Text.AlignVCenter
-                                                    elide: Text.ElideRight
-                                                }
-
-                                                onClicked: {
-                                                    Notifications.attemptInvokeAction(notification.id, modelData.identifier);
+                                                StyledRect {
+                                                    id: notchActionStyled
+                                                    anchors.fill: parent
+                                                    visible: !(notification && notification.urgency == NotificationUrgency.Critical)
+                                                    variant: parent.parent.pressed ? "primary" : (parent.parent.hovered ? "focus" : "common")
+                                                    radius: Styling.radius(4)
                                                 }
                                             }
+
+                                            contentItem: Text {
+                                                text: parent.text
+                                                font: parent.font
+                                                color: notchActionBg.textColor
+                                                horizontalAlignment: Text.AlignHCenter
+                                                verticalAlignment: Text.AlignVCenter
+                                                elide: Text.ElideRight
+                                            }
+
+                                            onClicked: {
+                                                Notifications.attemptInvokeAction(notification.id, modelData.identifier);
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -784,7 +784,7 @@ Item {
                             height: 8
                             radius: 4
                             property bool isCritical: Notifications.popupList[index] && Notifications.popupList[index].urgency == NotificationUrgency.Critical
-                            color: isCritical ? Colors.criticalRed : (index === root.currentIndex ? Colors.primary : Colors.surfaceBright)
+                            color: isCritical ? Colors.criticalRed : (index === root.currentIndex ? Styling.styledRectItem("overprimary") : Colors.surfaceBright)
 
                             Behavior on color {
                                 enabled: Config.animDuration > 0

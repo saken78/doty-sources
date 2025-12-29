@@ -64,7 +64,7 @@ Item {
             textFormat: Text.RichText
             font.family: Icons.font
             font.pixelSize: 18
-            color: hovered ? Colors.primary : (Notifications.list.length > 0 ? Colors.error : Colors.overBackground)
+            color: hovered ? Styling.styledRectItem("overprimary") : (Notifications.list.length > 0 ? Colors.error : Colors.overBackground)
 
             HoverHandler {
                 onHoveredChanged: root.hovered = hovered

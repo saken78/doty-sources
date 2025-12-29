@@ -36,12 +36,14 @@ Item {
     // Cache calculated values
     readonly property real initX: {
         let base = (windowData?.at?.[0] || 0) - (monitorData?.x || 0);
-        if (barPosition === "left") base -= barReserved;
+        if (barPosition === "left")
+            base -= barReserved;
         return Math.round(Math.max(base * scale, 0) + xOffset);
     }
     readonly property real initY: {
         let base = (windowData?.at?.[1] || 0) - (monitorData?.y || 0);
-        if (barPosition === "top") base -= barReserved;
+        if (barPosition === "top")
+            base -= barReserved;
         return Math.round(Math.max(base * scale, 0) + yOffset);
     }
     readonly property real targetWindowWidth: Math.round((windowData?.size[0] || 100) * scale)
@@ -118,18 +120,22 @@ Item {
         anchors.fill: parent
         radius: root.calculatedRadius
         color: pressed ? Colors.surfaceBright : hovered ? Colors.surface : Colors.background
-        border.color: root.isSearchSelected ? Colors.tertiary : root.isSearchMatch ? Colors.primary : Colors.primary
+        border.color: root.isSearchSelected ? Colors.tertiary : root.isSearchMatch ? Styling.styledRectItem("overprimary") : Styling.styledRectItem("overprimary")
         border.width: root.isSearchSelected ? 3 : root.isSearchMatch ? 2 : (hovered ? 2 : 0)
         visible: !windowPreview.hasContent || !Config.performance.windowPreview
 
         Behavior on color {
             enabled: Config.animDuration > 0
-            ColorAnimation { duration: Config.animDuration / 2 }
+            ColorAnimation {
+                duration: Config.animDuration / 2
+            }
         }
 
         Behavior on border.width {
             enabled: Config.animDuration > 0
-            NumberAnimation { duration: Config.animDuration / 2 }
+            NumberAnimation {
+                duration: Config.animDuration / 2
+            }
         }
     }
 
@@ -152,17 +158,17 @@ Item {
         id: previewOverlay
         anchors.fill: parent
         radius: root.calculatedRadius
-        color: pressed ? Qt.rgba(Colors.surfaceContainerHighest.r, Colors.surfaceContainerHighest.g, Colors.surfaceContainerHighest.b, 0.5) 
-             : hovered ? Qt.rgba(Colors.surfaceContainer.r, Colors.surfaceContainer.g, Colors.surfaceContainer.b, 0.2) 
-             : "transparent"
-        border.color: root.isSearchSelected ? Colors.tertiary : root.isSearchMatch ? Colors.primary : Colors.primary
+        color: pressed ? Qt.rgba(Colors.surfaceContainerHighest.r, Colors.surfaceContainerHighest.g, Colors.surfaceContainerHighest.b, 0.5) : hovered ? Qt.rgba(Colors.surfaceContainer.r, Colors.surfaceContainer.g, Colors.surfaceContainer.b, 0.2) : "transparent"
+        border.color: root.isSearchSelected ? Colors.tertiary : root.isSearchMatch ? Styling.styledRectItem("overprimary") : Styling.styledRectItem("overprimary")
         border.width: root.isSearchSelected ? 3 : root.isSearchMatch ? 2 : (hovered ? 2 : 0)
         visible: windowPreview.hasContent && Config.performance.windowPreview
         z: 5
 
         Behavior on border.width {
             enabled: Config.animDuration > 0
-            NumberAnimation { duration: Config.animDuration / 2 }
+            NumberAnimation {
+                duration: Config.animDuration / 2
+            }
         }
     }
 

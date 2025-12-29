@@ -36,7 +36,7 @@ Item {
 
         Rectangle {
             anchors.fill: parent
-            color: Colors.primary
+            color: Styling.styledRectItem("overprimary")
             opacity: root.popupOpen ? 0 : (root.isHovered ? 0.25 : 0)
             radius: parent.radius ?? 0
 
@@ -101,7 +101,7 @@ Item {
                     return Icons.speakerHigh;
                 }
                 sliderValue: Audio.sink?.audio?.volume ?? 0
-                progressColor: Audio.sink?.audio?.muted ? Colors.outline : Colors.primary
+                progressColor: Audio.sink?.audio?.muted ? Colors.outline : Styling.styledRectItem("overprimary")
                 wavy: true
                 wavyAmplitude: Audio.sink?.audio?.muted ? 0.5 : 1.5 * sliderValue
                 wavyFrequency: Audio.sink?.audio?.muted ? 1.0 : 8.0 * sliderValue
@@ -138,7 +138,7 @@ Item {
 
                 icon: Audio.source?.audio?.muted ? Icons.micSlash : Icons.mic
                 sliderValue: Audio.source?.audio?.volume ?? 0
-                progressColor: Audio.source?.audio?.muted ? Colors.outline : Colors.primary
+                progressColor: Audio.source?.audio?.muted ? Colors.outline : Styling.styledRectItem("overprimary")
                 wavy: true
                 wavyAmplitude: Audio.source?.audio?.muted ? 0.5 : 1.5 * sliderValue
                 wavyFrequency: Audio.source?.audio?.muted ? 1.0 : 8.0 * sliderValue
@@ -177,7 +177,7 @@ Item {
 
                 icon: Icons.sun
                 sliderValue: currentMonitor?.brightness ?? 0.5
-                progressColor: Colors.primary
+                progressColor: Styling.styledRectItem("overprimary")
                 wavy: true
                 wavyAmplitude: 1.5 * sliderValue
                 wavyFrequency: 8.0 * sliderValue

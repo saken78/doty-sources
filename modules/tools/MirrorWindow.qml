@@ -321,7 +321,7 @@ PanelWindow {
             text: mode == 0 || mode == 3 ? Icons.caretDoubleDown : Icons.caretDoubleUp
             rotation: mode == 0 ? -45 : mode == 1 ? 45 : mode == 2 ? -135 : 135
             font.family: Icons.font
-            color: Colors.primary
+            color: Styling.styledRectItem("overprimary")
             font.pixelSize: 12
             opacity: (dragArea.containsMouse || parent.containsMouse) ? 0.8 : 0
         }

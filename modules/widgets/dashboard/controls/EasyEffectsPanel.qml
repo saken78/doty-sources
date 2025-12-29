@@ -319,7 +319,7 @@ Item {
                                 text: Icons.speakerHigh
                                 font.family: Icons.font
                                 font.pixelSize: 14
-                                color: Colors.primary
+                                color: Styling.styledRectItem("overprimary")
                             }
                             Text {
                                 text: EasyEffectsService.activeOutputPreset
@@ -337,7 +337,7 @@ Item {
                                 text: Icons.mic
                                 font.family: Icons.font
                                 font.pixelSize: 14
-                                color: Colors.primary
+                                color: Styling.styledRectItem("overprimary")
                             }
                             Text {
                                 text: EasyEffectsService.activeInputPreset

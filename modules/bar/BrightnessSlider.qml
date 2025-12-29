@@ -94,7 +94,7 @@ Item {
 
         Rectangle {
             anchors.fill: parent
-            color: Colors.primary
+            color: Styling.styledRectItem("overprimary")
             opacity: root.isHovered && !root.isExpanded ? 0.25 : 0
             radius: parent.radius ?? 0
 
@@ -143,7 +143,7 @@ Item {
             icon: Icons.sun
             iconRotation: root.iconRotation
             iconScale: root.iconScale
-            progressColor: Colors.primary
+            progressColor: Styling.styledRectItem("overprimary")
 
             onValueChanged: {
                 if (currentMonitor && currentMonitor.ready) {
@@ -167,7 +167,7 @@ Item {
             Connections {
                 target: brightnessSlider
                 function onIconHovered(hovered) {
-                    // No hacer nada aquí, el HoverHandler principal maneja todo
+                // No hacer nada aquí, el HoverHandler principal maneja todo
                 }
             }
         }

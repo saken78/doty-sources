@@ -67,7 +67,7 @@ Item {
 
         Rectangle {
             anchors.fill: parent
-            color: Colors.primary
+            color: Styling.styledRectItem("overprimary")
             opacity: root.isHovered && !root.isExpanded ? 0.25 : 0
             radius: parent.radius ?? 0
 
@@ -126,7 +126,7 @@ Item {
                     return Icons.speakerLow;
                 return Icons.speakerHigh;
             }
-            progressColor: Audio.sink?.audio?.muted ? Colors.outline : Colors.primary
+            progressColor: Audio.sink?.audio?.muted ? Colors.outline : Styling.styledRectItem("overprimary")
 
             onValueChanged: {
                 if (Audio.sink?.audio) {
@@ -155,7 +155,7 @@ Item {
             Connections {
                 target: volumeSlider
                 function onIconHovered(hovered) {
-                    // No hacer nada aquí, el HoverHandler principal maneja todo
+                // No hacer nada aquí, el HoverHandler principal maneja todo
                 }
             }
 

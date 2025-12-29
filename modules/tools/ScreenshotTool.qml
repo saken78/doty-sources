@@ -151,12 +151,12 @@ PanelWindow {
                     width: modelData.size[0]
                     height: modelData.size[1]
                     color: "transparent"
-                    border.color: hoverHandler.hovered ? Colors.primary : "transparent"
+                    border.color: hoverHandler.hovered ? Styling.styledRectItem("overprimary") : "transparent"
                     border.width: 2
                     
                     Rectangle {
                         anchors.fill: parent
-                        color: Colors.primary
+                        color: Styling.styledRectItem("overprimary")
                         opacity: hoverHandler.hovered ? 0.2 : 0
                     }
 
@@ -238,12 +238,12 @@ PanelWindow {
             id: selectionRect
             visible: screenshotPopup.state === "active" && screenshotPopup.currentMode === "region"
             color: "transparent"
-            border.color: Colors.primary
+            border.color: Styling.styledRectItem("overprimary")
             border.width: 2
             
             Rectangle {
                 anchors.fill: parent
-                color: Colors.primary
+                color: Styling.styledRectItem("overprimary")
                 opacity: 0.2
             }
         }

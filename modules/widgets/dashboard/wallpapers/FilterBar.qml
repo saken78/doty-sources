@@ -18,9 +18,9 @@ FocusScope {
 
     // Señales
     signal filterToggled(string filterType)
-    signal escapePressedOnFilters()
-    signal shiftTabPressed()
-    signal tabPressed()
+    signal escapePressedOnFilters
+    signal shiftTabPressed
+    signal tabPressed
 
     // Propiedad para rastrear si el scrollbar está siendo presionado
     property bool scrollBarPressed: false
@@ -34,9 +34,7 @@ FocusScope {
     function focusFilters() {
         keyboardNavigationActive = true;
         // Restaurar el último filtro que tuvo foco, o el primero si no hay historial
-        focusedFilterIndex = lastFocusedFilterIndex >= 0 && lastFocusedFilterIndex < filterModel.count 
-                             ? lastFocusedFilterIndex 
-                             : 0;
+        focusedFilterIndex = lastFocusedFilterIndex >= 0 && lastFocusedFilterIndex < filterModel.count ? lastFocusedFilterIndex : 0;
         ensureVisible(focusedFilterIndex);
         root.focus = true;
     }
@@ -65,7 +63,7 @@ FocusScope {
             event.accepted = true;
             return;
         }
-        
+
         // Manejar Tab para avanzar al siguiente elemento
         if (event.key === Qt.Key_Tab) {
             keyboardNavigationActive = false;
@@ -75,7 +73,8 @@ FocusScope {
             return;
         }
 
-        if (!keyboardNavigationActive) return;
+        if (!keyboardNavigationActive)
+            return;
 
         if (event.key === Qt.Key_Left) {
             if (focusedFilterIndex > 0) {
@@ -111,10 +110,12 @@ FocusScope {
     }
 
     function ensureVisible(index) {
-        if (index < 0 || index >= filterRepeater.count) return;
-        
+        if (index < 0 || index >= filterRepeater.count)
+            return;
+
         const item = filterRepeater.itemAt(index);
-        if (!item) return;
+        if (!item)
+            return;
 
         const itemX = item.x;
         const itemWidth = item.width;
@@ -123,7 +124,7 @@ FocusScope {
 
         // Calcular la posición de destino con scroll suave
         let targetX = contentX;
-        
+
         if (itemX < contentX) {
             // El elemento está fuera del viewport por la izquierda
             targetX = itemX;
@@ -131,7 +132,7 @@ FocusScope {
             // El elemento está fuera del viewport por la derecha
             targetX = itemX + itemWidth - viewportWidth;
         }
-        
+
         // Si necesitamos hacer scroll, animarlo
         if (targetX !== contentX) {
             scrollAnimation.to = targetX;
@@ -225,16 +226,19 @@ FocusScope {
                     required property string label
                     required property string type
                     required property int index
-                    
+
                     property bool isActive: root.activeFilters.includes(type)
                     property bool hasFocus: root.keyboardNavigationActive && root.focusedFilterIndex === index
                     property bool isHovered: false
 
                     // Variante dinámica según estado
                     variant: {
-                        if (isActive && (hasFocus || isHovered)) return "primaryfocus";
-                        if (isActive) return "primary";
-                        if (hasFocus || isHovered) return "focus";
+                        if (isActive && (hasFocus || isHovered))
+                            return "primaryfocus";
+                        if (isActive)
+                            return "primary";
+                        if (hasFocus || isHovered)
+                            return "focus";
                         return "common";
                     }
 
@@ -306,14 +310,14 @@ FocusScope {
                         anchors.fill: parent
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
-                        
+
                         onEntered: filterTag.isHovered = true
                         onExited: filterTag.isHovered = false
-                        
+
                         onClicked: {
                             root.keyboardNavigationActive = false;
                             root.focusedFilterIndex = -1;
-                            
+
                             const index = root.activeFilters.indexOf(type);
                             if (index > -1) {
                                 root.activeFilters.splice(index, 1);
@@ -360,7 +364,7 @@ FocusScope {
         contentItem: Rectangle {
             implicitWidth: 4
             implicitHeight: 4
-            color: Colors.primary
+            color: Styling.styledRectItem("overprimary")
             radius: Styling.radius(0)
         }
 

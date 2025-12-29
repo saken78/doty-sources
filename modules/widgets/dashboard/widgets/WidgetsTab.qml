@@ -253,8 +253,8 @@ Rectangle {
                     itemY += 48; // All items before are collapsed (base height)
                 }
 
-                            // Calculate expanded item height - always 3 options (Launch, Pin/Unpin, Create Shortcut)
-                            var listHeight = 36 * 3;
+                // Calculate expanded item height - always 3 options (Launch, Pin/Unpin, Create Shortcut)
+                var listHeight = 36 * 3;
                 var expandedHeight = 48 + 4 + listHeight + 8;
 
                 // Calculate max valid scroll position
@@ -581,7 +581,8 @@ Rectangle {
                             acceptedButtons: Qt.LeftButton | Qt.RightButton
 
                             onEntered: {
-                                if (resultsList.isScrolling) return;
+                                if (resultsList.isScrolling)
+                                    return;
                                 if (appLauncher.expandedItemIndex === -1) {
                                     GlobalStates.launcherSelectedIndex = index;
                                     appLauncher.selectedIndex = index;
@@ -758,7 +759,7 @@ Rectangle {
                                         {
                                             text: "Launch",
                                             icon: Icons.launch,
-                                            highlightColor: Colors.primary,
+                                            highlightColor: Styling.styledRectItem("overprimary"),
                                             textColor: Styling.styledRectItem("primary"),
                                             action: function () {
                                                 appLauncher.executeApp(appId);
@@ -769,9 +770,7 @@ Rectangle {
                                             text: TaskbarApps.isPinned(appId) ? "Unpin from Dock" : "Pin to Dock",
                                             icon: TaskbarApps.isPinned(appId) ? Icons.unpin : Icons.pin,
                                             highlightColor: TaskbarApps.isPinned(appId) ? Colors.error : Colors.tertiary,
-                                            textColor: TaskbarApps.isPinned(appId)
-                                                ? Styling.styledRectItem("error")
-                                                : Styling.styledRectItem("tertiary"),
+                                            textColor: TaskbarApps.isPinned(appId) ? Styling.styledRectItem("error") : Styling.styledRectItem("tertiary"),
                                             action: function () {
                                                 TaskbarApps.togglePin(appId);
                                                 appLauncher.expandedItemIndex = -1;
@@ -1421,7 +1420,7 @@ Rectangle {
                         sliderVisible: true
                         iconPos: "start"
                         icon: ""
-                        progressColor: Colors.primary
+                        progressColor: Styling.styledRectItem("overprimary")
 
                         property real brightnessValue: 0
                         property var currentMonitor: {
@@ -1513,7 +1512,7 @@ Rectangle {
                     return Icons.speakerHigh;
                 }
                 value: Audio.sink?.audio?.volume ?? 0
-                accentColor: Audio.sink?.audio?.muted ? Colors.outline : Colors.primary
+                accentColor: Audio.sink?.audio?.muted ? Colors.outline : Styling.styledRectItem("overprimary")
                 isToggleable: true
                 isToggled: !(Audio.sink?.audio?.muted ?? false)
 
@@ -1541,7 +1540,7 @@ Rectangle {
                 Layout.preferredHeight: 48
                 icon: Audio.source?.audio?.muted ? Icons.micSlash : Icons.mic
                 value: Audio.source?.audio?.volume ?? 0
-                accentColor: Audio.source?.audio?.muted ? Colors.outline : Colors.primary
+                accentColor: Audio.source?.audio?.muted ? Colors.outline : Styling.styledRectItem("overprimary")
                 isToggleable: true
                 isToggled: !(Audio.source?.audio?.muted ?? false)
 

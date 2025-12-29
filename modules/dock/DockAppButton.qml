@@ -36,13 +36,9 @@ Button {
     readonly property int instanceCount: (isSeparator || !appToplevel) ? 0 : appToplevel.toplevelCount
 
     enabled: !isSeparator
-    implicitWidth: isSeparator 
-        ? (isVertical ? iconSize * 0.6 : 2) 
-        : iconSize + 8
-    implicitHeight: isSeparator 
-        ? (isVertical ? 2 : iconSize * 0.6) 
-        : iconSize + 8
-    
+    implicitWidth: isSeparator ? (isVertical ? iconSize * 0.6 : 2) : iconSize + 8
+    implicitHeight: isSeparator ? (isVertical ? 2 : iconSize * 0.6) : iconSize + 8
+
     padding: 0
     topPadding: 0
     bottomPadding: 0
@@ -58,10 +54,12 @@ Button {
             variant: "focus"
             visible: !root.isSeparator && (root.hovered || root.pressed)
             opacity: root.pressed ? 1 : 0.7
-            
+
             Behavior on opacity {
                 enabled: Config.animDuration > 0
-                NumberAnimation { duration: Config.animDuration / 2 }
+                NumberAnimation {
+                    duration: Config.animDuration / 2
+                }
             }
         }
     }
@@ -130,11 +128,13 @@ Button {
                             width: root.instanceCount <= 3 ? root.countDotWidth : root.countDotHeight
                             height: root.countDotHeight
                             radius: height / 2
-                            color: root.appIsActive ? Colors.primary : Qt.rgba(Colors.overBackground.r, Colors.overBackground.g, Colors.overBackground.b, 0.4)
-                            
+                            color: root.appIsActive ? Styling.styledRectItem("overprimary") : Qt.rgba(Colors.overBackground.r, Colors.overBackground.g, Colors.overBackground.b, 0.4)
+
                             Behavior on color {
                                 enabled: Config.animDuration > 0
-                                ColorAnimation { duration: Config.animDuration / 2 }
+                                ColorAnimation {
+                                    duration: Config.animDuration / 2
+                                }
                             }
                         }
                     }
@@ -158,11 +158,13 @@ Button {
                             width: root.countDotHeight
                             height: root.instanceCount <= 3 ? root.countDotWidth : root.countDotHeight
                             radius: width / 2
-                            color: root.appIsActive ? Colors.primary : Qt.rgba(Colors.overBackground.r, Colors.overBackground.g, Colors.overBackground.b, 0.4)
-                            
+                            color: root.appIsActive ? Styling.styledRectItem("overprimary") : Qt.rgba(Colors.overBackground.r, Colors.overBackground.g, Colors.overBackground.b, 0.4)
+
                             Behavior on color {
                                 enabled: Config.animDuration > 0
-                                ColorAnimation { duration: Config.animDuration / 2 }
+                                ColorAnimation {
+                                    duration: Config.animDuration / 2
+                                }
                             }
                         }
                     }
@@ -173,8 +175,9 @@ Button {
 
     // Left click: launch or cycle through windows
     onClicked: {
-        if (isSeparator) return;
-        
+        if (isSeparator)
+            return;
+
         if (appToplevel.toplevelCount === 0) {
             // Launch the app
             if (desktopEntry) {
@@ -182,7 +185,7 @@ Button {
             }
             return;
         }
-        
+
         // Cycle through running windows
         lastFocused = (lastFocused + 1) % appToplevel.toplevelCount;
         appToplevel.toplevels[lastFocused].activate();
@@ -192,10 +195,11 @@ Button {
     MouseArea {
         anchors.fill: parent
         acceptedButtons: Qt.MiddleButton | Qt.RightButton
-        
+
         onClicked: mouse => {
-            if (root.isSeparator) return;
-            
+            if (root.isSeparator)
+                return;
+
             if (mouse.button === Qt.MiddleButton) {
                 // Launch new instance
                 if (root.desktopEntry) {

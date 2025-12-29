@@ -23,19 +23,19 @@ Item {
         id: sectionBtn
         required property string text
         required property string sectionId
-        
+
         property bool isHovered: false
-        
+
         variant: isHovered ? "focus" : "pane"
         Layout.fillWidth: true
         Layout.preferredHeight: 56
         radius: Styling.radius(0)
-        
+
         RowLayout {
             anchors.fill: parent
             anchors.margins: 16
             spacing: 16
-            
+
             Text {
                 text: sectionBtn.text
                 font.family: Config.theme.font
@@ -44,7 +44,7 @@ Item {
                 color: Colors.overBackground
                 Layout.fillWidth: true
             }
-            
+
             Text {
                 text: Icons.caretRight
                 font.family: Icons.font
@@ -52,7 +52,7 @@ Item {
                 color: Colors.overSurfaceVariant
             }
         }
-        
+
         MouseArea {
             anchors.fill: parent
             hoverEnabled: true
@@ -141,12 +141,14 @@ Item {
                 x: toggleSwitch.leftPadding
                 y: parent.height / 2 - height / 2
                 radius: height / 2
-                color: toggleSwitch.checked ? Colors.primary : Colors.surfaceBright
-                border.color: toggleSwitch.checked ? Colors.primary : Colors.outline
+                color: toggleSwitch.checked ? Styling.styledRectItem("overprimary") : Colors.surfaceBright
+                border.color: toggleSwitch.checked ? Styling.styledRectItem("overprimary") : Colors.outline
 
                 Behavior on color {
                     enabled: Config.animDuration > 0
-                    ColorAnimation { duration: Config.animDuration / 2 }
+                    ColorAnimation {
+                        duration: Config.animDuration / 2
+                    }
                 }
 
                 Rectangle {
@@ -159,7 +161,10 @@ Item {
 
                     Behavior on x {
                         enabled: Config.animDuration > 0
-                        NumberAnimation { duration: Config.animDuration / 2; easing.type: Easing.OutCubic }
+                        NumberAnimation {
+                            duration: Config.animDuration / 2
+                            easing.type: Easing.OutCubic
+                        }
                     }
                 }
             }
@@ -206,7 +211,10 @@ Item {
                 clip: true
                 verticalAlignment: TextInput.AlignVCenter
                 horizontalAlignment: TextInput.AlignHCenter
-                validator: IntValidator { bottom: numberInputRowRoot.minValue; top: numberInputRowRoot.maxValue }
+                validator: IntValidator {
+                    bottom: numberInputRowRoot.minValue
+                    top: numberInputRowRoot.maxValue
+                }
 
                 // Sync text when external value changes
                 readonly property int configValue: numberInputRowRoot.value
@@ -275,7 +283,11 @@ Item {
                 clip: true
                 verticalAlignment: TextInput.AlignVCenter
                 horizontalAlignment: TextInput.AlignHCenter
-                validator: DoubleValidator { bottom: decimalInputRowRoot.minValue; top: decimalInputRowRoot.maxValue; decimals: 2 }
+                validator: DoubleValidator {
+                    bottom: decimalInputRowRoot.minValue
+                    top: decimalInputRowRoot.maxValue
+                    decimals: 2
+                }
 
                 // Sync text when external value changes
                 readonly property real configValue: decimalInputRowRoot.value
@@ -362,8 +374,8 @@ Item {
                         radius: width / 2
                         color: Config.resolveColor(parent.modelData)
                         border.width: 2
-                        border.color: parent.containsMouse ? Colors.primary : Colors.outline
-                        
+                        border.color: parent.containsMouse ? Styling.styledRectItem("overprimary") : Colors.outline
+
                         // Inner check for visual depth
                         Rectangle {
                             anchors.centerIn: parent
@@ -383,7 +395,7 @@ Item {
                         visible: parent.containsMouse && !contextMenu.visible
                     }
 
-                    onClicked: (mouse) => {
+                    onClicked: mouse => {
                         if (mouse.button === Qt.RightButton) {
                             // Remove color (if more than 1)
                             if (gradientRow.colors.length > 1) {
@@ -393,7 +405,7 @@ Item {
                             }
                         } else {
                             // Edit color
-                            root.openColorPicker(root.colorNames, modelData, gradientRow.dialogTitle, function(selectedColor) {
+                            root.openColorPicker(root.colorNames, modelData, gradientRow.dialogTitle, function (selectedColor) {
                                 let newColors = [...gradientRow.colors];
                                 newColors[index] = selectedColor;
                                 gradientRow.colorsEdited(newColors);
@@ -442,7 +454,7 @@ Item {
         property string icon: ""
         property string image: ""
         property bool isSelected: false
-        signal clicked()
+        signal clicked
 
         variant: isSelected ? "primary" : (hoverHandler.hovered ? "focus" : "common")
         Layout.preferredWidth: 140
@@ -450,8 +462,12 @@ Item {
         radius: isSelected ? Styling.radius(0) / 2 : Styling.radius(0)
         enableShadow: true
 
-        HoverHandler { id: hoverHandler }
-        TapHandler { onTapped: tabBtn.clicked() }
+        HoverHandler {
+            id: hoverHandler
+        }
+        TapHandler {
+            onTapped: tabBtn.clicked()
+        }
 
         RowLayout {
             anchors.centerIn: parent
@@ -466,7 +482,7 @@ Item {
                 sourceSize: Qt.size(32, 32)
                 fillMode: Image.PreserveAspectFit
                 smooth: true
-                
+
                 layer.enabled: true
                 layer.effect: MultiEffect {
                     colorization: 1.0
@@ -562,15 +578,19 @@ Item {
                                 }
                             }
                         ];
-                        
+
                         if (root.currentSection !== "") {
-                            return [{
-                                icon: Icons.arrowLeft,
-                                tooltip: "Back",
-                                onClicked: function() { root.currentSection = ""; }
-                            }].concat(baseActions);
+                            return [
+                                {
+                                    icon: Icons.arrowLeft,
+                                    tooltip: "Back",
+                                    onClicked: function () {
+                                        root.currentSection = "";
+                                    }
+                                }
+                            ].concat(baseActions);
                         }
-                        
+
                         return baseActions;
                     }
                 }
@@ -581,7 +601,7 @@ Item {
                 visible: root.currentSection === ""
                 Layout.fillWidth: true
                 Layout.preferredHeight: 40
-                
+
                 RowLayout {
                     anchors.centerIn: parent
                     spacing: 8
@@ -607,12 +627,12 @@ Item {
                 Layout.fillWidth: true
                 Layout.preferredHeight: stackLayout.height
 
-                    StackLayout {
-                        id: stackLayout
-                        width: root.contentWidth
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        height: currentIndex === 0 ? hyprlandPage.implicitHeight : placeholderPage.implicitHeight
-                        currentIndex: 0
+                StackLayout {
+                    id: stackLayout
+                    width: root.contentWidth
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    height: currentIndex === 0 ? hyprlandPage.implicitHeight : placeholderPage.implicitHeight
+                    currentIndex: 0
 
                     // ═══════════════════════════════════════════════════════════════
                     // HYPRLAND TAB
@@ -628,402 +648,426 @@ Item {
                             Layout.fillWidth: true
                             spacing: 8
 
-                            SectionButton { text: "General"; sectionId: "general" }
-                            SectionButton { text: "Colors"; sectionId: "colors" }
-                            SectionButton { text: "Shadows"; sectionId: "shadows" }
-                            SectionButton { text: "Blur"; sectionId: "blur" }
+                            SectionButton {
+                                text: "General"
+                                sectionId: "general"
+                            }
+                            SectionButton {
+                                text: "Colors"
+                                sectionId: "colors"
+                            }
+                            SectionButton {
+                                text: "Shadows"
+                                sectionId: "shadows"
+                            }
+                            SectionButton {
+                                text: "Blur"
+                                sectionId: "blur"
+                            }
                         }
 
                         // General Section
-                    ColumnLayout {
-                        visible: root.currentSection === "general"
-                        Layout.fillWidth: true
-                        spacing: 8
+                        ColumnLayout {
+                            visible: root.currentSection === "general"
+                            Layout.fillWidth: true
+                            spacing: 8
 
-                        Text {
-                            text: "General"
-                            font.family: Config.theme.font
-                            font.pixelSize: Styling.fontSize(-1)
-                            font.weight: Font.Medium
-                            color: Colors.overSurfaceVariant
-                            Layout.bottomMargin: -4
-                        }
+                            Text {
+                                text: "General"
+                                font.family: Config.theme.font
+                                font.pixelSize: Styling.fontSize(-1)
+                                font.weight: Font.Medium
+                                color: Colors.overSurfaceVariant
+                                Layout.bottomMargin: -4
+                            }
 
-                        ToggleRow {
-                            label: "Sync Border Size"
-                            checked: Config.hyprland.syncBorderWidth ?? false
-                            onToggled: value => {
-                                GlobalStates.markCompositorChanged();
-                                Config.hyprland.syncBorderWidth = value;
+                            ToggleRow {
+                                label: "Sync Border Size"
+                                checked: Config.hyprland.syncBorderWidth ?? false
+                                onToggled: value => {
+                                    GlobalStates.markCompositorChanged();
+                                    Config.hyprland.syncBorderWidth = value;
+                                }
+                            }
+
+                            NumberInputRow {
+                                label: "Border Size"
+                                value: Config.hyprland.borderSize ?? 2
+                                minValue: 0
+                                maxValue: 999
+                                suffix: "px"
+                                enabled: !Config.hyprland.syncBorderWidth
+                                onValueEdited: newValue => {
+                                    GlobalStates.markCompositorChanged();
+                                    Config.hyprland.borderSize = newValue;
+                                }
+                            }
+
+                            ToggleRow {
+                                label: "Sync Rounding"
+                                checked: Config.hyprland.syncRoundness ?? true
+                                onToggled: value => {
+                                    GlobalStates.markCompositorChanged();
+                                    Config.hyprland.syncRoundness = value;
+                                }
+                            }
+
+                            NumberInputRow {
+                                label: "Rounding"
+                                value: Config.hyprland.rounding ?? 16
+                                minValue: 0
+                                maxValue: 999
+                                suffix: "px"
+                                enabled: !Config.hyprland.syncRoundness
+                                onValueEdited: newValue => {
+                                    GlobalStates.markCompositorChanged();
+                                    Config.hyprland.rounding = newValue;
+                                }
+                            }
+
+                            NumberInputRow {
+                                label: "Gaps In"
+                                value: Config.hyprland.gapsIn ?? 5
+                                minValue: 0
+                                maxValue: 50
+                                suffix: "px"
+                                onValueEdited: newValue => {
+                                    GlobalStates.markCompositorChanged();
+                                    Config.hyprland.gapsIn = newValue;
+                                }
+                            }
+
+                            NumberInputRow {
+                                label: "Gaps Out"
+                                value: Config.hyprland.gapsOut ?? 10
+                                minValue: 0
+                                maxValue: 50
+                                suffix: "px"
+                                onValueEdited: newValue => {
+                                    GlobalStates.markCompositorChanged();
+                                    Config.hyprland.gapsOut = newValue;
+                                }
+                            }
+
+                            NumberInputRow {
+                                label: "Border Angle"
+                                value: Config.hyprland.borderAngle ?? 45
+                                minValue: 0
+                                maxValue: 360
+                                suffix: "deg"
+                                onValueEdited: newValue => {
+                                    GlobalStates.markCompositorChanged();
+                                    Config.hyprland.borderAngle = newValue;
+                                }
+                            }
+
+                            NumberInputRow {
+                                label: "Inactive Angle"
+                                value: Config.hyprland.inactiveBorderAngle ?? 45
+                                minValue: 0
+                                maxValue: 360
+                                suffix: "deg"
+                                onValueEdited: newValue => {
+                                    GlobalStates.markCompositorChanged();
+                                    Config.hyprland.inactiveBorderAngle = newValue;
+                                }
                             }
                         }
 
-                        NumberInputRow {
-                            label: "Border Size"
-                            value: Config.hyprland.borderSize ?? 2
-                            minValue: 0
-                            maxValue: 999
-                            suffix: "px"
-                            enabled: !Config.hyprland.syncBorderWidth
-                            onValueEdited: newValue => {
-                                GlobalStates.markCompositorChanged();
-                                Config.hyprland.borderSize = newValue;
+                        Separator {
+                            Layout.fillWidth: true
+                            visible: false
+                        }
+
+                        // Colors Section
+                        ColumnLayout {
+                            visible: root.currentSection === "colors"
+                            Layout.fillWidth: true
+                            spacing: 8
+
+                            Text {
+                                text: "Colors"
+                                font.family: Config.theme.font
+                                font.pixelSize: Styling.fontSize(-1)
+                                font.weight: Font.Medium
+                                color: Colors.overSurfaceVariant
+                                Layout.bottomMargin: -4
+                            }
+
+                            ToggleRow {
+                                label: "Sync Border Color"
+                                checked: Config.hyprland.syncBorderColor ?? false
+                                onToggled: value => {
+                                    GlobalStates.markCompositorChanged();
+                                    Config.hyprland.syncBorderColor = value;
+                                }
+                            }
+
+                            // Active Border Color
+                            BorderGradientRow {
+                                label: "Active Border"
+                                colors: Config.hyprland.activeBorderColor || ["primary"]
+                                dialogTitle: "Edit Active Border Color"
+                                enabled: !Config.hyprland.syncBorderColor
+                                onColorsEdited: newColors => {
+                                    GlobalStates.markCompositorChanged();
+                                    Config.hyprland.activeBorderColor = newColors;
+                                }
+                            }
+
+                            // Inactive Border Color
+                            BorderGradientRow {
+                                label: "Inactive Border"
+                                colors: Config.hyprland.inactiveBorderColor || ["surface"]
+                                dialogTitle: "Edit Inactive Border Color"
+                                onColorsEdited: newColors => {
+                                    GlobalStates.markCompositorChanged();
+                                    Config.hyprland.inactiveBorderColor = newColors;
+                                }
                             }
                         }
 
-                        ToggleRow {
-                            label: "Sync Rounding"
-                            checked: Config.hyprland.syncRoundness ?? true
-                            onToggled: value => {
-                                GlobalStates.markCompositorChanged();
-                                Config.hyprland.syncRoundness = value;
+                        Separator {
+                            Layout.fillWidth: true
+                            visible: false
+                        }
+
+                        // Shadows Section
+                        ColumnLayout {
+                            visible: root.currentSection === "shadows"
+                            Layout.fillWidth: true
+                            spacing: 8
+
+                            Text {
+                                text: "Shadows"
+                                font.family: Config.theme.font
+                                font.pixelSize: Styling.fontSize(-1)
+                                font.weight: Font.Medium
+                                color: Colors.overSurfaceVariant
+                                Layout.bottomMargin: -4
+                            }
+
+                            ToggleRow {
+                                label: "Enabled"
+                                checked: Config.hyprland.shadowEnabled ?? true
+                                onToggled: value => {
+                                    GlobalStates.markCompositorChanged();
+                                    Config.hyprland.shadowEnabled = value;
+                                }
+                            }
+
+                            ToggleRow {
+                                label: "Sync Color"
+                                checked: Config.hyprland.syncShadowColor ?? false
+                                onToggled: value => {
+                                    GlobalStates.markCompositorChanged();
+                                    Config.hyprland.syncShadowColor = value;
+                                }
+                            }
+
+                            ToggleRow {
+                                label: "Sync Opacity"
+                                checked: Config.hyprland.syncShadowOpacity ?? false
+                                onToggled: value => {
+                                    GlobalStates.markCompositorChanged();
+                                    Config.hyprland.syncShadowOpacity = value;
+                                }
+                            }
+
+                            NumberInputRow {
+                                label: "Range"
+                                value: Config.hyprland.shadowRange ?? 4
+                                minValue: 0
+                                maxValue: 100
+                                suffix: "px"
+                                onValueEdited: newValue => {
+                                    GlobalStates.markCompositorChanged();
+                                    Config.hyprland.shadowRange = newValue;
+                                }
+                            }
+
+                            NumberInputRow {
+                                label: "Render Power"
+                                value: Config.hyprland.shadowRenderPower ?? 3
+                                minValue: 1
+                                maxValue: 4
+                                onValueEdited: newValue => {
+                                    GlobalStates.markCompositorChanged();
+                                    Config.hyprland.shadowRenderPower = newValue;
+                                }
+                            }
+
+                            DecimalInputRow {
+                                label: "Scale"
+                                value: Config.hyprland.shadowScale ?? 1.0
+                                minValue: 0.0
+                                maxValue: 1.0
+                                onValueEdited: newValue => {
+                                    GlobalStates.markCompositorChanged();
+                                    Config.hyprland.shadowScale = newValue;
+                                }
+                            }
+
+                            DecimalInputRow {
+                                label: "Opacity"
+                                value: Config.hyprland.shadowOpacity ?? 0.5
+                                minValue: 0.0
+                                maxValue: 1.0
+                                enabled: !Config.hyprland.syncShadowOpacity
+                                onValueEdited: newValue => {
+                                    GlobalStates.markCompositorChanged();
+                                    Config.hyprland.shadowOpacity = newValue;
+                                }
+                            }
+
+                            ToggleRow {
+                                label: "Sharp"
+                                checked: Config.hyprland.shadowSharp ?? false
+                                onToggled: value => {
+                                    GlobalStates.markCompositorChanged();
+                                    Config.hyprland.shadowSharp = value;
+                                }
+                            }
+
+                            ToggleRow {
+                                label: "Ignore Window"
+                                checked: Config.hyprland.shadowIgnoreWindow ?? true
+                                onToggled: value => {
+                                    GlobalStates.markCompositorChanged();
+                                    Config.hyprland.shadowIgnoreWindow = value;
+                                }
                             }
                         }
 
-                        NumberInputRow {
-                            label: "Rounding"
-                            value: Config.hyprland.rounding ?? 16
-                            minValue: 0
-                            maxValue: 999
-                            suffix: "px"
-                            enabled: !Config.hyprland.syncRoundness
-                            onValueEdited: newValue => {
-                                GlobalStates.markCompositorChanged();
-                                Config.hyprland.rounding = newValue;
+                        Separator {
+                            Layout.fillWidth: true
+                            visible: false
+                        }
+
+                        // Blur Section
+                        ColumnLayout {
+                            visible: root.currentSection === "blur"
+                            Layout.fillWidth: true
+                            spacing: 8
+
+                            Text {
+                                text: "Blur"
+                                font.family: Config.theme.font
+                                font.pixelSize: Styling.fontSize(-1)
+                                font.weight: Font.Medium
+                                color: Colors.overSurfaceVariant
+                                Layout.bottomMargin: -4
+                            }
+
+                            ToggleRow {
+                                label: "Enabled"
+                                checked: Config.hyprland.blurEnabled ?? true
+                                onToggled: value => {
+                                    GlobalStates.markCompositorChanged();
+                                    Config.hyprland.blurEnabled = value;
+                                }
+                            }
+
+                            NumberInputRow {
+                                label: "Size"
+                                value: Config.hyprland.blurSize ?? 8
+                                minValue: 0
+                                maxValue: 20
+                                onValueEdited: newValue => {
+                                    GlobalStates.markCompositorChanged();
+                                    Config.hyprland.blurSize = newValue;
+                                }
+                            }
+
+                            NumberInputRow {
+                                label: "Passes"
+                                value: Config.hyprland.blurPasses ?? 1
+                                minValue: 0
+                                maxValue: 4
+                                onValueEdited: newValue => {
+                                    GlobalStates.markCompositorChanged();
+                                    Config.hyprland.blurPasses = newValue;
+                                }
+                            }
+
+                            ToggleRow {
+                                label: "Xray"
+                                checked: Config.hyprland.blurXray ?? false
+                                onToggled: value => {
+                                    GlobalStates.markCompositorChanged();
+                                    Config.hyprland.blurXray = value;
+                                }
+                            }
+
+                            ToggleRow {
+                                label: "New Optimizations"
+                                checked: Config.hyprland.blurNewOptimizations ?? true
+                                onToggled: value => {
+                                    GlobalStates.markCompositorChanged();
+                                    Config.hyprland.blurNewOptimizations = value;
+                                }
+                            }
+
+                            ToggleRow {
+                                label: "Ignore Opacity"
+                                checked: Config.hyprland.blurIgnoreOpacity ?? true
+                                onToggled: value => {
+                                    GlobalStates.markCompositorChanged();
+                                    Config.hyprland.blurIgnoreOpacity = value;
+                                }
+                            }
+
+                            DecimalInputRow {
+                                label: "Noise"
+                                value: Config.hyprland.blurNoise ?? 0.01
+                                minValue: 0.0
+                                maxValue: 1.0
+                                onValueEdited: newValue => {
+                                    GlobalStates.markCompositorChanged();
+                                    Config.hyprland.blurNoise = newValue;
+                                }
+                            }
+
+                            DecimalInputRow {
+                                label: "Contrast"
+                                value: Config.hyprland.blurContrast ?? 0.89
+                                minValue: 0.0
+                                maxValue: 2.0
+                                onValueEdited: newValue => {
+                                    GlobalStates.markCompositorChanged();
+                                    Config.hyprland.blurContrast = newValue;
+                                }
+                            }
+
+                            DecimalInputRow {
+                                label: "Brightness"
+                                value: Config.hyprland.blurBrightness ?? 0.81
+                                minValue: 0.0
+                                maxValue: 2.0
+                                onValueEdited: newValue => {
+                                    GlobalStates.markCompositorChanged();
+                                    Config.hyprland.blurBrightness = newValue;
+                                }
+                            }
+
+                            DecimalInputRow {
+                                label: "Vibrancy"
+                                value: Config.hyprland.blurVibrancy ?? 0.17
+                                minValue: 0.0
+                                maxValue: 1.0
+                                onValueEdited: newValue => {
+                                    GlobalStates.markCompositorChanged();
+                                    Config.hyprland.blurVibrancy = newValue;
+                                }
                             }
                         }
 
-                        NumberInputRow {
-                            label: "Gaps In"
-                            value: Config.hyprland.gapsIn ?? 5
-                            minValue: 0
-                            maxValue: 50
-                            suffix: "px"
-                            onValueEdited: newValue => {
-                                GlobalStates.markCompositorChanged();
-                                Config.hyprland.gapsIn = newValue;
-                            }
-                        }
-
-                        NumberInputRow {
-                            label: "Gaps Out"
-                            value: Config.hyprland.gapsOut ?? 10
-                            minValue: 0
-                            maxValue: 50
-                            suffix: "px"
-                            onValueEdited: newValue => {
-                                GlobalStates.markCompositorChanged();
-                                Config.hyprland.gapsOut = newValue;
-                            }
-                        }
-
-                        NumberInputRow {
-                            label: "Border Angle"
-                            value: Config.hyprland.borderAngle ?? 45
-                            minValue: 0
-                            maxValue: 360
-                            suffix: "deg"
-                            onValueEdited: newValue => {
-                                GlobalStates.markCompositorChanged();
-                                Config.hyprland.borderAngle = newValue;
-                            }
-                        }
-
-                        NumberInputRow {
-                            label: "Inactive Angle"
-                            value: Config.hyprland.inactiveBorderAngle ?? 45
-                            minValue: 0
-                            maxValue: 360
-                            suffix: "deg"
-                            onValueEdited: newValue => {
-                                GlobalStates.markCompositorChanged();
-                                Config.hyprland.inactiveBorderAngle = newValue;
-                            }
+                        // Bottom Padding
+                        Item {
+                            Layout.fillWidth: true
+                            Layout.preferredHeight: 16
                         }
                     }
-
-                    Separator { Layout.fillWidth: true; visible: false }
-
-                    // Colors Section
-                    ColumnLayout {
-                        visible: root.currentSection === "colors"
-                        Layout.fillWidth: true
-                        spacing: 8
-
-                        Text {
-                            text: "Colors"
-                            font.family: Config.theme.font
-                            font.pixelSize: Styling.fontSize(-1)
-                            font.weight: Font.Medium
-                            color: Colors.overSurfaceVariant
-                            Layout.bottomMargin: -4
-                        }
-
-                        ToggleRow {
-                            label: "Sync Border Color"
-                            checked: Config.hyprland.syncBorderColor ?? false
-                            onToggled: value => {
-                                GlobalStates.markCompositorChanged();
-                                Config.hyprland.syncBorderColor = value;
-                            }
-                        }
-
-                        // Active Border Color
-                        BorderGradientRow {
-                            label: "Active Border"
-                            colors: Config.hyprland.activeBorderColor || ["primary"]
-                            dialogTitle: "Edit Active Border Color"
-                            enabled: !Config.hyprland.syncBorderColor
-                            onColorsEdited: newColors => {
-                                GlobalStates.markCompositorChanged();
-                                Config.hyprland.activeBorderColor = newColors;
-                            }
-                        }
-
-                         // Inactive Border Color
-                        BorderGradientRow {
-                            label: "Inactive Border"
-                            colors: Config.hyprland.inactiveBorderColor || ["surface"]
-                            dialogTitle: "Edit Inactive Border Color"
-                            onColorsEdited: newColors => {
-                                GlobalStates.markCompositorChanged();
-                                Config.hyprland.inactiveBorderColor = newColors;
-                            }
-                        }
-                    }
-
-                    Separator { Layout.fillWidth: true; visible: false }
-
-                    // Shadows Section
-                    ColumnLayout {
-                        visible: root.currentSection === "shadows"
-                        Layout.fillWidth: true
-                        spacing: 8
-
-                        Text {
-                            text: "Shadows"
-                            font.family: Config.theme.font
-                            font.pixelSize: Styling.fontSize(-1)
-                            font.weight: Font.Medium
-                            color: Colors.overSurfaceVariant
-                            Layout.bottomMargin: -4
-                        }
-
-                        ToggleRow {
-                            label: "Enabled"
-                            checked: Config.hyprland.shadowEnabled ?? true
-                            onToggled: value => {
-                                GlobalStates.markCompositorChanged();
-                                Config.hyprland.shadowEnabled = value;
-                            }
-                        }
-
-                        ToggleRow {
-                            label: "Sync Color"
-                            checked: Config.hyprland.syncShadowColor ?? false
-                            onToggled: value => {
-                                GlobalStates.markCompositorChanged();
-                                Config.hyprland.syncShadowColor = value;
-                            }
-                        }
-
-                        ToggleRow {
-                            label: "Sync Opacity"
-                            checked: Config.hyprland.syncShadowOpacity ?? false
-                            onToggled: value => {
-                                GlobalStates.markCompositorChanged();
-                                Config.hyprland.syncShadowOpacity = value;
-                            }
-                        }
-
-                        NumberInputRow {
-                            label: "Range"
-                            value: Config.hyprland.shadowRange ?? 4
-                            minValue: 0
-                            maxValue: 100
-                            suffix: "px"
-                            onValueEdited: newValue => {
-                                GlobalStates.markCompositorChanged();
-                                Config.hyprland.shadowRange = newValue;
-                            }
-                        }
-
-                        NumberInputRow {
-                            label: "Render Power"
-                            value: Config.hyprland.shadowRenderPower ?? 3
-                            minValue: 1
-                            maxValue: 4
-                            onValueEdited: newValue => {
-                                GlobalStates.markCompositorChanged();
-                                Config.hyprland.shadowRenderPower = newValue;
-                            }
-                        }
-
-                        DecimalInputRow {
-                            label: "Scale"
-                            value: Config.hyprland.shadowScale ?? 1.0
-                            minValue: 0.0
-                            maxValue: 1.0
-                            onValueEdited: newValue => {
-                                GlobalStates.markCompositorChanged();
-                                Config.hyprland.shadowScale = newValue;
-                            }
-                        }
-
-                        DecimalInputRow {
-                            label: "Opacity"
-                            value: Config.hyprland.shadowOpacity ?? 0.5
-                            minValue: 0.0
-                            maxValue: 1.0
-                            enabled: !Config.hyprland.syncShadowOpacity
-                            onValueEdited: newValue => {
-                                GlobalStates.markCompositorChanged();
-                                Config.hyprland.shadowOpacity = newValue;
-                            }
-                        }
-
-                        ToggleRow {
-                            label: "Sharp"
-                            checked: Config.hyprland.shadowSharp ?? false
-                            onToggled: value => {
-                                GlobalStates.markCompositorChanged();
-                                Config.hyprland.shadowSharp = value;
-                            }
-                        }
-
-                        ToggleRow {
-                            label: "Ignore Window"
-                            checked: Config.hyprland.shadowIgnoreWindow ?? true
-                            onToggled: value => {
-                                GlobalStates.markCompositorChanged();
-                                Config.hyprland.shadowIgnoreWindow = value;
-                            }
-                        }
-                    }
-
-                    Separator { Layout.fillWidth: true; visible: false }
-
-                    // Blur Section
-                    ColumnLayout {
-                        visible: root.currentSection === "blur"
-                        Layout.fillWidth: true
-                        spacing: 8
-
-                        Text {
-                            text: "Blur"
-                            font.family: Config.theme.font
-                            font.pixelSize: Styling.fontSize(-1)
-                            font.weight: Font.Medium
-                            color: Colors.overSurfaceVariant
-                            Layout.bottomMargin: -4
-                        }
-
-                        ToggleRow {
-                            label: "Enabled"
-                            checked: Config.hyprland.blurEnabled ?? true
-                            onToggled: value => {
-                                GlobalStates.markCompositorChanged();
-                                Config.hyprland.blurEnabled = value;
-                            }
-                        }
-
-                        NumberInputRow {
-                            label: "Size"
-                            value: Config.hyprland.blurSize ?? 8
-                            minValue: 0
-                            maxValue: 20
-                            onValueEdited: newValue => {
-                                GlobalStates.markCompositorChanged();
-                                Config.hyprland.blurSize = newValue;
-                            }
-                        }
-
-                        NumberInputRow {
-                            label: "Passes"
-                            value: Config.hyprland.blurPasses ?? 1
-                            minValue: 0
-                            maxValue: 4
-                            onValueEdited: newValue => {
-                                GlobalStates.markCompositorChanged();
-                                Config.hyprland.blurPasses = newValue;
-                            }
-                        }
-
-                        ToggleRow {
-                            label: "Xray"
-                            checked: Config.hyprland.blurXray ?? false
-                            onToggled: value => {
-                                GlobalStates.markCompositorChanged();
-                                Config.hyprland.blurXray = value;
-                            }
-                        }
-
-                        ToggleRow {
-                            label: "New Optimizations"
-                            checked: Config.hyprland.blurNewOptimizations ?? true
-                            onToggled: value => {
-                                GlobalStates.markCompositorChanged();
-                                Config.hyprland.blurNewOptimizations = value;
-                            }
-                        }
-
-                        ToggleRow {
-                            label: "Ignore Opacity"
-                            checked: Config.hyprland.blurIgnoreOpacity ?? true
-                            onToggled: value => {
-                                GlobalStates.markCompositorChanged();
-                                Config.hyprland.blurIgnoreOpacity = value;
-                            }
-                        }
-
-                        DecimalInputRow {
-                            label: "Noise"
-                            value: Config.hyprland.blurNoise ?? 0.01
-                            minValue: 0.0
-                            maxValue: 1.0
-                            onValueEdited: newValue => {
-                                GlobalStates.markCompositorChanged();
-                                Config.hyprland.blurNoise = newValue;
-                            }
-                        }
-
-                        DecimalInputRow {
-                            label: "Contrast"
-                            value: Config.hyprland.blurContrast ?? 0.89
-                            minValue: 0.0
-                            maxValue: 2.0
-                            onValueEdited: newValue => {
-                                GlobalStates.markCompositorChanged();
-                                Config.hyprland.blurContrast = newValue;
-                            }
-                        }
-
-                        DecimalInputRow {
-                            label: "Brightness"
-                            value: Config.hyprland.blurBrightness ?? 0.81
-                            minValue: 0.0
-                            maxValue: 2.0
-                            onValueEdited: newValue => {
-                                GlobalStates.markCompositorChanged();
-                                Config.hyprland.blurBrightness = newValue;
-                            }
-                        }
-                        
-                        DecimalInputRow {
-                            label: "Vibrancy"
-                            value: Config.hyprland.blurVibrancy ?? 0.17
-                            minValue: 0.0
-                            maxValue: 1.0
-                            onValueEdited: newValue => {
-                                GlobalStates.markCompositorChanged();
-                                Config.hyprland.blurVibrancy = newValue;
-                            }
-                        }
-                    }
-                    
-                    // Bottom Padding
-                    Item { Layout.fillWidth: true; Layout.preferredHeight: 16 }
-                }
 
                     // ═══════════════════════════════════════════════════════════════
                     // COMING SOON TAB
@@ -1034,39 +1078,39 @@ Item {
                         implicitHeight: 300
 
                         ColumnLayout {
-                        anchors.centerIn: parent
-                        spacing: 16
+                            anchors.centerIn: parent
+                            spacing: 16
 
-                        Text {
-                            text: Icons.clock
-                            font.family: Icons.font
-                            font.pixelSize: 64
-                            color: Colors.surfaceVariant
-                            Layout.alignment: Qt.AlignHCenter
-                        }
+                            Text {
+                                text: Icons.clock
+                                font.family: Icons.font
+                                font.pixelSize: 64
+                                color: Colors.surfaceVariant
+                                Layout.alignment: Qt.AlignHCenter
+                            }
 
-                        Text {
-                            text: "Coming Soon"
-                            font.family: Config.theme.font
-                            font.pixelSize: Styling.fontSize(2)
-                            font.bold: true
-                            color: Colors.overBackground
-                            Layout.alignment: Qt.AlignHCenter
-                        }
+                            Text {
+                                text: "Coming Soon"
+                                font.family: Config.theme.font
+                                font.pixelSize: Styling.fontSize(2)
+                                font.bold: true
+                                color: Colors.overBackground
+                                Layout.alignment: Qt.AlignHCenter
+                            }
 
-                        Text {
-                            text: "Support for more compositors\nis planned for future updates."
-                            font.family: Config.theme.font
-                            font.pixelSize: Styling.fontSize(0)
-                            color: Colors.overSurfaceVariant
-                            horizontalAlignment: Text.AlignHCenter
-                            Layout.alignment: Qt.AlignHCenter
+                            Text {
+                                text: "Support for more compositors\nis planned for future updates."
+                                font.family: Config.theme.font
+                                font.pixelSize: Styling.fontSize(0)
+                                color: Colors.overSurfaceVariant
+                                horizontalAlignment: Text.AlignHCenter
+                                Layout.alignment: Qt.AlignHCenter
+                            }
                         }
                     }
                 }
             }
         }
-    }
     }
 
     // Color picker view (shown when colorPickerActive)

@@ -21,13 +21,13 @@ Item {
     readonly property int workspacesShown: rows * columns
     readonly property real workspaceSpacing: Config.overview.workspaceSpacing
     readonly property real workspacePadding: 8
-    readonly property color activeBorderColor: Colors.primary
+    readonly property color activeBorderColor: Styling.styledRectItem("overprimary")
 
     // Use the screen's monitor instead of focused monitor for multi-monitor support
     property var currentScreen: null  // This will be set from parent
     readonly property var monitor: currentScreen ? Hyprland.monitorFor(currentScreen) : Hyprland.focusedMonitor
     readonly property int workspaceGroup: Math.floor((monitor?.activeWorkspace?.id - 1 || 0) / workspacesShown)
-    
+
     // Cache these references
     readonly property var windowList: HyprlandData.windowList
     readonly property var monitors: HyprlandData.monitors
@@ -55,9 +55,11 @@ Item {
 
     // Fuzzy match: checks if all characters of query appear in order in target
     function fuzzyMatch(query, target) {
-        if (query.length === 0) return true;
-        if (target.length === 0) return false;
-        
+        if (query.length === 0)
+            return true;
+        if (target.length === 0)
+            return false;
+
         let queryIndex = 0;
         for (let i = 0; i < target.length && queryIndex < query.length; i++) {
             if (target[i] === query[queryIndex]) {
@@ -69,34 +71,38 @@ Item {
 
     // Score a fuzzy match (higher is better)
     function fuzzyScore(query, target) {
-        if (query.length === 0) return 0;
-        if (target.length === 0) return -1;
-        
+        if (query.length === 0)
+            return 0;
+        if (target.length === 0)
+            return -1;
+
         // Exact match gets highest score
-        if (target.includes(query)) return 1000 + (100 - target.length);
-        
+        if (target.includes(query))
+            return 1000 + (100 - target.length);
+
         // Check for fuzzy match
         let queryIndex = 0;
         let consecutiveMatches = 0;
         let maxConsecutive = 0;
         let score = 0;
-        
+
         for (let i = 0; i < target.length && queryIndex < query.length; i++) {
             if (target[i] === query[queryIndex]) {
                 queryIndex++;
                 consecutiveMatches++;
                 maxConsecutive = Math.max(maxConsecutive, consecutiveMatches);
                 // Bonus for matches at word boundaries
-                if (i === 0 || target[i-1] === ' ' || target[i-1] === '-' || target[i-1] === '_') {
+                if (i === 0 || target[i - 1] === ' ' || target[i - 1] === '-' || target[i - 1] === '_') {
                     score += 10;
                 }
             } else {
                 consecutiveMatches = 0;
             }
         }
-        
-        if (queryIndex !== query.length) return -1; // No match
-        
+
+        if (queryIndex !== query.length)
+            return -1; // No match
+
         return score + maxConsecutive * 5;
     }
 
@@ -106,35 +112,31 @@ Item {
             selectedMatchIndex = 0;
             return;
         }
-        
+
         const query = searchQuery.toLowerCase();
-        const matches = windowList
-            .filter(win => {
-                if (!win) return false;
-                const title = (win.title || "").toLowerCase();
-                const windowClass = (win.class || "").toLowerCase();
-                return fuzzyMatch(query, title) || fuzzyMatch(query, windowClass);
-            })
-            .map(win => ({
-                window: win,
-                score: Math.max(
-                    fuzzyScore(query, (win.title || "").toLowerCase()),
-                    fuzzyScore(query, (win.class || "").toLowerCase())
-                )
-            }))
-            .sort((a, b) => b.score - a.score)
-            .map(item => item.window);
-        
+        const matches = windowList.filter(win => {
+            if (!win)
+                return false;
+            const title = (win.title || "").toLowerCase();
+            const windowClass = (win.class || "").toLowerCase();
+            return fuzzyMatch(query, title) || fuzzyMatch(query, windowClass);
+        }).map(win => ({
+                    window: win,
+                    score: Math.max(fuzzyScore(query, (win.title || "").toLowerCase()), fuzzyScore(query, (win.class || "").toLowerCase()))
+                })).sort((a, b) => b.score - a.score).map(item => item.window);
+
         matchingWindows = matches;
         selectedMatchIndex = matches.length > 0 ? 0 : -1;
     }
 
     function navigateToSelectedWindow() {
-        if (matchingWindows.length === 0 || selectedMatchIndex < 0) return;
-        
+        if (matchingWindows.length === 0 || selectedMatchIndex < 0)
+            return;
+
         const win = matchingWindows[selectedMatchIndex];
-        if (!win) return;
-        
+        if (!win)
+            return;
+
         // Close overview and focus the matched window
         Visibilities.setActiveModule("", true);
         Qt.callLater(() => {
@@ -143,28 +145,33 @@ Item {
     }
 
     function selectNextMatch() {
-        if (matchingWindows.length === 0) return;
+        if (matchingWindows.length === 0)
+            return;
         selectedMatchIndex = (selectedMatchIndex + 1) % matchingWindows.length;
     }
 
     function selectPrevMatch() {
-        if (matchingWindows.length === 0) return;
+        if (matchingWindows.length === 0)
+            return;
         selectedMatchIndex = (selectedMatchIndex - 1 + matchingWindows.length) % matchingWindows.length;
     }
 
     function isWindowMatched(windowAddress) {
-        if (searchQuery.length === 0) return false;
+        if (searchQuery.length === 0)
+            return false;
         return matchingWindows.some(win => win?.address === windowAddress);
     }
 
     function isWindowSelected(windowAddress) {
-        if (matchingWindows.length === 0 || selectedMatchIndex < 0) return false;
+        if (matchingWindows.length === 0 || selectedMatchIndex < 0)
+            return false;
         return matchingWindows[selectedMatchIndex]?.address === windowAddress;
     }
 
     // Pre-calculate workspace dimensions once
     readonly property real workspaceImplicitWidth: {
-        if (!monitorData) return 200;
+        if (!monitorData)
+            return 200;
         const isRotated = (monitorData.transform % 2 === 1);
         const monitorScale = monitorData.scale || 1.0;
         const width = isRotated ? (monitor?.height || 1920) : (monitor?.width || 1920);
@@ -174,9 +181,10 @@ Item {
         }
         return Math.max(0, Math.round(scaledWidth));
     }
-    
+
     readonly property real workspaceImplicitHeight: {
-        if (!monitorData) return 150;
+        if (!monitorData)
+            return 150;
         const isRotated = (monitorData.transform % 2 === 1);
         const monitorScale = monitorData.scale || 1.0;
         const height = isRotated ? (monitor?.width || 1080) : (monitor?.height || 1080);
@@ -313,16 +321,14 @@ Item {
                 const maxWs = (overviewRoot.workspaceGroup + 1) * overviewRoot.workspacesShown;
                 const monId = overviewRoot.monitorId;
                 const toplevels = ToplevelManager.toplevels.values;
-                
-                return overviewRoot.windowList
-                    .filter(win => {
-                        const wsId = win?.workspace?.id;
-                        return wsId > minWs && wsId <= maxWs && win.monitor === monId;
-                    })
-                    .map(win => ({
-                        windowData: win,
-                        toplevel: toplevels.find(t => `0x${t.HyprlandToplevel.address}` === win.address) || null
-                    }));
+
+                return overviewRoot.windowList.filter(win => {
+                    const wsId = win?.workspace?.id;
+                    return wsId > minWs && wsId <= maxWs && win.monitor === monId;
+                }).map(win => ({
+                            windowData: win,
+                            toplevel: toplevels.find(t => `0x${t.HyprlandToplevel.address}` === win.address) || null
+                        }));
             }
 
             Repeater {

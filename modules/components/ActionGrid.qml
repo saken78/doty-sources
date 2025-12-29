@@ -26,7 +26,8 @@ FocusScope {
         let limit = actions.length;
         for (let i = 0; i < limit; i++) {
             next = (next + step + limit) % limit;
-            if (!actions[next].type || actions[next].type !== "separator") return next;
+            if (!actions[next].type || actions[next].type !== "separator")
+                return next;
         }
         return current;
     }
@@ -45,7 +46,8 @@ FocusScope {
         if (activeFocus && repeater.count > 0) {
             Qt.callLater(() => {
                 let item = repeater.itemAt(currentIndex);
-                if (item) item.forceActiveFocus();
+                if (item)
+                    item.forceActiveFocus();
             });
         }
     }
@@ -80,7 +82,8 @@ FocusScope {
         } else if (nextIndex !== currentIndex) {
             currentIndex = nextIndex;
             let item = repeater.itemAt(currentIndex);
-            if (item) item.forceActiveFocus();
+            if (item)
+                item.forceActiveFocus();
             event.accepted = true;
         }
     }
@@ -91,10 +94,8 @@ FocusScope {
 
         // Highlight que se desplaza entre botones
         StyledRect {
-            variant: (repeater.count > 0 && repeater.itemAt(root.currentIndex) && repeater.itemAt(root.currentIndex).actionModel.variant) 
-                     ? repeater.itemAt(root.currentIndex).actionModel.variant 
-                     : "primary"
             id: highlight
+            variant: (repeater.count > 0 && repeater.itemAt(root.currentIndex) && repeater.itemAt(root.currentIndex).actionModel.variant) ? repeater.itemAt(root.currentIndex).actionModel.variant : "primary"
             radius: Styling.radius(4)
             z: 0 // Por debajo de los botones
             visible: repeater.count > 0
@@ -113,10 +114,34 @@ FocusScope {
             property real t1w: tw
             property real t1h: th
 
-            Behavior on t1x { enabled: Config.animDuration > 0; NumberAnimation { duration: Config.animDuration / 3; easing.type: Easing.OutSine } }
-            Behavior on t1y { enabled: Config.animDuration > 0; NumberAnimation { duration: Config.animDuration / 3; easing.type: Easing.OutSine } }
-            Behavior on t1w { enabled: Config.animDuration > 0; NumberAnimation { duration: Config.animDuration / 3; easing.type: Easing.OutSine } }
-            Behavior on t1h { enabled: Config.animDuration > 0; NumberAnimation { duration: Config.animDuration / 3; easing.type: Easing.OutSine } }
+            Behavior on t1x {
+                enabled: Config.animDuration > 0
+                NumberAnimation {
+                    duration: Config.animDuration / 3
+                    easing.type: Easing.OutSine
+                }
+            }
+            Behavior on t1y {
+                enabled: Config.animDuration > 0
+                NumberAnimation {
+                    duration: Config.animDuration / 3
+                    easing.type: Easing.OutSine
+                }
+            }
+            Behavior on t1w {
+                enabled: Config.animDuration > 0
+                NumberAnimation {
+                    duration: Config.animDuration / 3
+                    easing.type: Easing.OutSine
+                }
+            }
+            Behavior on t1h {
+                enabled: Config.animDuration > 0
+                NumberAnimation {
+                    duration: Config.animDuration / 3
+                    easing.type: Easing.OutSine
+                }
+            }
 
             // Tracker 2 (Slow / Follow)
             property real t2x: tx
@@ -124,10 +149,34 @@ FocusScope {
             property real t2w: tw
             property real t2h: th
 
-            Behavior on t2x { enabled: Config.animDuration > 0; NumberAnimation { duration: Config.animDuration; easing.type: Easing.OutSine } }
-            Behavior on t2y { enabled: Config.animDuration > 0; NumberAnimation { duration: Config.animDuration; easing.type: Easing.OutSine } }
-            Behavior on t2w { enabled: Config.animDuration > 0; NumberAnimation { duration: Config.animDuration; easing.type: Easing.OutSine } }
-            Behavior on t2h { enabled: Config.animDuration > 0; NumberAnimation { duration: Config.animDuration; easing.type: Easing.OutSine } }
+            Behavior on t2x {
+                enabled: Config.animDuration > 0
+                NumberAnimation {
+                    duration: Config.animDuration
+                    easing.type: Easing.OutSine
+                }
+            }
+            Behavior on t2y {
+                enabled: Config.animDuration > 0
+                NumberAnimation {
+                    duration: Config.animDuration
+                    easing.type: Easing.OutSine
+                }
+            }
+            Behavior on t2w {
+                enabled: Config.animDuration > 0
+                NumberAnimation {
+                    duration: Config.animDuration
+                    easing.type: Easing.OutSine
+                }
+            }
+            Behavior on t2h {
+                enabled: Config.animDuration > 0
+                NumberAnimation {
+                    duration: Config.animDuration
+                    easing.type: Easing.OutSine
+                }
+            }
 
             // Final geometry combining both trackers to create elastic effect
             x: Math.min(t1x, t2x) + container.x
@@ -151,14 +200,16 @@ FocusScope {
                     id: delegateWrapper
                     readonly property bool isSeparator: (modelData.type === "separator")
                     property var actionModel: modelData
-                    
+
                     implicitWidth: isSeparator ? (root.layout === "row" ? 2 : root.buttonSize) : (root.buttonSize + (hasText ? textMetrics.width + root.textSpacing : 0))
                     implicitHeight: isSeparator ? (root.layout === "row" ? root.buttonSize : 2) : root.buttonSize
                     z: 1
 
                     readonly property bool hasText: {
-                        if (!modelData) return false;
-                        if (typeof modelData.text === "string") return modelData.text.length > 0;
+                        if (!modelData)
+                            return false;
+                        if (typeof modelData.text === "string")
+                            return modelData.text.length > 0;
                         return false;
                     }
 
@@ -171,7 +222,8 @@ FocusScope {
                     }
 
                     function triggerAction() {
-                        if (!isSeparator) actionButton.triggerAction()
+                        if (!isSeparator)
+                            actionButton.triggerAction();
                     }
 
                     Button {
@@ -210,7 +262,7 @@ FocusScope {
                                 textFormat: Text.RichText
                                 font.family: Icons.font
                                 font.pixelSize: root.iconSize
-                                color: actionButton.pressed ? Colors.primary : (index === root.currentIndex ? (highlight.targetItem ? highlight.item : Styling.styledRectItem("primary")) : Colors.overBackground)
+                                color: actionButton.pressed ? Styling.styledRectItem("overprimary") : (index === root.currentIndex ? (highlight.targetItem ? highlight.item : Styling.styledRectItem("primary")) : Colors.overBackground)
                                 horizontalAlignment: Text.AlignHCenter
                                 verticalAlignment: Text.AlignVCenter
 
@@ -230,13 +282,13 @@ FocusScope {
                                 anchors.left: parent.left
                                 anchors.leftMargin: root.buttonSize // Empieza justo después del área del icono
                                 anchors.verticalCenter: parent.verticalCenter
-                                
+
                                 font.family: Config.defaultFont
                                 font.pixelSize: root.iconSize * 0.7
                                 font.weight: Font.DemiBold
-                                color: actionButton.pressed ? Colors.primary : (index === root.currentIndex ? (highlight.targetItem ? highlight.item : Styling.styledRectItem("primary")) : Colors.overBackground)
+                                color: actionButton.pressed ? Styling.styledRectItem("overprimary") : (index === root.currentIndex ? (highlight.targetItem ? highlight.item : Styling.styledRectItem("primary")) : Colors.overBackground)
                                 verticalAlignment: Text.AlignVCenter
-                                
+
                                 Behavior on color {
                                     enabled: Config.animDuration > 0
                                     ColorAnimation {

@@ -20,7 +20,7 @@ Item {
     readonly property int visibleWorkspaces: 3  // Show 3 workspaces at a time in viewport
     readonly property real workspaceSpacing: Config.overview.workspaceSpacing
     readonly property real workspacePadding: 4
-    readonly property color activeBorderColor: Colors.primary
+    readonly property color activeBorderColor: Styling.styledRectItem("overprimary")
 
     // Monitor info
     property var currentScreen: null
@@ -34,7 +34,7 @@ Item {
 
     // Window data
     readonly property var windowList: HyprlandData.windowList
-    
+
     // Focused window address for centering
     readonly property string focusedWindowAddress: Hyprland.focusedClient?.address ?? ""
 
@@ -53,8 +53,10 @@ Item {
     onWindowListChanged: updateMatchingWindows()
 
     function fuzzyMatch(query, target) {
-        if (query.length === 0) return true;
-        if (target.length === 0) return false;
+        if (query.length === 0)
+            return true;
+        if (target.length === 0)
+            return false;
         let queryIndex = 0;
         for (let i = 0; i < target.length && queryIndex < query.length; i++) {
             if (target[i] === query[queryIndex]) {
@@ -65,9 +67,12 @@ Item {
     }
 
     function fuzzyScore(query, target) {
-        if (query.length === 0) return 0;
-        if (target.length === 0) return -1;
-        if (target.includes(query)) return 1000 + (100 - target.length);
+        if (query.length === 0)
+            return 0;
+        if (target.length === 0)
+            return -1;
+        if (target.includes(query))
+            return 1000 + (100 - target.length);
         let queryIndex = 0;
         let consecutiveMatches = 0;
         let maxConsecutive = 0;
@@ -77,14 +82,15 @@ Item {
                 queryIndex++;
                 consecutiveMatches++;
                 maxConsecutive = Math.max(maxConsecutive, consecutiveMatches);
-                if (i === 0 || target[i-1] === ' ' || target[i-1] === '-' || target[i-1] === '_') {
+                if (i === 0 || target[i - 1] === ' ' || target[i - 1] === '-' || target[i - 1] === '_') {
                     score += 10;
                 }
             } else {
                 consecutiveMatches = 0;
             }
         }
-        if (queryIndex !== query.length) return -1;
+        if (queryIndex !== query.length)
+            return -1;
         return score + maxConsecutive * 5;
     }
 
@@ -95,30 +101,26 @@ Item {
             return;
         }
         const query = searchQuery.toLowerCase();
-        const matches = windowList
-            .filter(win => {
-                if (!win) return false;
-                const title = (win.title || "").toLowerCase();
-                const windowClass = (win.class || "").toLowerCase();
-                return fuzzyMatch(query, title) || fuzzyMatch(query, windowClass);
-            })
-            .map(win => ({
-                window: win,
-                score: Math.max(
-                    fuzzyScore(query, (win.title || "").toLowerCase()),
-                    fuzzyScore(query, (win.class || "").toLowerCase())
-                )
-            }))
-            .sort((a, b) => b.score - a.score)
-            .map(item => item.window);
+        const matches = windowList.filter(win => {
+            if (!win)
+                return false;
+            const title = (win.title || "").toLowerCase();
+            const windowClass = (win.class || "").toLowerCase();
+            return fuzzyMatch(query, title) || fuzzyMatch(query, windowClass);
+        }).map(win => ({
+                    window: win,
+                    score: Math.max(fuzzyScore(query, (win.title || "").toLowerCase()), fuzzyScore(query, (win.class || "").toLowerCase()))
+                })).sort((a, b) => b.score - a.score).map(item => item.window);
         matchingWindows = matches;
         selectedMatchIndex = matches.length > 0 ? 0 : -1;
     }
 
     function navigateToSelectedWindow() {
-        if (matchingWindows.length === 0 || selectedMatchIndex < 0) return;
+        if (matchingWindows.length === 0 || selectedMatchIndex < 0)
+            return;
         const win = matchingWindows[selectedMatchIndex];
-        if (!win) return;
+        if (!win)
+            return;
         Visibilities.setActiveModule("", true);
         Qt.callLater(() => {
             Hyprland.dispatch(`focuswindow address:${win.address}`);
@@ -126,29 +128,34 @@ Item {
     }
 
     function selectNextMatch() {
-        if (matchingWindows.length === 0) return;
+        if (matchingWindows.length === 0)
+            return;
         selectedMatchIndex = (selectedMatchIndex + 1) % matchingWindows.length;
     }
 
     function selectPrevMatch() {
-        if (matchingWindows.length === 0) return;
+        if (matchingWindows.length === 0)
+            return;
         selectedMatchIndex = (selectedMatchIndex - 1 + matchingWindows.length) % matchingWindows.length;
     }
 
     function isWindowMatched(windowAddress) {
-        if (searchQuery.length === 0) return false;
+        if (searchQuery.length === 0)
+            return false;
         return matchingWindows.some(win => win?.address === windowAddress);
     }
 
     function isWindowSelected(windowAddress) {
-        if (matchingWindows.length === 0 || selectedMatchIndex < 0) return false;
+        if (matchingWindows.length === 0 || selectedMatchIndex < 0)
+            return false;
         return matchingWindows[selectedMatchIndex]?.address === windowAddress;
     }
 
     // Calculate workspace dimensions
     // Triple the width for scrolling mode to take advantage of horizontal space
     readonly property real workspaceWidth: {
-        if (!monitorData) return 800;
+        if (!monitorData)
+            return 800;
         const isRotated = (monitorData.transform % 2 === 1);
         const monitorScale = monitorData.scale || 1.0;
         const width = isRotated ? (monitor?.height || 1920) : (monitor?.width || 1920);
@@ -160,7 +167,8 @@ Item {
     }
 
     readonly property real workspaceHeight: {
-        if (!monitorData) return 150;
+        if (!monitorData)
+            return 150;
         const isRotated = (monitorData.transform % 2 === 1);
         const monitorScale = monitorData.scale || 1.0;
         const height = isRotated ? (monitor?.width || 1080) : (monitor?.height || 1080);
@@ -180,7 +188,7 @@ Item {
         // Convert global Y to content Y (accounting for flickable position and margins)
         const flickableGlobalY = workspaceFlickable.mapToItem(null, 0, 0).y;
         const contentY = globalY - flickableGlobalY + workspaceFlickable.contentY;
-        
+
         // Calculate workspace index
         const wsIndex = Math.floor(contentY / workspaceRowHeight);
         if (wsIndex >= 0 && wsIndex < totalWorkspaces) {
@@ -298,7 +306,7 @@ Item {
             Rectangle {
                 id: focusedWorkspaceIndicator
                 readonly property int activeWorkspaceId: scrollingOverviewRoot.monitor?.activeWorkspace?.id || 1
-                
+
                 x: 0
                 y: (activeWorkspaceId - 1) * (workspaceHeight + workspaceSpacing)
                 width: workspaceWidth

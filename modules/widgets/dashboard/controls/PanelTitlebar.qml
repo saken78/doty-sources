@@ -13,7 +13,7 @@ RowLayout {
 
     property string title: ""
     property string statusText: ""
-    property color statusColor: Colors.primary
+    property color statusColor: Styling.styledRectItem("overprimary")
     property bool showToggle: false
     property bool toggleChecked: false
 
@@ -48,7 +48,9 @@ RowLayout {
         color: root.statusColor
     }
 
-    Item { Layout.fillWidth: true }
+    Item {
+        Layout.fillWidth: true
+    }
 
     // Custom content container
     Item {
@@ -83,7 +85,7 @@ RowLayout {
                 text: actionButton.modelData.icon || ""
                 font.family: Icons.font
                 font.pixelSize: 14
-                color: actionButton.isLoading ? Colors.primary : (actionButton.enabled ? Colors.overBackground : Colors.outline)
+                color: actionButton.isLoading ? Styling.styledRectItem("overprimary") : (actionButton.enabled ? Colors.overBackground : Colors.outline)
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
 
@@ -122,12 +124,14 @@ RowLayout {
             x: toggleSwitch.leftPadding
             y: parent.height / 2 - height / 2
             radius: height / 2
-            color: toggleSwitch.checked ? Colors.primary : Colors.surfaceBright
-            border.color: toggleSwitch.checked ? Colors.primary : Colors.outline
+            color: toggleSwitch.checked ? Styling.styledRectItem("overprimary") : Colors.surfaceBright
+            border.color: toggleSwitch.checked ? Styling.styledRectItem("overprimary") : Colors.outline
 
             Behavior on color {
                 enabled: Config.animDuration > 0
-                ColorAnimation { duration: Config.animDuration / 2 }
+                ColorAnimation {
+                    duration: Config.animDuration / 2
+                }
             }
 
             Rectangle {
@@ -140,7 +144,10 @@ RowLayout {
 
                 Behavior on x {
                     enabled: Config.animDuration > 0
-                    NumberAnimation { duration: Config.animDuration / 2; easing.type: Easing.OutCubic }
+                    NumberAnimation {
+                        duration: Config.animDuration / 2
+                        easing.type: Easing.OutCubic
+                    }
                 }
             }
         }

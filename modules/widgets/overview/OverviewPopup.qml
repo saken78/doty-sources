@@ -147,7 +147,7 @@ PanelWindow {
                         text: Icons.overview
                         font.family: Icons.font
                         font.pixelSize: 24
-                        color: Colors.primary
+                        color: Styling.styledRectItem("overprimary")
                     }
                 }
 
@@ -171,7 +171,8 @@ PanelWindow {
                         anchors.rightMargin: 16
                         anchors.verticalCenter: parent.verticalCenter
                         text: {
-                            if (!overviewLoader.item) return "0";
+                            if (!overviewLoader.item)
+                                return "0";
                             const matches = overviewLoader.item.matchingWindows.length;
                             if (matches > 0) {
                                 return `${overviewLoader.item.selectedMatchIndex + 1}/${matches}`;
@@ -180,7 +181,7 @@ PanelWindow {
                         }
                         font.family: Config.theme.font
                         font.pixelSize: Config.theme.fontSize - 2
-                        color: (overviewLoader.item && overviewLoader.item.matchingWindows.length > 0) ? Colors.primary : Colors.error
+                        color: (overviewLoader.item && overviewLoader.item.matchingWindows.length > 0) ? Styling.styledRectItem("overprimary") : Colors.error
                         opacity: 0.8
                     }
 
@@ -275,7 +276,7 @@ PanelWindow {
                 id: overviewLoader
                 anchors.centerIn: parent
                 active: overviewOpen
-                
+
                 sourceComponent: OverviewView {
                     currentScreen: overviewPopup.screen
                 }
@@ -316,12 +317,10 @@ PanelWindow {
                 width: 12
                 orientation: Qt.Vertical
                 policy: ScrollBar.AlwaysOn
-                
-                position: overviewLoader.item && overviewLoader.item.flickable 
-                    ? overviewLoader.item.flickable.visibleArea.yPosition : 0
-                size: overviewLoader.item && overviewLoader.item.flickable 
-                    ? overviewLoader.item.flickable.visibleArea.heightRatio : 1
-                
+
+                position: overviewLoader.item && overviewLoader.item.flickable ? overviewLoader.item.flickable.visibleArea.yPosition : 0
+                size: overviewLoader.item && overviewLoader.item.flickable ? overviewLoader.item.flickable.visibleArea.heightRatio : 1
+
                 // Notify flickable when manually scrolling to disable animation
                 onActiveChanged: {
                     if (overviewLoader.item) {
@@ -334,18 +333,20 @@ PanelWindow {
                         overviewLoader.item.flickable.contentY = position * overviewLoader.item.flickable.contentHeight;
                     }
                 }
-                
+
                 contentItem: Rectangle {
                     implicitWidth: 12
                     radius: 6
-                    color: externalScrollBar.pressed ? Colors.primaryContainer : (externalScrollBar.hovered ? Qt.lighter(Colors.primary, 1.2) : Colors.primary)
-                    
+                    color: externalScrollBar.pressed ? Styling.styledRectItem("overprimary") : (externalScrollBar.hovered ? Qt.lighter(Styling.styledRectItem("overprimary"), 1.2) : Styling.styledRectItem("overprimary"))
+
                     Behavior on color {
                         enabled: Config.animDuration > 0
-                        ColorAnimation { duration: Config.animDuration / 2 }
+                        ColorAnimation {
+                            duration: Config.animDuration / 2
+                        }
                     }
                 }
-                
+
                 background: Rectangle {
                     implicitWidth: 12
                     radius: 6

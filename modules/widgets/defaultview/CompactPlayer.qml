@@ -185,7 +185,7 @@ Item {
                         anchors.centerIn: parent
                         text: compactPlayer.isPlaying ? Icons.pause : Icons.play
                         textFormat: Text.RichText
-                        color: playPauseHover.hovered ? (hasArtwork ? PlayerColors.primary : Colors.primary) : (hasArtwork ? PlayerColors.overBackground : Colors.overBackground)
+                        color: playPauseHover.hovered ? (hasArtwork ? Styling.styledRectItem("overprimary") : Styling.styledRectItem("overprimary")) : (hasArtwork ? Colors.overBackground : Colors.overBackground)
                         font.pixelSize: 16
                         font.family: Icons.font
                         opacity: compactPlayer.player?.canPause ?? false ? 1.0 : 0.3
@@ -234,7 +234,7 @@ Item {
                 id: previousBtn
                 text: Icons.previous
                 textFormat: Text.RichText
-                color: previousHover.hovered ? (hasArtwork ? PlayerColors.primary : Colors.primary) : (hasArtwork ? PlayerColors.overBackground : Colors.overBackground)
+                color: previousHover.hovered ? (hasArtwork ? Styling.styledRectItem("overprimary") : Styling.styledRectItem("overprimary")) : (hasArtwork ? PlayerColors.overBackground : Colors.overBackground)
                 font.pixelSize: 16
                 font.family: Icons.font
                 opacity: compactPlayer.player?.canGoPrevious ?? false ? 1.0 : 0.3
@@ -302,7 +302,7 @@ Item {
                 id: nextBtn
                 text: Icons.next
                 textFormat: Text.RichText
-                color: nextHover.hovered ? (hasArtwork ? PlayerColors.primary : Colors.primary) : (hasArtwork ? PlayerColors.overBackground : Colors.overBackground)
+                color: nextHover.hovered ? (hasArtwork ? Styling.styledRectItem("overprimary") : Styling.styledRectItem("overprimary")) : (hasArtwork ? PlayerColors.overBackground : Colors.overBackground)
                 font.pixelSize: 16
                 font.family: Icons.font
                 opacity: compactPlayer.player?.canGoNext ?? false ? 1.0 : 0.3
@@ -369,7 +369,7 @@ Item {
                     }
                 }
                 textFormat: Text.RichText
-                color: modeHover.hovered ? (hasArtwork ? PlayerColors.primary : Colors.primary) : (hasArtwork ? PlayerColors.overBackground : Colors.overBackground)
+                color: modeHover.hovered ? (hasArtwork ? Styling.styledRectItem("overprimary") : Styling.styledRectItem("overprimary")) : (hasArtwork ? PlayerColors.overBackground : Colors.overBackground)
                 font.pixelSize: 16
                 font.family: Icons.font
                 opacity: {
@@ -440,7 +440,7 @@ Item {
                 id: playerIcon
                 text: compactPlayer.getPlayerIcon(compactPlayer.player)
                 textFormat: Text.RichText
-                color: playerIconHover.hovered ? (hasArtwork ? PlayerColors.primary : Colors.primary) : (hasArtwork ? PlayerColors.overBackground : Colors.overBackground)
+                color: playerIconHover.hovered ? (hasArtwork ? Styling.styledRectItem("overprimary") : Styling.styledRectItem("overprimary")) : (hasArtwork ? PlayerColors.overBackground : Colors.overBackground)
                 font.pixelSize: 20
                 font.family: Icons.font
                 verticalAlignment: Text.AlignVCenter
@@ -491,7 +491,9 @@ Item {
     BarPopup {
         id: playerPopup
         anchorItem: playerIcon
-        bar: ({ position: Config.bar?.position ?? "top" })
+        bar: ({
+                position: Config.bar?.position ?? "top"
+            })
 
         contentWidth: 250
         contentHeight: playersColumn.implicitHeight + playerPopup.popupPadding * 2
@@ -511,7 +513,7 @@ Item {
                     readonly property bool isSelected: compactPlayer.player === modelData
                     readonly property bool isFirst: index === 0
                     readonly property bool isLast: index === MprisController.filteredPlayers.length - 1
-                    
+
                     readonly property real defaultRadius: Styling.radius(4)
                     readonly property real selectedRadius: defaultRadius / 2
 
@@ -519,7 +521,7 @@ Item {
                     Layout.preferredHeight: 36
                     variant: isSelected ? "primary" : (hoverHandler.hovered ? "focus" : "common")
                     enableShadow: false
-                    
+
                     topLeftRadius: isSelected ? (isFirst ? defaultRadius : selectedRadius) : defaultRadius
                     topRightRadius: isSelected ? (isFirst ? defaultRadius : selectedRadius) : defaultRadius
                     bottomLeftRadius: isSelected ? (isLast ? defaultRadius : selectedRadius) : defaultRadius

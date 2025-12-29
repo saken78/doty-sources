@@ -25,8 +25,9 @@ Item {
 
     // Function to unbind a specific keybind (supports both old and new format)
     function unbindKeybind(bind) {
-        if (!bind) return;
-        
+        if (!bind)
+            return;
+
         // Check if new format with keys[]
         if (bind.keys && bind.keys.length > 0) {
             for (let k = 0; k < bind.keys.length; k++) {
@@ -71,18 +72,28 @@ Item {
     property string editDispatcher: editActions.length > currentActionPage ? (editActions[currentActionPage].dispatcher || "") : ""
     property string editArgument: editActions.length > currentActionPage ? (editActions[currentActionPage].argument || "") : ""
     property string editFlags: editActions.length > currentActionPage ? (editActions[currentActionPage].flags || "") : ""
-    property var editCompositor: editActions.length > currentActionPage ? (editActions[currentActionPage].compositor || { "type": "hyprland", "layouts": [] }) : { "type": "hyprland", "layouts": [] }
+    property var editCompositor: editActions.length > currentActionPage ? (editActions[currentActionPage].compositor || {
+            "type": "hyprland",
+            "layouts": []
+        }) : {
+        "type": "hyprland",
+        "layouts": []
+    }
 
     readonly property var availableModifiers: ["SUPER", "SHIFT", "CTRL", "ALT"]
     readonly property var availableLayouts: ["dwindle", "master", "scrolling"]
 
     // Helper to update current key in editKeys array
     function updateCurrentKey(modifiers, key) {
-        if (editKeys.length <= currentKeyPage) return;
+        if (editKeys.length <= currentKeyPage)
+            return;
         let newKeys = [];
         for (let i = 0; i < editKeys.length; i++) {
             if (i === currentKeyPage) {
-                newKeys.push({ "modifiers": modifiers, "key": key });
+                newKeys.push({
+                    "modifiers": modifiers,
+                    "key": key
+                });
             } else {
                 newKeys.push(editKeys[i]);
             }
@@ -92,11 +103,17 @@ Item {
 
     // Helper to update current action in editActions array
     function updateCurrentAction(dispatcher, argument, flags, compositor) {
-        if (editActions.length <= currentActionPage) return;
+        if (editActions.length <= currentActionPage)
+            return;
         let newActions = [];
         for (let i = 0; i < editActions.length; i++) {
             if (i === currentActionPage) {
-                newActions.push({ "dispatcher": dispatcher, "argument": argument, "flags": flags, "compositor": compositor });
+                newActions.push({
+                    "dispatcher": dispatcher,
+                    "argument": argument,
+                    "flags": flags,
+                    "compositor": compositor
+                });
             } else {
                 newActions.push(editActions[i]);
             }
@@ -107,44 +124,51 @@ Item {
     // Helper to check if a layout is selected for current action
     function hasLayout(layout) {
         const comp = root.editCompositor;
-        if (!comp || !comp.layouts || comp.layouts.length === 0) return false;
+        if (!comp || !comp.layouts || comp.layouts.length === 0)
+            return false;
         return comp.layouts.indexOf(layout) !== -1;
     }
 
     // Helper to toggle a layout for current action
     function toggleLayout(layout) {
-        if (root.editActions.length <= root.currentActionPage) return;
-        
+        if (root.editActions.length <= root.currentActionPage)
+            return;
+
         const currentAction = root.editActions[root.currentActionPage];
-        let comp = currentAction.compositor || { "type": "hyprland", "layouts": [] };
+        let comp = currentAction.compositor || {
+            "type": "hyprland",
+            "layouts": []
+        };
         let layouts = comp.layouts ? comp.layouts.slice() : [];
-        
+
         const idx = layouts.indexOf(layout);
         if (idx !== -1) {
             layouts.splice(idx, 1);
         } else {
             layouts.push(layout);
         }
-        
-        updateCurrentAction(
-            currentAction.dispatcher || "",
-            currentAction.argument || "",
-            currentAction.flags || "",
-            { "type": "hyprland", "layouts": layouts }
-        );
+
+        updateCurrentAction(currentAction.dispatcher || "", currentAction.argument || "", currentAction.flags || "", {
+            "type": "hyprland",
+            "layouts": layouts
+        });
     }
 
     // Add a new key page
     function addKeyPage() {
         let newKeys = editKeys.slice();
-        newKeys.push({ "modifiers": ["SUPER"], "key": "" });
+        newKeys.push({
+            "modifiers": ["SUPER"],
+            "key": ""
+        });
         editKeys = newKeys;
         currentKeyPage = newKeys.length - 1;
     }
 
     // Remove current key page
     function removeKeyPage() {
-        if (editKeys.length <= 1) return;
+        if (editKeys.length <= 1)
+            return;
         let newKeys = [];
         for (let i = 0; i < editKeys.length; i++) {
             if (i !== currentKeyPage) {
@@ -160,14 +184,23 @@ Item {
     // Add a new action page
     function addActionPage() {
         let newActions = editActions.slice();
-        newActions.push({ "dispatcher": "", "argument": "", "flags": "", "compositor": { "type": "hyprland", "layouts": [] } });
+        newActions.push({
+            "dispatcher": "",
+            "argument": "",
+            "flags": "",
+            "compositor": {
+                "type": "hyprland",
+                "layouts": []
+            }
+        });
         editActions = newActions;
         currentActionPage = newActions.length - 1;
     }
 
     // Remove current action page
     function removeActionPage() {
-        if (editActions.length <= 1) return;
+        if (editActions.length <= 1)
+            return;
         let newActions = [];
         for (let i = 0; i < editActions.length; i++) {
             if (i !== currentActionPage) {
@@ -190,8 +223,19 @@ Item {
             // Ambxst binds still use old format (single key)
             const bindData = bind.bind;
             root.editName = "";
-            root.editKeys = [{ "modifiers": bindData.modifiers ? bindData.modifiers.slice() : [], "key": bindData.key || "" }];
-            root.editActions = [{ "dispatcher": bindData.dispatcher || "", "argument": bindData.argument || "", "flags": "" }];
+            root.editKeys = [
+                {
+                    "modifiers": bindData.modifiers ? bindData.modifiers.slice() : [],
+                    "key": bindData.key || ""
+                }
+            ];
+            root.editActions = [
+                {
+                    "dispatcher": bindData.dispatcher || "",
+                    "argument": bindData.argument || "",
+                    "flags": ""
+                }
+            ];
         } else {
             // Custom binds use new format
             root.editName = bind.name || "";
@@ -202,8 +246,19 @@ Item {
                 root.editActions = JSON.parse(JSON.stringify(bind.actions));
             } else {
                 // Old format fallback
-                root.editKeys = [{ "modifiers": bind.modifiers ? bind.modifiers.slice() : [], "key": bind.key || "" }];
-                root.editActions = [{ "dispatcher": bind.dispatcher || "", "argument": bind.argument || "", "flags": bind.flags || "" }];
+                root.editKeys = [
+                    {
+                        "modifiers": bind.modifiers ? bind.modifiers.slice() : [],
+                        "key": bind.key || ""
+                    }
+                ];
+                root.editActions = [
+                    {
+                        "dispatcher": bind.dispatcher || "",
+                        "argument": bind.argument || "",
+                        "flags": bind.flags || ""
+                    }
+                ];
             }
         }
 
@@ -230,8 +285,9 @@ Item {
     }
 
     function toggleModifier(mod) {
-        if (root.editKeys.length <= root.currentKeyPage) return;
-        
+        if (root.editKeys.length <= root.currentKeyPage)
+            return;
+
         let currentMods = root.editKeys[root.currentKeyPage].modifiers || [];
         let newMods = [];
         let found = false;
@@ -259,7 +315,10 @@ Item {
             const adapter = Config.keybindsLoader.adapter;
             if (adapter && adapter.ambxst && adapter.ambxst[section] && adapter.ambxst[section][bindName]) {
                 // Use first key for ambxst binds
-                const firstKey = root.editKeys.length > 0 ? root.editKeys[0] : { modifiers: [], key: "" };
+                const firstKey = root.editKeys.length > 0 ? root.editKeys[0] : {
+                    modifiers: [],
+                    key: ""
+                };
                 adapter.ambxst[section][bindName].modifiers = firstKey.modifiers || [];
                 adapter.ambxst[section][bindName].key = firstKey.key || "";
                 // dispatcher and argument are fixed for ambxst binds
@@ -305,12 +364,21 @@ Item {
     }
 
     readonly property var categories: [
-        { id: "ambxst", label: "Ambxst", icon: Icons.widgets },
-        { id: "custom", label: "Custom", icon: Icons.gear }
+        {
+            id: "ambxst",
+            label: "Ambxst",
+            icon: Icons.widgets
+        },
+        {
+            id: "custom",
+            label: "Custom",
+            icon: Icons.gear
+        }
     ]
 
     function formatModifiers(modifiers) {
-        if (!modifiers || modifiers.length === 0) return "";
+        if (!modifiers || modifiers.length === 0)
+            return "";
         return modifiers.join(" + ");
     }
 
@@ -336,7 +404,8 @@ Item {
     // Get ambxst binds as a flat list
     function getAmbxstBinds() {
         const adapter = Config.keybindsLoader.adapter;
-        if (!adapter || !adapter.ambxst) return [];
+        if (!adapter || !adapter.ambxst)
+            return [];
 
         const binds = [];
         const ambxst = adapter.ambxst;
@@ -377,7 +446,8 @@ Item {
     // Get custom binds
     function getCustomBinds() {
         const adapter = Config.keybindsLoader.adapter;
-        if (!adapter || !adapter.custom) return [];
+        if (!adapter || !adapter.custom)
+            return [];
         return adapter.custom;
     }
 
@@ -385,8 +455,23 @@ Item {
     function addNewBind() {
         const newBind = {
             "name": "",
-            "keys": [{ "modifiers": ["SUPER"], "key": "" }],
-            "actions": [{ "dispatcher": "", "argument": "", "flags": "", "compositor": { "type": "hyprland", "layouts": [] } }],
+            "keys": [
+                {
+                    "modifiers": ["SUPER"],
+                    "key": ""
+                }
+            ],
+            "actions": [
+                {
+                    "dispatcher": "",
+                    "argument": "",
+                    "flags": "",
+                    "compositor": {
+                        "type": "hyprland",
+                        "layouts": []
+                    }
+                }
+            ],
             "enabled": true
         };
 
@@ -404,7 +489,8 @@ Item {
     // Delete a custom bind
     function deleteBind(index) {
         const customBinds = Config.keybindsLoader.adapter.custom;
-        if (!customBinds || index < 0 || index >= customBinds.length) return;
+        if (!customBinds || index < 0 || index >= customBinds.length)
+            return;
 
         // Get the bind to delete and unbind it first
         const bindToDelete = customBinds[index];
@@ -475,14 +561,14 @@ Item {
                     {
                         icon: Icons.plus,
                         tooltip: "Add keybind",
-                        onClicked: function() {
+                        onClicked: function () {
                             root.addNewBind();
                         }
                     },
                     {
                         icon: Icons.sync,
                         tooltip: "Reload binds",
-                        onClicked: function() {
+                        onClicked: function () {
                             Config.keybindsLoader.reload();
                         }
                     }
@@ -597,104 +683,104 @@ Item {
             x: root.sideMargin
             spacing: 4
 
-                    // Ambxst binds view
-                    Repeater {
-                        id: ambxstRepeater
-                        model: root.currentCategory === "ambxst" ? root.getAmbxstBinds() : []
+            // Ambxst binds view
+            Repeater {
+                id: ambxstRepeater
+                model: root.currentCategory === "ambxst" ? root.getAmbxstBinds() : []
 
-                        delegate: BindItem {
-                            required property var modelData
-                            required property int index
+                delegate: BindItem {
+                    required property var modelData
+                    required property int index
 
-                            Layout.fillWidth: true
-                            bindName: modelData.name
-                            keybindText: root.formatKeybind(modelData.bind)
-                            dispatcher: modelData.bind.dispatcher
-                            argument: modelData.bind.argument || ""
-                            isAmbxst: true
+                    Layout.fillWidth: true
+                    bindName: modelData.name
+                    keybindText: root.formatKeybind(modelData.bind)
+                    dispatcher: modelData.bind.dispatcher
+                    argument: modelData.bind.argument || ""
+                    isAmbxst: true
 
-                            onEditRequested: {
-                                root.openEditDialog(modelData, index, true);
-                            }
-                        }
-                    }
-
-                    // Custom binds view
-                    Repeater {
-                        id: customRepeater
-                        model: root.currentCategory === "custom" ? root.getCustomBinds() : []
-
-                        delegate: BindItem {
-                            required property var modelData
-                            required property int index
-
-                            // Helper to get first action's dispatcher/argument
-                            readonly property string firstDispatcher: modelData.actions && modelData.actions.length > 0 ? (modelData.actions[0].dispatcher || "") : (modelData.dispatcher || "")
-                            readonly property string firstArgument: modelData.actions && modelData.actions.length > 0 ? (modelData.actions[0].argument || "") : (modelData.argument || "")
-                            
-                            // Helper to get unique layouts from all actions
-                            function getUniqueLayouts() {
-                                if (!modelData.actions || modelData.actions.length === 0) return [];
-                                let allLayouts = [];
-                                for (let i = 0; i < modelData.actions.length; i++) {
-                                    const action = modelData.actions[i];
-                                    if (action.compositor && action.compositor.layouts) {
-                                        for (let j = 0; j < action.compositor.layouts.length; j++) {
-                                            const layout = action.compositor.layouts[j];
-                                            if (allLayouts.indexOf(layout) === -1) {
-                                                allLayouts.push(layout);
-                                            }
-                                        }
-                                    }
-                                }
-                                return allLayouts;
-                            }
-
-                            Layout.fillWidth: true
-                            customName: modelData.name || ""
-                            bindName: firstDispatcher
-                            keybindText: root.formatKeybind(modelData)
-                            dispatcher: firstDispatcher
-                            argument: firstArgument
-                            isEnabled: modelData.enabled !== false
-                            isAmbxst: false
-                            layouts: getUniqueLayouts()
-
-                            onToggleEnabled: {
-                                const customBinds = Config.keybindsLoader.adapter.custom;
-                                if (customBinds && customBinds[index]) {
-                                    let newBinds = [];
-                                    for (let i = 0; i < customBinds.length; i++) {
-                                        if (i === index) {
-                                            let updatedBind = JSON.parse(JSON.stringify(customBinds[i]));
-                                            updatedBind.enabled = !isEnabled;
-                                            newBinds.push(updatedBind);
-                                        } else {
-                                            newBinds.push(customBinds[i]);
-                                        }
-                                    }
-                                    Config.keybindsLoader.adapter.custom = newBinds;
-                                }
-                            }
-
-                            onEditRequested: {
-                                root.openEditDialog(modelData, index, false);
-                            }
-                        }
-                    }
-
-                    // Empty state
-                    Text {
-                        Layout.alignment: Qt.AlignHCenter
-                        Layout.topMargin: 20
-                        visible: (root.currentCategory === "ambxst" && ambxstRepeater.count === 0) ||
-                                 (root.currentCategory === "custom" && customRepeater.count === 0)
-                        text: root.currentCategory === "ambxst" ? "No Ambxst binds configured" : "No custom binds configured"
-                        font.family: Config.theme.font
-                        font.pixelSize: Styling.fontSize(0)
-                        color: Colors.overSurfaceVariant
+                    onEditRequested: {
+                        root.openEditDialog(modelData, index, true);
                     }
                 }
+            }
+
+            // Custom binds view
+            Repeater {
+                id: customRepeater
+                model: root.currentCategory === "custom" ? root.getCustomBinds() : []
+
+                delegate: BindItem {
+                    required property var modelData
+                    required property int index
+
+                    // Helper to get first action's dispatcher/argument
+                    readonly property string firstDispatcher: modelData.actions && modelData.actions.length > 0 ? (modelData.actions[0].dispatcher || "") : (modelData.dispatcher || "")
+                    readonly property string firstArgument: modelData.actions && modelData.actions.length > 0 ? (modelData.actions[0].argument || "") : (modelData.argument || "")
+
+                    // Helper to get unique layouts from all actions
+                    function getUniqueLayouts() {
+                        if (!modelData.actions || modelData.actions.length === 0)
+                            return [];
+                        let allLayouts = [];
+                        for (let i = 0; i < modelData.actions.length; i++) {
+                            const action = modelData.actions[i];
+                            if (action.compositor && action.compositor.layouts) {
+                                for (let j = 0; j < action.compositor.layouts.length; j++) {
+                                    const layout = action.compositor.layouts[j];
+                                    if (allLayouts.indexOf(layout) === -1) {
+                                        allLayouts.push(layout);
+                                    }
+                                }
+                            }
+                        }
+                        return allLayouts;
+                    }
+
+                    Layout.fillWidth: true
+                    customName: modelData.name || ""
+                    bindName: firstDispatcher
+                    keybindText: root.formatKeybind(modelData)
+                    dispatcher: firstDispatcher
+                    argument: firstArgument
+                    isEnabled: modelData.enabled !== false
+                    isAmbxst: false
+                    layouts: getUniqueLayouts()
+
+                    onToggleEnabled: {
+                        const customBinds = Config.keybindsLoader.adapter.custom;
+                        if (customBinds && customBinds[index]) {
+                            let newBinds = [];
+                            for (let i = 0; i < customBinds.length; i++) {
+                                if (i === index) {
+                                    let updatedBind = JSON.parse(JSON.stringify(customBinds[i]));
+                                    updatedBind.enabled = !isEnabled;
+                                    newBinds.push(updatedBind);
+                                } else {
+                                    newBinds.push(customBinds[i]);
+                                }
+                            }
+                            Config.keybindsLoader.adapter.custom = newBinds;
+                        }
+                    }
+
+                    onEditRequested: {
+                        root.openEditDialog(modelData, index, false);
+                    }
+                }
+            }
+
+            // Empty state
+            Text {
+                Layout.alignment: Qt.AlignHCenter
+                Layout.topMargin: 20
+                visible: (root.currentCategory === "ambxst" && ambxstRepeater.count === 0) || (root.currentCategory === "custom" && customRepeater.count === 0)
+                text: root.currentCategory === "ambxst" ? "No Ambxst binds configured" : "No custom binds configured"
+                font.family: Config.theme.font
+                font.pixelSize: Styling.fontSize(0)
+                color: Colors.overSurfaceVariant
+            }
+        }
     }
 
     // Edit view (shown when editMode is true) - slides in from right
@@ -945,7 +1031,8 @@ Item {
                             Text {
                                 anchors.centerIn: parent
                                 text: {
-                                    if (root.editKeys.length === 0) return "?";
+                                    if (root.editKeys.length === 0)
+                                        return "?";
                                     let formatted = [];
                                     for (let i = 0; i < root.editKeys.length; i++) {
                                         const k = root.editKeys[i];
@@ -958,7 +1045,7 @@ Item {
                                 font.family: Config.theme.font
                                 font.pixelSize: Styling.fontSize(root.editKeys.length > 2 ? 0 : 2)
                                 font.weight: Font.Bold
-                                color: Colors.primary
+                                color: Styling.styledRectItem("overprimary")
                                 elide: Text.ElideRight
                                 width: parent.width - 24
                                 horizontalAlignment: Text.AlignHCenter
@@ -1372,7 +1459,10 @@ Item {
                                     onTextChanged: {
                                         if (root.editActions.length > root.currentActionPage) {
                                             const currentAction = root.editActions[root.currentActionPage];
-                                            root.updateCurrentAction(text, currentAction.argument || "", currentAction.flags || "", currentAction.compositor || { "type": "hyprland", "layouts": [] });
+                                            root.updateCurrentAction(text, currentAction.argument || "", currentAction.flags || "", currentAction.compositor || {
+                                                "type": "hyprland",
+                                                "layouts": []
+                                            });
                                         }
                                     }
 
@@ -1415,7 +1505,10 @@ Item {
                                     onTextChanged: {
                                         if (root.editActions.length > root.currentActionPage) {
                                             const currentAction = root.editActions[root.currentActionPage];
-                                            root.updateCurrentAction(currentAction.dispatcher || "", text, currentAction.flags || "", currentAction.compositor || { "type": "hyprland", "layouts": [] });
+                                            root.updateCurrentAction(currentAction.dispatcher || "", text, currentAction.flags || "", currentAction.compositor || {
+                                                "type": "hyprland",
+                                                "layouts": []
+                                            });
                                         }
                                     }
 
@@ -1458,7 +1551,10 @@ Item {
                                     onTextChanged: {
                                         if (root.editActions.length > root.currentActionPage) {
                                             const currentAction = root.editActions[root.currentActionPage];
-                                            root.updateCurrentAction(currentAction.dispatcher || "", currentAction.argument || "", text, currentAction.compositor || { "type": "hyprland", "layouts": [] });
+                                            root.updateCurrentAction(currentAction.dispatcher || "", currentAction.argument || "", text, currentAction.compositor || {
+                                                "type": "hyprland",
+                                                "layouts": []
+                                            });
                                         }
                                     }
 
@@ -1612,8 +1708,8 @@ Item {
         readonly property bool hasLayoutRestriction: layouts && layouts.length > 0
         readonly property var displayLayouts: hasLayoutRestriction ? layouts : ["dwindle", "master", "scrolling"]
 
-        signal editRequested()
-        signal toggleEnabled()
+        signal editRequested
+        signal toggleEnabled
 
         variant: isHovered ? "focus" : "common"
         height: 56
@@ -1727,7 +1823,7 @@ Item {
                                 width: layoutBadgeText.width + 8
                                 height: 16
                                 radius: 4
-                                color: Colors.primary
+                                color: Styling.styledRectItem("overprimary")
                                 opacity: isHovered ? 1.0 : 0.8
 
                                 Text {
@@ -1771,7 +1867,7 @@ Item {
                     font.family: Config.theme.font
                     font.pixelSize: Styling.fontSize(-1)
                     font.weight: Font.Medium
-                    color: Colors.primary
+                    color: Styling.styledRectItem("overprimary")
                 }
             }
         }

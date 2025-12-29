@@ -63,7 +63,7 @@ Item {
 
         Rectangle {
             anchors.fill: parent
-            color: Colors.primary
+            color: Styling.styledRectItem("overprimary")
             opacity: root.popupOpen ? 0 : (root.isHovered ? 0.25 : 0)
             radius: parent.radius ?? 0
 

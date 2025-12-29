@@ -27,27 +27,29 @@ Item {
 
     // Helper to get effective position for a stop (uses drag position if dragging)
     function getStopPosition(index) {
-        if (!stops || stops.length === 0) return 0;
-        
+        if (!stops || stops.length === 0)
+            return 0;
+
         // Handle dragging
         if (draggingIndex === index)
             return dragPosition;
-            
+
         // If index is within bounds, use actual position
         if (index >= 0 && index < stops.length)
             return stops[index][1];
-            
+
         // If index is out of bounds, map to the last stop's position (clamped)
         return stops[stops.length - 1][1];
     }
-    
+
     function getStopColor(index) {
-        if (!stops || stops.length === 0) return "transparent";
-        
+        if (!stops || stops.length === 0)
+            return "transparent";
+
         // If index is within bounds, use actual color
         if (index >= 0 && index < stops.length)
             return stops[index][0];
-            
+
         // If index is out of bounds, map to the last stop's color
         return stops[stops.length - 1][0];
     }
@@ -115,7 +117,7 @@ Item {
                 font.family: Config.theme.font
                 font.pixelSize: Styling.fontSize(-1)
                 font.weight: Font.Medium
-                color: Colors.primary
+                color: Styling.styledRectItem("overprimary")
                 visible: root.selectedStopIndex >= 0 && root.selectedStopIndex < root.stops.length
             }
         }
@@ -191,33 +193,38 @@ Item {
                         id: gradientPreviewCanvas
                         anchors.fill: parent
                         anchors.margins: 2 // Keep inside border
-                        
+
                         onPaint: {
                             var ctx = getContext("2d");
                             ctx.clearRect(0, 0, width, height);
-                            
+
                             var stops = root.stops;
-                            if (!stops || stops.length === 0) return;
+                            if (!stops || stops.length === 0)
+                                return;
 
                             var grad = ctx.createLinearGradient(0, 0, width, 0);
                             for (var i = 0; i < stops.length; i++) {
                                 var s = stops[i];
                                 grad.addColorStop(s[1], Config.resolveColor(s[0]));
                             }
-                            
+
                             ctx.fillStyle = grad;
                             ctx.fillRect(0, 0, width, height);
                         }
-                        
+
                         Connections {
                             target: root
-                            function onStopsChanged() { gradientPreviewCanvas.requestPaint(); }
+                            function onStopsChanged() {
+                                gradientPreviewCanvas.requestPaint();
+                            }
                         }
                         Connections {
                             target: Colors
-                            function onLoaded() { gradientPreviewCanvas.requestPaint(); }
+                            function onLoaded() {
+                                gradientPreviewCanvas.requestPaint();
+                            }
                         }
-                        
+
                         // Repaint when size changes
                         onWidthChanged: requestPaint()
                         onHeightChanged: requestPaint()
@@ -250,7 +257,7 @@ Item {
                             height: 6
                             anchors.top: parent.top
                             anchors.horizontalCenter: parent.horizontalCenter
-                            color: stopHandle.isSelected ? Colors.primary : Colors.outline
+                            color: stopHandle.isSelected ? Styling.styledRectItem("overprimary") : Colors.outline
                         }
 
                         // Handle visual (centered)
@@ -261,7 +268,7 @@ Item {
                             radius: 8
                             anchors.centerIn: parent
                             color: Config.resolveColor(stopHandle.stopColor)
-                            border.color: stopHandle.isSelected ? Colors.primary : Colors.outline
+                            border.color: stopHandle.isSelected ? Styling.styledRectItem("overprimary") : Colors.outline
                             border.width: stopHandle.isSelected ? 2 : 1
 
                             // Inner highlight
@@ -288,7 +295,7 @@ Item {
                             height: 6
                             anchors.bottom: parent.bottom
                             anchors.horizontalCenter: parent.horizontalCenter
-                            color: stopHandle.isSelected ? Colors.primary : Colors.outline
+                            color: stopHandle.isSelected ? Styling.styledRectItem("overprimary") : Colors.outline
                         }
 
                         MouseArea {
@@ -427,7 +434,7 @@ Item {
                 }
                 onOpenColorPicker: (names, current, title) => {
                     const stopIndex = root.selectedStopIndex;
-                    root.openColorPickerRequested(names, current, title, function(color) {
+                    root.openColorPickerRequested(names, current, title, function (color) {
                         if (stopIndex >= 0 && stopIndex < root.stops.length) {
                             let newStops = root.stops.slice();
                             newStops[stopIndex] = [color, newStops[stopIndex][1]];

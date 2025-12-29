@@ -36,11 +36,31 @@ Rectangle {
 
     // Skin tone support
     property var skinTones: [
-        { name: "Light", modifier: "🏻", emoji: "👋🏻" },
-        { name: "Medium-Light", modifier: "🏼", emoji: "👋🏼" },
-        { name: "Medium", modifier: "🏽", emoji: "👋🏽" },
-        { name: "Medium-Dark", modifier: "🏾", emoji: "👋🏾" },
-        { name: "Dark", modifier: "🏿", emoji: "👋🏿" }
+        {
+            name: "Light",
+            modifier: "🏻",
+            emoji: "👋🏻"
+        },
+        {
+            name: "Medium-Light",
+            modifier: "🏼",
+            emoji: "👋🏼"
+        },
+        {
+            name: "Medium",
+            modifier: "🏽",
+            emoji: "👋🏽"
+        },
+        {
+            name: "Medium-Dark",
+            modifier: "🏾",
+            emoji: "👋🏾"
+        },
+        {
+            name: "Dark",
+            modifier: "🏿",
+            emoji: "👋🏿"
+        }
     ]
 
     // Options menu state (expandable list)
@@ -56,18 +76,19 @@ Rectangle {
         }
         return "default";
     }
-    
+
     ListModel {
         id: emojisModel
     }
-    
+
     ListModel {
         id: recentModel
     }
 
     function adjustScrollForExpandedItem(index) {
-        if (index < 0 || index >= emojisModel.count) return;
-        
+        if (index < 0 || index >= emojisModel.count)
+            return;
+
         // Calculate Y position of the item
         var itemY = 0;
         for (var i = 0; i < index && i < emojisModel.count; i++) {
@@ -85,7 +106,7 @@ Rectangle {
             }
             itemY += h;
         }
-        
+
         // Calculate expanded item height
         var currentItemHeight = 48;
         var item = emojisModel.get(index);
@@ -97,17 +118,17 @@ Rectangle {
                 currentItemHeight = 48 + 4 + listHeight + 8;
             }
         }
-        
+
         // Calculate max valid scroll position
         var maxContentY = Math.max(0, emojiList.contentHeight - emojiList.height);
-        
+
         // Current viewport bounds
         var viewportTop = emojiList.contentY;
         var viewportBottom = viewportTop + emojiList.height;
-        
+
         // Only scroll if item is not fully visible
         var itemBottom = itemY + currentItemHeight;
-        
+
         if (itemY < viewportTop) {
             // Item top is above viewport - scroll up to show it
             emojiList.contentY = itemY;
@@ -148,11 +169,13 @@ Rectangle {
         clearButtonFocused = false;
         clearButtonConfirmState = false;
         searchInput.focusInput();
-        
+
         loadInitialEmojis();
         emojiList.enableScrollAnimation = false;
         emojiList.contentY = 0;
-        Qt.callLater(() => { emojiList.enableScrollAnimation = true; });
+        Qt.callLater(() => {
+            emojiList.enableScrollAnimation = true;
+        });
     }
 
     function resetClearButton() {
@@ -180,7 +203,7 @@ Rectangle {
             emojiList.contentY = 0;
             return;
         }
-        
+
         updateFilteredEmojis();
     }
 
@@ -197,11 +220,7 @@ Rectangle {
                 var slug = emoji.slug;
                 var group = emoji.group;
 
-                if (emojiText.includes(searchText) ||
-                    searchTerms.toLowerCase().includes(searchLower) ||
-                    name.toLowerCase().includes(searchLower) ||
-                    slug.toLowerCase().includes(searchLower) ||
-                    group.toLowerCase().includes(searchLower)) {
+                if (emojiText.includes(searchText) || searchTerms.toLowerCase().includes(searchLower) || name.toLowerCase().includes(searchLower) || slug.toLowerCase().includes(searchLower) || group.toLowerCase().includes(searchLower)) {
                     filtered.push(emoji);
                 }
             }
@@ -218,8 +237,10 @@ Rectangle {
                 emojiData: filtered[i]
             });
         }
-        
-        Qt.callLater(() => { emojiList.enableScrollAnimation = true; });
+
+        Qt.callLater(() => {
+            emojiList.enableScrollAnimation = true;
+        });
 
         if (searchText.length > 0 && filteredEmojis.length > 0 && !isRecentFocused) {
             selectedIndex = 0;
@@ -244,13 +265,13 @@ Rectangle {
         emojiProcess.command = ["bash", "-c", "cat /home/adriano/Repos/Axenide/Ambxst/assets/emojis.json"];
         emojiProcess.running = true;
     }
-    
+
     function loadInitialEmojis() {
         var initial = [];
         for (var i = 0; i < Math.min(50, emojiData.length); i++) {
             initial.push(emojiData[i]);
         }
-        
+
         emojisModel.clear();
         for (var i = 0; i < initial.length; i++) {
             emojisModel.append({
@@ -258,7 +279,7 @@ Rectangle {
                 emojiData: initial[i]
             });
         }
-        
+
         filteredEmojis = initial;
     }
 
@@ -474,7 +495,7 @@ Rectangle {
     Item {
         id: mainLayout
         anchors.fill: parent
-        
+
         RowLayout {
             anchors.fill: parent
             spacing: 8
@@ -724,9 +745,9 @@ Rectangle {
 
                     model: emojisModel
                     currentIndex: root.selectedIndex
-                    
+
                     property bool enableScrollAnimation: true
-                    
+
                     Behavior on contentY {
                         enabled: Config.animDuration > 0 && emojiList.enableScrollAnimation && !emojiList.moving
                         NumberAnimation {
@@ -734,7 +755,7 @@ Rectangle {
                             easing.type: Easing.OutCubic
                         }
                     }
-                    
+
                     onCurrentIndexChanged: {
                         if (currentIndex !== root.selectedIndex && !root.isRecentFocused) {
                             root.selectedIndex = currentIndex;
@@ -817,7 +838,7 @@ Rectangle {
                                 easing.type: Easing.OutQuart
                             }
                         }
-                        
+
                         property color textColor: {
                             if (root.selectedIndex === index && !root.isRecentFocused) {
                                 if (root.expandedItemIndex === index) {
@@ -1119,7 +1140,7 @@ Rectangle {
                                 }
 
                                 contentItem: Rectangle {
-                                    color: Colors.primary
+                                    color: Styling.styledRectItem("overprimary")
                                     radius: Styling.radius(0)
                                 }
 
@@ -1155,7 +1176,7 @@ Rectangle {
                             }
                             return baseHeight;
                         }
-                        
+
                         // Calculate Y position based on index, not item position
                         y: {
                             var yPos = 0;
@@ -1173,7 +1194,7 @@ Rectangle {
                             }
                             return yPos;
                         }
-                        
+
                         Behavior on y {
                             enabled: Config.animDuration > 0
                             NumberAnimation {
@@ -1189,7 +1210,7 @@ Rectangle {
                                 easing.type: Easing.OutQuart
                             }
                         }
-                        
+
                         onHeightChanged: {
                             // Adjust scroll immediately when height changes due to expansion
                             if (root.expandedItemIndex >= 0 && height > 48) {
@@ -1198,7 +1219,7 @@ Rectangle {
                                 });
                             }
                         }
-                        
+
                         StyledRect {
                             anchors.fill: parent
                             variant: {
@@ -1251,9 +1272,9 @@ Rectangle {
 
                         model: recentModel
                         currentIndex: root.selectedRecentIndex
-                        
+
                         property bool enableScrollAnimation: true
-                        
+
                         Behavior on contentY {
                             enabled: Config.animDuration > 0 && recentList.enableScrollAnimation && !recentList.moving
                             NumberAnimation {
@@ -1267,12 +1288,12 @@ Rectangle {
                                 root.selectedRecentIndex = currentIndex;
                                 root.lastSelectedRecentIndex = currentIndex;
                             }
-                            
+
                             if (currentIndex >= 0 && root.isRecentFocused) {
                                 var itemY = currentIndex * 48;
                                 var viewportTop = recentList.contentY;
                                 var viewportBottom = viewportTop + recentList.height;
-                                
+
                                 if (itemY < viewportTop) {
                                     recentList.contentY = itemY;
                                 } else if (itemY + 48 > viewportBottom) {
@@ -1292,7 +1313,7 @@ Rectangle {
                             height: 48
                             color: "transparent"
                             radius: Styling.radius(-4)
-                            
+
                             property color textColor: {
                                 if (root.selectedRecentIndex === index && root.isRecentFocused) {
                                     return Styling.styledRectItem("primary");
@@ -1363,10 +1384,10 @@ Rectangle {
                         highlight: Item {
                             width: recentList.width
                             height: 48
-                            
+
                             // Calculate Y position based on index, not item position
                             y: recentList.currentIndex * 48
-                            
+
                             Behavior on y {
                                 enabled: Config.animDuration > 0
                                 NumberAnimation {
@@ -1374,7 +1395,7 @@ Rectangle {
                                     easing.type: Easing.OutCubic
                                 }
                             }
-                            
+
                             StyledRect {
                                 anchors.fill: parent
                                 variant: "primary"

@@ -10,11 +10,11 @@ Item {
     id: root
 
     signal valueChanged(real newValue)
-    signal iconClicked()
+    signal iconClicked
 
     property string icon: ""
     property real sliderValue: 0
-    property color progressColor: Colors.primary
+    property color progressColor: Styling.styledRectItem("overprimary")
     property bool wavy: false
     property real wavyAmplitude: 0.8
     property real wavyFrequency: 8
@@ -82,7 +82,7 @@ Item {
                 text: root.icon
                 font.family: Icons.font
                 font.pixelSize: 18
-                color: iconMouseArea.containsMouse ? Colors.primary : Colors.overBackground
+                color: iconMouseArea.containsMouse ? Styling.styledRectItem("overprimary") : Colors.overBackground
                 rotation: root._animatedIconRotation
                 scale: root._animatedIconScale
 

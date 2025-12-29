@@ -35,8 +35,12 @@ Item {
     property Item overviewRoot: null
 
     // Callbacks for search matching (set by parent)
-    property var checkWindowMatched: function(addr) { return false; }
-    property var checkWindowSelected: function(addr) { return false; }
+    property var checkWindowMatched: function (addr) {
+        return false;
+    }
+    property var checkWindowSelected: function (addr) {
+        return false;
+    }
 
     implicitWidth: workspaceWidth
     implicitHeight: workspaceHeight
@@ -56,7 +60,11 @@ Item {
     // Windows are positioned relative to monitor, scaled, then offset by viewportOffset
     readonly property var contentBounds: {
         if (workspaceWindows.length === 0) {
-            return { minX: 0, maxX: 0, hasOverflow: false };
+            return {
+                minX: 0,
+                maxX: 0,
+                hasOverflow: false
+            };
         }
 
         let minX = Infinity;
@@ -65,7 +73,8 @@ Item {
         for (const win of workspaceWindows) {
             // Calculate window position the same way as in the delegate
             let baseX = (win?.at?.[0] || 0) - (monitorData?.x || 0);
-            if (barPosition === "left") baseX -= barReserved;
+            if (barPosition === "left")
+                baseX -= barReserved;
             const scaledX = baseX * scale_;
             const winWidth = (win?.size?.[0] || 100) * scale_;
 
@@ -79,19 +88,25 @@ Item {
         // Overflow exists only if content extends beyond the full workspace width
         const hasOverflow = minX < -viewportWidth || maxX > (viewportWidth * 2);
 
-        return { minX, maxX, hasOverflow };
+        return {
+            minX,
+            maxX,
+            hasOverflow
+        };
     }
 
     // Calculate scroll limits based on content
     // We want to allow scrolling so that all content can be brought into view
     readonly property real maxHorizontalScroll: {
-        if (!contentBounds.hasOverflow) return 0;
+        if (!contentBounds.hasOverflow)
+            return 0;
         // If content extends to the right (maxX > viewportWidth), we need negative scroll to see it
         // maxX - viewportWidth is how much we need to scroll left (negative offset)
         return Math.max(0, -contentBounds.minX);
     }
     readonly property real minHorizontalScroll: {
-        if (!contentBounds.hasOverflow) return 0;
+        if (!contentBounds.hasOverflow)
+            return 0;
         // If content extends to the left (minX < 0), we need positive scroll to see it
         return Math.min(0, viewportWidth - contentBounds.maxX);
     }
@@ -130,7 +145,8 @@ Item {
     }
 
     function clampHorizontalScroll(value) {
-        if (!contentBounds.hasOverflow) return 0;
+        if (!contentBounds.hasOverflow)
+            return 0;
         return Math.max(minHorizontalScroll, Math.min(maxHorizontalScroll, value));
     }
 
@@ -154,7 +170,8 @@ Item {
                 smooth: true
 
                 property string lockscreenFramePath: {
-                    if (!GlobalStates.wallpaperManager) return "";
+                    if (!GlobalStates.wallpaperManager)
+                        return "";
                     return GlobalStates.wallpaperManager.getLockscreenFramePath(GlobalStates.wallpaperManager.currentWallpaper);
                 }
                 source: lockscreenFramePath ? "file://" + lockscreenFramePath : ""
@@ -247,7 +264,8 @@ Item {
                 acceptedModifiers: Qt.ShiftModifier
                 acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
                 onWheel: event => {
-                    if (!root.contentBounds.hasOverflow) return;
+                    if (!root.contentBounds.hasOverflow)
+                        return;
                     // Mark as wheel scrolling to disable animation
                     root.isWheelScrolling = true;
                     wheelScrollTimer.restart();
@@ -273,7 +291,7 @@ Item {
                 delegate: Item {
                     id: windowDelegate
                     required property var modelData
-                    
+
                     readonly property var windowData: modelData
                     readonly property var toplevel: {
                         const toplevels = ToplevelManager.toplevels.values;
@@ -283,12 +301,14 @@ Item {
                     // Position calculations relative to center viewport
                     readonly property real baseX: {
                         let base = (windowData?.at?.[0] || 0) - (monitorData?.x || 0);
-                        if (barPosition === "left") base -= barReserved;
+                        if (barPosition === "left")
+                            base -= barReserved;
                         return (base * scale_) + root.viewportOffset + root.horizontalScrollOffset;
                     }
                     readonly property real baseY: {
                         let base = (windowData?.at?.[1] || 0) - (monitorData?.y || 0);
-                        if (barPosition === "top") base -= barReserved;
+                        if (barPosition === "top")
+                            base -= barReserved;
                         return Math.max(base * scale_, 0);
                     }
                     readonly property real targetWidth: Math.round((windowData?.size[0] || 100) * scale_)
@@ -320,11 +340,17 @@ Item {
 
                     Behavior on x {
                         enabled: Config.animDuration > 0 && !windowDelegate.dragging
-                        NumberAnimation { duration: Config.animDuration; easing.type: Easing.OutQuart }
+                        NumberAnimation {
+                            duration: Config.animDuration
+                            easing.type: Easing.OutQuart
+                        }
                     }
                     Behavior on y {
                         enabled: Config.animDuration > 0 && !windowDelegate.dragging
-                        NumberAnimation { duration: Config.animDuration; easing.type: Easing.OutQuart }
+                        NumberAnimation {
+                            duration: Config.animDuration
+                            easing.type: Easing.OutQuart
+                        }
                     }
 
                     ClippingRectangle {
@@ -350,13 +376,15 @@ Item {
                         anchors.fill: parent
                         radius: windowDelegate.calculatedRadius
                         color: windowDelegate.dragging ? Colors.surfaceBright : windowDelegate.hovered ? Colors.surface : Colors.background
-                        border.color: windowDelegate.isSelected ? Colors.tertiary : windowDelegate.isMatched ? Colors.primary : Colors.primary
+                        border.color: windowDelegate.isSelected ? Colors.tertiary : windowDelegate.isMatched ? Styling.styledRectItem("overprimary") : Styling.styledRectItem("overprimary")
                         border.width: windowDelegate.isSelected ? 3 : windowDelegate.isMatched ? 2 : (windowDelegate.hovered ? 2 : 0)
                         visible: !Config.performance.windowPreview
 
                         Behavior on color {
                             enabled: Config.animDuration > 0
-                            ColorAnimation { duration: Config.animDuration / 2 }
+                            ColorAnimation {
+                                duration: Config.animDuration / 2
+                            }
                         }
                     }
 
@@ -379,10 +407,8 @@ Item {
                         id: previewOverlay
                         anchors.fill: parent
                         radius: windowDelegate.calculatedRadius
-                        color: windowDelegate.dragging ? Qt.rgba(Colors.surfaceContainerHighest.r, Colors.surfaceContainerHighest.g, Colors.surfaceContainerHighest.b, 0.5)
-                             : windowDelegate.hovered ? Qt.rgba(Colors.surfaceContainer.r, Colors.surfaceContainer.g, Colors.surfaceContainer.b, 0.2)
-                             : "transparent"
-                        border.color: windowDelegate.isSelected ? Colors.tertiary : windowDelegate.isMatched ? Colors.primary : Colors.primary
+                        color: windowDelegate.dragging ? Qt.rgba(Colors.surfaceContainerHighest.r, Colors.surfaceContainerHighest.g, Colors.surfaceContainerHighest.b, 0.5) : windowDelegate.hovered ? Qt.rgba(Colors.surfaceContainer.r, Colors.surfaceContainer.g, Colors.surfaceContainer.b, 0.2) : "transparent"
+                        border.color: windowDelegate.isSelected ? Colors.tertiary : windowDelegate.isMatched ? Styling.styledRectItem("overprimary") : Styling.styledRectItem("overprimary")
                         border.width: windowDelegate.isSelected ? 3 : windowDelegate.isMatched ? 2 : (windowDelegate.hovered ? 2 : 0)
                         visible: Config.performance.windowPreview && (windowDelegate.hovered || windowDelegate.dragging || windowDelegate.isMatched || windowDelegate.isSelected)
                         z: 5
@@ -451,19 +477,20 @@ Item {
                                 return;
                             }
 
-                            if (!(mouse.buttons & Qt.LeftButton)) return;
-                            
+                            if (!(mouse.buttons & Qt.LeftButton))
+                                return;
+
                             // Check if we should start dragging
                             if (!windowDelegate.dragging) {
                                 const dx = mouse.x - windowDelegate.pressPos.x;
                                 const dy = mouse.y - windowDelegate.pressPos.y;
                                 const distance = Math.sqrt(dx * dx + dy * dy);
-                                
+
                                 if (distance > windowDelegate.dragThreshold) {
                                     // Start dragging
                                     windowDelegate.dragging = true;
                                     root.draggingFromWorkspace = root.workspaceId;
-                                    
+
                                     // Reparent to drag overlay
                                     if (root.dragOverlay) {
                                         windowDelegate.originalParent = windowDelegate.parent;
@@ -491,18 +518,18 @@ Item {
                             if (mouse.button === Qt.LeftButton) {
                                 if (windowDelegate.dragging) {
                                     windowDelegate.dragging = false;
-                                    
+
                                     // Calculate target workspace from cursor position
                                     let targetWs = -1;
                                     if (root.overviewRoot && root.overviewRoot.getWorkspaceAtY) {
                                         const globalPos = dragArea.mapToItem(null, mouse.x, mouse.y);
                                         targetWs = root.overviewRoot.getWorkspaceAtY(globalPos.y);
                                     }
-                                    
+
                                     if (targetWs !== -1 && targetWs !== root.workspaceId) {
                                         Hyprland.dispatch(`movetoworkspacesilent ${targetWs}, address:${windowDelegate.windowData?.address}`);
                                     }
-                                    
+
                                     // Restore original parent and position
                                     if (windowDelegate.originalParent) {
                                         windowDelegate.parent = windowDelegate.originalParent;
@@ -510,7 +537,7 @@ Item {
                                     }
                                     windowDelegate.x = windowDelegate.initX;
                                     windowDelegate.y = windowDelegate.initY;
-                                    
+
                                     root.draggingFromWorkspace = -1;
                                     root.draggingTargetWorkspace = -1;
                                 }
@@ -520,7 +547,8 @@ Item {
                         }
 
                         onClicked: mouse => {
-                            if (!windowDelegate.windowData) return;
+                            if (!windowDelegate.windowData)
+                                return;
                             if (mouse.button === Qt.LeftButton && !windowDelegate.dragging) {
                                 Hyprland.dispatch(`focuswindow address:${windowDelegate.windowData.address}`);
                             } else if (mouse.button === Qt.MiddleButton) {
@@ -529,7 +557,8 @@ Item {
                         }
 
                         onDoubleClicked: mouse => {
-                            if (!windowDelegate.windowData) return;
+                            if (!windowDelegate.windowData)
+                                return;
                             if (mouse.button === Qt.LeftButton) {
                                 Visibilities.setActiveModule("", true);
                                 Qt.callLater(() => {

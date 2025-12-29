@@ -12,7 +12,7 @@ Item {
     id: root
 
     required property BluetoothDevice device
-    
+
     property bool expanded: false
 
     implicitHeight: contentColumn.implicitHeight + 16  // 8px margins top + bottom
@@ -58,20 +58,29 @@ Item {
             Text {
                 text: {
                     const icon = root.device?.icon ?? "bluetooth";
-                    if (icon.includes("audio-headset") || icon.includes("headphone")) return Icons.headphones;
-                    if (icon.includes("input-keyboard")) return Icons.keyboard;
-                    if (icon.includes("input-mouse")) return Icons.mouse;
-                    if (icon.includes("phone")) return Icons.phone;
-                    if (icon.includes("watch")) return Icons.watch;
-                    if (icon.includes("input-gaming") || icon.includes("gamepad")) return Icons.gamepad;
-                    if (icon.includes("printer")) return Icons.printer;
-                    if (icon.includes("camera")) return Icons.camera;
-                    if (icon.includes("audio-speakers") || icon.includes("speaker")) return Icons.speaker;
+                    if (icon.includes("audio-headset") || icon.includes("headphone"))
+                        return Icons.headphones;
+                    if (icon.includes("input-keyboard"))
+                        return Icons.keyboard;
+                    if (icon.includes("input-mouse"))
+                        return Icons.mouse;
+                    if (icon.includes("phone"))
+                        return Icons.phone;
+                    if (icon.includes("watch"))
+                        return Icons.watch;
+                    if (icon.includes("input-gaming") || icon.includes("gamepad"))
+                        return Icons.gamepad;
+                    if (icon.includes("printer"))
+                        return Icons.printer;
+                    if (icon.includes("camera"))
+                        return Icons.camera;
+                    if (icon.includes("audio-speakers") || icon.includes("speaker"))
+                        return Icons.speaker;
                     return Icons.bluetooth;
                 }
                 font.family: Icons.font
                 font.pixelSize: 20
-                color: root.device?.connected ? Colors.primary : Colors.overBackground
+                color: root.device?.connected ? Styling.styledRectItem("overprimary") : Colors.overBackground
             }
 
             // Device name and status
@@ -101,11 +110,11 @@ Item {
                         } else {
                             status = "Not paired";
                         }
-                        
+
                         if (root.device?.batteryAvailable) {
                             status += ` - ${root.device.battery}%`;
                         }
-                        
+
                         return status;
                     }
                     font.family: Config.theme.font
@@ -115,7 +124,9 @@ Item {
 
                     Behavior on opacity {
                         enabled: Config.animDuration > 0
-                        NumberAnimation { duration: Config.animDuration / 2 }
+                        NumberAnimation {
+                            duration: Config.animDuration / 2
+                        }
                     }
                 }
             }
@@ -128,19 +139,26 @@ Item {
                 Text {
                     text: {
                         const battery = root.device?.battery ?? 0;
-                        if (battery > 80) return Icons.batteryFull;
-                        if (battery > 60) return Icons.batteryHigh;
-                        if (battery > 40) return Icons.batteryMedium;
-                        if (battery > 20) return Icons.batteryLow;
+                        if (battery > 80)
+                            return Icons.batteryFull;
+                        if (battery > 60)
+                            return Icons.batteryHigh;
+                        if (battery > 40)
+                            return Icons.batteryMedium;
+                        if (battery > 20)
+                            return Icons.batteryLow;
                         return Icons.batteryEmpty;
                     }
                     font.family: Icons.font
                     font.pixelSize: 18
                     color: {
                         const battery = root.device?.battery ?? 0;
-                        if (battery > 60) return Colors.green;
-                        if (battery > 40) return Colors.yellow;
-                        if (battery > 20) return Colors.red;
+                        if (battery > 60)
+                            return Colors.green;
+                        if (battery > 40)
+                            return Colors.yellow;
+                        if (battery > 20)
+                            return Colors.red;
                         return Colors.error;
                     }
                 }
@@ -156,7 +174,9 @@ Item {
 
             Behavior on opacity {
                 enabled: Config.animDuration > 0
-                NumberAnimation { duration: Config.animDuration / 2 }
+                NumberAnimation {
+                    duration: Config.animDuration / 2
+                }
             }
 
             // Forget button (for paired devices)
@@ -184,7 +204,9 @@ Item {
                 onClicked: root.device?.forget()
             }
 
-            Item { Layout.fillWidth: true }
+            Item {
+                Layout.fillWidth: true
+            }
 
             // Connect/Disconnect button
             Button {
@@ -202,9 +224,7 @@ Item {
                     text: root.device?.connected ? "Disconnect" : "Connect"
                     font.family: Config.theme.font
                     font.pixelSize: Styling.fontSize(-1)
-                    color: root.device?.connected 
-                        ? Colors.overSurfaceVariant 
-                        : Styling.styledRectItem("primary")
+                    color: root.device?.connected ? Colors.overSurfaceVariant : Styling.styledRectItem("primary")
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
                 }

@@ -39,7 +39,7 @@ Item {
                 anchors.horizontalCenter: parent.horizontalCenter
                 title: "Wi-Fi"
                 statusText: NetworkService.wifiConnecting ? "Connecting..." : (NetworkService.wifiStatus === "limited" ? "Limited" : "")
-                statusColor: NetworkService.wifiStatus === "limited" ? Colors.warning : Colors.primary
+                statusColor: NetworkService.wifiStatus === "limited" ? Colors.warning : Styling.styledRectItem("overprimary")
                 showToggle: true
                 toggleChecked: NetworkService.wifiStatus !== "disabled"
 

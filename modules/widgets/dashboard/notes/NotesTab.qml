@@ -129,7 +129,7 @@ Item {
         if (hasSelection()) {
             let start = noteEditor.selectionStart;
             let end = noteEditor.selectionEnd;
-            
+
             // Process each character: get its font, change size, reassign
             for (let i = start; i < end; i++) {
                 noteEditor.select(i, i + 1);
@@ -137,7 +137,7 @@ Item {
                 charFont.pixelSize = size;
                 noteEditor.cursorSelection.font = charFont;
             }
-            
+
             // Restore original selection
             noteEditor.select(start, end);
         } else {
@@ -204,9 +204,7 @@ Item {
 
     // Check if any pre-format is active
     function hasActivePreFormat() {
-        return preFormatBold !== null || preFormatItalic !== null || 
-               preFormatUnderline !== null || preFormatStrikeout !== null || 
-               preFormatFontSize !== null;
+        return preFormatBold !== null || preFormatItalic !== null || preFormatUnderline !== null || preFormatStrikeout !== null || preFormatFontSize !== null;
     }
 
     // Reset pre-format state
@@ -219,18 +217,19 @@ Item {
     }
 
     // --- Markdown formatting functions ---
-    
+
     // Property to track current heading level at cursor
     property string mdCurrentHeading: "P"
 
     // Wrap selected text with markers, or insert markers at cursor
     function mdWrapSelection(prefix, suffix) {
-        if (!mdEditor) return;
-        
+        if (!mdEditor)
+            return;
+
         let start = mdEditor.selectionStart;
         let end = mdEditor.selectionEnd;
         let text = mdEditor.text;
-        
+
         if (start === end) {
             // No selection - insert markers and place cursor between them
             let newText = text.substring(0, start) + prefix + suffix + text.substring(end);
@@ -241,7 +240,7 @@ Item {
             let selectedText = text.substring(start, end);
             let beforeStart = text.substring(Math.max(0, start - prefix.length), start);
             let afterEnd = text.substring(end, Math.min(text.length, end + suffix.length));
-            
+
             if (beforeStart === prefix && afterEnd === suffix) {
                 // Already wrapped - unwrap
                 let newText = text.substring(0, start - prefix.length) + selectedText + text.substring(end + suffix.length);
@@ -284,12 +283,13 @@ Item {
     }
 
     function mdInsertLink() {
-        if (!mdEditor) return;
-        
+        if (!mdEditor)
+            return;
+
         let start = mdEditor.selectionStart;
         let end = mdEditor.selectionEnd;
         let text = mdEditor.text;
-        
+
         if (start === end) {
             // No selection - insert link template
             let linkTemplate = "[text](url)";
@@ -311,23 +311,29 @@ Item {
 
     // Get current line info
     function mdGetCurrentLine() {
-        if (!mdEditor) return { start: 0, end: 0, text: "", lineNumber: 0 };
-        
+        if (!mdEditor)
+            return {
+                start: 0,
+                end: 0,
+                text: "",
+                lineNumber: 0
+            };
+
         let text = mdEditor.text;
         let pos = mdEditor.cursorPosition;
-        
+
         // Find line start
         let lineStart = pos;
         while (lineStart > 0 && text[lineStart - 1] !== '\n') {
             lineStart--;
         }
-        
+
         // Find line end
         let lineEnd = pos;
         while (lineEnd < text.length && text[lineEnd] !== '\n') {
             lineEnd++;
         }
-        
+
         return {
             start: lineStart,
             end: lineEnd,
@@ -352,15 +358,16 @@ Item {
     }
 
     function mdSetHeadingLevel(level) {
-        if (!mdEditor) return;
-        
+        if (!mdEditor)
+            return;
+
         let line = mdGetCurrentLine();
         let text = mdEditor.text;
         let currentLevel = mdGetHeadingLevel(line.text);
-        
+
         // Remove existing heading markers
         let lineContent = line.text.replace(/^#{1,6}\s*/, '');
-        
+
         // Add new heading markers
         let newLine;
         if (level === 0) {
@@ -368,10 +375,10 @@ Item {
         } else {
             newLine = '#'.repeat(level) + ' ' + lineContent;
         }
-        
+
         let newText = text.substring(0, line.start) + newLine + text.substring(line.end);
         let cursorOffset = level > 0 ? level + 1 : 0;
-        
+
         mdEditor.text = newText;
         mdEditor.cursorPosition = line.start + cursorOffset + lineContent.length;
         mdUpdateHeadingDisplay();
@@ -507,7 +514,7 @@ Item {
         } else {
             newFilteredNotes = NotesUtils.filterNotes(allNotes, searchText);
 
-            let exactMatch = allNotes.find(function(note) {
+            let exactMatch = allNotes.find(function (note) {
                 return note.title.toLowerCase() === searchText.toLowerCase();
             });
 
@@ -613,7 +620,7 @@ Item {
         renameSelectedIndex = selectedIndex;
         renameMode = true;
         noteToRename = noteId;
-        
+
         // Find current title
         for (var i = 0; i < allNotes.length; i++) {
             if (allNotes[i].id === noteId) {
@@ -621,7 +628,7 @@ Item {
                 break;
             }
         }
-        
+
         renameButtonIndex = 1;
         root.forceActiveFocus();
     }
@@ -654,29 +661,26 @@ Item {
         var noteId = NotesUtils.generateUUID();
         var noteTitle = title || "Untitled Note";
         var extension = isMarkdown ? ".md" : noteExtension;
-        
+
         // Create the note file with appropriate content
-        var initialContent = isMarkdown 
-            ? "# " + noteTitle + "\n\n" 
-            : "<h1>" + noteTitle + "</h1><p></p>";
-        
+        var initialContent = isMarkdown ? "# " + noteTitle + "\n\n" : "<h1>" + noteTitle + "</h1><p></p>";
+
         createNoteProcess.noteId = noteId;
         createNoteProcess.noteTitle = noteTitle;
         createNoteProcess.noteIsMarkdown = isMarkdown || false;
-        createNoteProcess.command = ["sh", "-c", 
-            "mkdir -p '" + notesPath + "' && printf '%s' '" + initialContent.replace(/'/g, "'\\''") + "' > '" + notesPath + "/" + noteId + extension + "'"
-        ];
+        createNoteProcess.command = ["sh", "-c", "mkdir -p '" + notesPath + "' && printf '%s' '" + initialContent.replace(/'/g, "'\\''") + "' > '" + notesPath + "/" + noteId + extension + "'"];
         createNoteProcess.running = true;
     }
 
     function loadNoteContent(noteId) {
-        if (!noteId || noteId === "__create__") return;
-        
+        if (!noteId || noteId === "__create__")
+            return;
+
         // Save current note before loading new one
         if (currentNoteId && editorDirty) {
             saveCurrentNote();
         }
-        
+
         // Find note to get isMarkdown flag
         var isMarkdown = false;
         for (var i = 0; i < allNotes.length; i++) {
@@ -685,29 +689,28 @@ Item {
                 break;
             }
         }
-        
+
         loadingNote = true;
         currentNoteId = noteId;
         currentNoteIsMarkdown = isMarkdown;
-        
+
         var extension = isMarkdown ? ".md" : noteExtension;
         readNoteProcess.command = ["cat", notesPath + "/" + noteId + extension];
         readNoteProcess.running = true;
     }
 
     function saveCurrentNote() {
-        if (!currentNoteId || currentNoteId === "__create__") return;
-        
+        if (!currentNoteId || currentNoteId === "__create__")
+            return;
+
         var extension = currentNoteIsMarkdown ? ".md" : noteExtension;
-        
+
         // Get the text content
         var content = currentNoteIsMarkdown ? mdEditor.text : noteEditor.text;
-        saveNoteProcess.command = ["sh", "-c",
-            "printf '%s' '" + content.replace(/'/g, "'\\''") + "' > '" + notesPath + "/" + currentNoteId + extension + "'"
-        ];
+        saveNoteProcess.command = ["sh", "-c", "printf '%s' '" + content.replace(/'/g, "'\\''") + "' > '" + notesPath + "/" + currentNoteId + extension + "'"];
         saveNoteProcess.running = true;
         editorDirty = false;
-        
+
         // Update modified timestamp
         updateNoteModified(currentNoteId);
     }
@@ -752,11 +755,13 @@ Item {
 
     // Move note up/down in order
     function moveNoteUp() {
-        if (selectedIndex <= 1) return; // Can't move create button or first note
-        
+        if (selectedIndex <= 1)
+            return; // Can't move create button or first note
+
         let note = filteredNotes[selectedIndex];
-        if (note.isCreateButton) return;
-        
+        if (note.isCreateButton)
+            return;
+
         // Find in allNotes and swap
         let noteIdx = -1;
         for (let i = 0; i < allNotes.length; i++) {
@@ -765,7 +770,7 @@ Item {
                 break;
             }
         }
-        
+
         if (noteIdx > 0) {
             allNotes = NotesUtils.moveArrayItem(allNotes, noteIdx, noteIdx - 1);
             saveNotesOrder();
@@ -776,11 +781,13 @@ Item {
     }
 
     function moveNoteDown() {
-        if (selectedIndex < 1 || selectedIndex >= filteredNotes.length - 1) return;
-        
+        if (selectedIndex < 1 || selectedIndex >= filteredNotes.length - 1)
+            return;
+
         let note = filteredNotes[selectedIndex];
-        if (note.isCreateButton) return;
-        
+        if (note.isCreateButton)
+            return;
+
         let noteIdx = -1;
         for (let i = 0; i < allNotes.length; i++) {
             if (allNotes[i].id === note.id) {
@@ -788,7 +795,7 @@ Item {
                 break;
             }
         }
-        
+
         if (noteIdx >= 0 && noteIdx < allNotes.length - 1) {
             allNotes = NotesUtils.moveArrayItem(allNotes, noteIdx, noteIdx + 1);
             saveNotesOrder();
@@ -813,9 +820,7 @@ Item {
             };
         }
         var jsonContent = NotesUtils.serializeIndex(indexData);
-        saveIndexProcess.command = ["sh", "-c",
-            "printf '%s' '" + jsonContent.replace(/'/g, "'\\''") + "' > '" + indexPath + "'"
-        ];
+        saveIndexProcess.command = ["sh", "-c", "printf '%s' '" + jsonContent.replace(/'/g, "'\\''") + "' > '" + indexPath + "'"];
         saveIndexProcess.running = true;
     }
 
@@ -829,8 +834,8 @@ Item {
     Process {
         id: initDirProcess
         command: ["sh", "-c", "mkdir -p '" + notesPath + "' && touch '" + indexPath + "'"]
-        
-        onExited: (code) => {
+
+        onExited: code => {
             refreshNotes();
         }
     }
@@ -843,11 +848,11 @@ Item {
             onRead: data => readIndexProcess.stdoutData += data + "\n"
         }
         property string stdoutData: ""
-        
-        onExited: (code) => {
+
+        onExited: code => {
             var indexData = NotesUtils.parseIndex(stdoutData.trim());
             stdoutData = "";
-            
+
             var loadedNotes = [];
             for (var i = 0; i < indexData.order.length; i++) {
                 var noteId = indexData.order[i];
@@ -863,7 +868,7 @@ Item {
                     });
                 }
             }
-            
+
             allNotes = loadedNotes;
             updateFilteredNotes();
         }
@@ -875,8 +880,8 @@ Item {
         property string noteId: ""
         property string noteTitle: ""
         property bool noteIsMarkdown: false
-        
-        onExited: (code) => {
+
+        onExited: code => {
             if (code === 0) {
                 // Add to allNotes and save index
                 var newNote = {
@@ -890,11 +895,11 @@ Item {
                 allNotes.unshift(newNote);
                 saveNotesOrder();
                 updateFilteredNotes();
-                
+
                 // Select the new note
                 pendingRenamedNote = noteId;
                 updateFilteredNotes();
-                
+
                 // Focus the editor
                 Qt.callLater(() => {
                     openNoteInEditor(noteId);
@@ -910,19 +915,19 @@ Item {
     Process {
         id: deleteNoteProcess
         property string deletedNoteId: ""
-        
-        onExited: (code) => {
+
+        onExited: code => {
             if (code === 0 && deletedNoteId !== "") {
                 // Remove from allNotes
                 allNotes = allNotes.filter(n => n.id !== deletedNoteId);
                 saveNotesOrder();
-                
+
                 if (currentNoteId === deletedNoteId) {
                     currentNoteId = "";
                     currentNoteContent = "";
                     currentNoteTitle = "";
                 }
-                
+
                 updateFilteredNotes();
                 deletedNoteId = "";
             }
@@ -936,12 +941,12 @@ Item {
             onRead: data => readNoteProcess.stdoutData += data + "\n"
         }
         property string stdoutData: ""
-        
-        onExited: (code) => {
+
+        onExited: code => {
             if (code === 0) {
                 // Remove trailing newline added by parser
                 currentNoteContent = stdoutData.replace(/\n$/, '');
-                
+
                 // Find title
                 for (var i = 0; i < allNotes.length; i++) {
                     if (allNotes[i].id === currentNoteId) {
@@ -962,13 +967,13 @@ Item {
     // Save note content
     Process {
         id: saveNoteProcess
-        onExited: (code) => {}
+        onExited: code => {}
     }
 
     // Save index
     Process {
         id: saveIndexProcess
-        onExited: (code) => {}
+        onExited: code => {}
     }
 
     // Read index for title update
@@ -980,16 +985,16 @@ Item {
             onRead: data => readIndexForUpdateProcess.stdoutData += data + "\n"
         }
         property string stdoutData: ""
-        
-        onExited: (code) => {
+
+        onExited: code => {
             var indexData = NotesUtils.parseIndex(stdoutData.trim());
             stdoutData = "";
-            
+
             if (indexData.notes[noteId]) {
                 indexData.notes[noteId].title = newTitle;
                 indexData.notes[noteId].modified = NotesUtils.getCurrentTimestamp();
             }
-            
+
             // Update local allNotes
             for (var i = 0; i < allNotes.length; i++) {
                 if (allNotes[i].id === noteId) {
@@ -998,13 +1003,11 @@ Item {
                     break;
                 }
             }
-            
+
             var jsonContent = NotesUtils.serializeIndex(indexData);
-            saveIndexProcess.command = ["sh", "-c",
-                "printf '%s' '" + jsonContent.replace(/'/g, "'\\''") + "' > '" + indexPath + "'"
-            ];
+            saveIndexProcess.command = ["sh", "-c", "printf '%s' '" + jsonContent.replace(/'/g, "'\\''") + "' > '" + indexPath + "'"];
             saveIndexProcess.running = true;
-            
+
             updateFilteredNotes();
             noteId = "";
             newTitle = "";
@@ -1019,19 +1022,17 @@ Item {
             onRead: data => readIndexForModifiedProcess.stdoutData += data + "\n"
         }
         property string stdoutData: ""
-        
-        onExited: (code) => {
+
+        onExited: code => {
             var indexData = NotesUtils.parseIndex(stdoutData.trim());
             stdoutData = "";
-            
+
             if (indexData.notes[noteId]) {
                 indexData.notes[noteId].modified = NotesUtils.getCurrentTimestamp();
             }
-            
+
             var jsonContent = NotesUtils.serializeIndex(indexData);
-            saveIndexProcess.command = ["sh", "-c",
-                "printf '%s' '" + jsonContent.replace(/'/g, "'\\''") + "' > '" + indexPath + "'"
-            ];
+            saveIndexProcess.command = ["sh", "-c", "printf '%s' '" + jsonContent.replace(/'/g, "'\\''") + "' > '" + indexPath + "'"];
             saveIndexProcess.running = true;
             noteId = "";
         }
@@ -1093,9 +1094,12 @@ Item {
                         if (note) {
                             if (note.isCreateButton) {
                                 // Create menu options
-                                let createOptions = [
-                                    function() { createNewNote(note.noteNameToCreate || "", false); },  // Rich Text
-                                    function() { createNewNote(note.noteNameToCreate || "", true); }    // Markdown
+                                let createOptions = [function () {
+                                        createNewNote(note.noteNameToCreate || "", false);
+                                    }  // Rich Text
+                                    , function () {
+                                        createNewNote(note.noteNameToCreate || "", true);
+                                    }    // Markdown
                                 ];
                                 if (root.selectedOptionIndex >= 0 && root.selectedOptionIndex < createOptions.length) {
                                     root.expandedItemIndex = -1;
@@ -1103,11 +1107,13 @@ Item {
                                 }
                             } else {
                                 // Note options
-                                let options = [
-                                    function() { openNoteInEditor(note.id); },
-                                    function() { enterRenameMode(note.id); },
-                                    function() { enterDeleteMode(note.id); }
-                                ];
+                                let options = [function () {
+                                        openNoteInEditor(note.id);
+                                    }, function () {
+                                        enterRenameMode(note.id);
+                                    }, function () {
+                                        enterDeleteMode(note.id);
+                                    }];
                                 if (root.selectedOptionIndex >= 0 && root.selectedOptionIndex < options.length) {
                                     options[root.selectedOptionIndex]();
                                 }
@@ -1180,8 +1186,7 @@ Item {
                     }
                     if (root.expandedItemIndex >= 0) {
                         // Max options: 2 for create button, 3 for notes
-                        var isCreateBtn = root.expandedItemIndex < filteredNotes.length 
-                            && filteredNotes[root.expandedItemIndex].isCreateButton;
+                        var isCreateBtn = root.expandedItemIndex < filteredNotes.length && filteredNotes[root.expandedItemIndex].isCreateButton;
                         var maxIndex = isCreateBtn ? 1 : 2;
                         if (root.selectedOptionIndex < maxIndex) {
                             root.selectedOptionIndex++;
@@ -1278,8 +1283,7 @@ Item {
                         let baseHeight = 48;
                         if (resultsList.currentIndex === root.expandedItemIndex && !root.deleteMode && !root.renameMode) {
                             // Check if current item is create button
-                            var isCreateBtn = resultsList.currentIndex >= 0 && resultsList.currentIndex < filteredNotes.length 
-                                && filteredNotes[resultsList.currentIndex].isCreateButton;
+                            var isCreateBtn = resultsList.currentIndex >= 0 && resultsList.currentIndex < filteredNotes.length && filteredNotes[resultsList.currentIndex].isCreateButton;
                             var optionCount = isCreateBtn ? 2 : 3;
                             var listHeight = 36 * optionCount;
                             return baseHeight + 4 + listHeight + 8;
@@ -1453,7 +1457,8 @@ Item {
                                     return;
                                 }
 
-                                if (modelData.isCreateButton) return;
+                                if (modelData.isCreateButton)
+                                    return;
 
                                 if (root.expandedItemIndex === index) {
                                     root.expandedItemIndex = -1;
@@ -1951,17 +1956,19 @@ Item {
                             {
                                 text: "Edit",
                                 icon: Icons.edit,
-                                highlightColor: Colors.primary,
+                                highlightColor: Styling.styledRectItem("overprimary"),
                                 textColor: Styling.styledRectItem("primary"),
-                                action: function() { openNoteInEditor(modelData.id); }
+                                action: function () {
+                                    openNoteInEditor(modelData.id);
+                                }
                             },
                             {
                                 text: "Rename",
                                 icon: Icons.edit,
                                 highlightColor: Colors.secondary,
                                 textColor: Styling.styledRectItem("secondary"),
-                                action: function() { 
-                                    enterRenameMode(modelData.id); 
+                                action: function () {
+                                    enterRenameMode(modelData.id);
                                     root.expandedItemIndex = -1;
                                 }
                             },
@@ -1970,8 +1977,8 @@ Item {
                                 icon: Icons.trash,
                                 highlightColor: Colors.error,
                                 textColor: Styling.styledRectItem("error"),
-                                action: function() { 
-                                    enterDeleteMode(modelData.id); 
+                                action: function () {
+                                    enterDeleteMode(modelData.id);
                                     root.expandedItemIndex = -1;
                                 }
                             }
@@ -1981,11 +1988,11 @@ Item {
                             {
                                 text: "Rich Text",
                                 icon: Icons.file,
-                                highlightColor: Colors.primary,
+                                highlightColor: Styling.styledRectItem("overprimary"),
                                 textColor: Styling.styledRectItem("primary"),
-                                action: function() { 
+                                action: function () {
                                     root.expandedItemIndex = -1;
-                                    createNewNote(modelData.noteNameToCreate || "", false); 
+                                    createNewNote(modelData.noteNameToCreate || "", false);
                                 }
                             },
                             {
@@ -1993,9 +2000,9 @@ Item {
                                 icon: Icons.markdown,
                                 highlightColor: Colors.secondary,
                                 textColor: Styling.styledRectItem("secondary"),
-                                action: function() { 
+                                action: function () {
                                     root.expandedItemIndex = -1;
-                                    createNewNote(modelData.noteNameToCreate || "", true); 
+                                    createNewNote(modelData.noteNameToCreate || "", true);
                                 }
                             }
                         ]
@@ -2246,7 +2253,10 @@ Item {
                             font.pixelSize: 14
                             color: activeFocus ? Colors.overPrimary : Colors.overSurface
                             selectByMouse: true
-                            validator: IntValidator { bottom: 8; top: 200 }
+                            validator: IntValidator {
+                                bottom: 8
+                                top: 200
+                            }
 
                             onEditingFinished: {
                                 let size = parseInt(text);
@@ -2320,7 +2330,7 @@ Item {
                         width: 32
                         height: 32
                         radius: Styling.radius(-4)
-                        color: isBold() ? Colors.primary : "transparent"
+                        color: isBold() ? Styling.styledRectItem("overprimary") : "transparent"
 
                         property bool isHovered: boldMouseArea.containsMouse
 
@@ -2360,7 +2370,7 @@ Item {
                         width: 32
                         height: 32
                         radius: Styling.radius(-4)
-                        color: isItalic() ? Colors.primary : "transparent"
+                        color: isItalic() ? Styling.styledRectItem("overprimary") : "transparent"
 
                         property bool isHovered: italicMouseArea.containsMouse
 
@@ -2400,7 +2410,7 @@ Item {
                         width: 32
                         height: 32
                         radius: Styling.radius(-4)
-                        color: isUnderline() ? Colors.primary : "transparent"
+                        color: isUnderline() ? Styling.styledRectItem("overprimary") : "transparent"
 
                         property bool isHovered: underlineMouseArea.containsMouse
 
@@ -2440,7 +2450,7 @@ Item {
                         width: 32
                         height: 32
                         radius: Styling.radius(-4)
-                        color: isStrikeout() ? Colors.primary : "transparent"
+                        color: isStrikeout() ? Styling.styledRectItem("overprimary") : "transparent"
 
                         property bool isHovered: strikeMouseArea.containsMouse
 
@@ -2488,7 +2498,7 @@ Item {
                         width: 32
                         height: 32
                         radius: Styling.radius(-4)
-                        color: noteEditor.cursorSelection.alignment === Qt.AlignLeft ? Colors.primary : "transparent"
+                        color: noteEditor.cursorSelection.alignment === Qt.AlignLeft ? Styling.styledRectItem("overprimary") : "transparent"
 
                         property bool isHovered: alignLeftMouseArea.containsMouse
 
@@ -2530,7 +2540,7 @@ Item {
                         width: 32
                         height: 32
                         radius: Styling.radius(-4)
-                        color: noteEditor.cursorSelection.alignment === Qt.AlignHCenter ? Colors.primary : "transparent"
+                        color: noteEditor.cursorSelection.alignment === Qt.AlignHCenter ? Styling.styledRectItem("overprimary") : "transparent"
 
                         property bool isHovered: alignCenterMouseArea.containsMouse
 
@@ -2572,7 +2582,7 @@ Item {
                         width: 32
                         height: 32
                         radius: Styling.radius(-4)
-                        color: noteEditor.cursorSelection.alignment === Qt.AlignRight ? Colors.primary : "transparent"
+                        color: noteEditor.cursorSelection.alignment === Qt.AlignRight ? Styling.styledRectItem("overprimary") : "transparent"
 
                         property bool isHovered: alignRightMouseArea.containsMouse
 
@@ -2614,7 +2624,7 @@ Item {
                         width: 32
                         height: 32
                         radius: Styling.radius(-4)
-                        color: noteEditor.cursorSelection.alignment === Qt.AlignJustify ? Colors.primary : "transparent"
+                        color: noteEditor.cursorSelection.alignment === Qt.AlignJustify ? Styling.styledRectItem("overprimary") : "transparent"
 
                         property bool isHovered: alignJustifyMouseArea.containsMouse
 
@@ -2650,7 +2660,9 @@ Item {
                         }
                     }
 
-                    Item { Layout.fillWidth: true }
+                    Item {
+                        Layout.fillWidth: true
+                    }
                 }
             }
 
@@ -2703,18 +2715,19 @@ Item {
                         // Track if cursor moved due to typing or user navigation
                         property int lastCursorPos: 0
                         property bool cursorMovedByTyping: false
-                        
+
                         // Reset pre-format when cursor moves by navigation (not typing)
                         onCursorPositionChanged: {
-                            if (applyingFormat) return;
-                            
+                            if (applyingFormat)
+                                return;
+
                             // If length changed, cursor moved due to typing - don't reset
                             if (cursorMovedByTyping) {
                                 cursorMovedByTyping = false;
                                 lastCursorPos = cursorPosition;
                                 return;
                             }
-                            
+
                             // Cursor moved by more than 1 position or moved backward = navigation
                             let delta = cursorPosition - lastCursorPos;
                             if (delta < 0 || delta > 1) {
@@ -2731,22 +2744,22 @@ Item {
                         Keys.onPressed: event => {
                             if (event.modifiers & Qt.ControlModifier) {
                                 switch (event.key) {
-                                    case Qt.Key_B:
-                                        toggleBold();
-                                        event.accepted = true;
-                                        break;
-                                    case Qt.Key_I:
-                                        toggleItalic();
-                                        event.accepted = true;
-                                        break;
-                                    case Qt.Key_U:
-                                        toggleUnderline();
-                                        event.accepted = true;
-                                        break;
-                                    case Qt.Key_D:
-                                        toggleStrikeout();
-                                        event.accepted = true;
-                                        break;
+                                case Qt.Key_B:
+                                    toggleBold();
+                                    event.accepted = true;
+                                    break;
+                                case Qt.Key_I:
+                                    toggleItalic();
+                                    event.accepted = true;
+                                    break;
+                                case Qt.Key_U:
+                                    toggleUnderline();
+                                    event.accepted = true;
+                                    break;
+                                case Qt.Key_D:
+                                    toggleStrikeout();
+                                    event.accepted = true;
+                                    break;
                                 }
                             }
                             // Alt+Up/Down to increase/decrease font size
@@ -2795,13 +2808,14 @@ Item {
                         property bool applyingFormat: false
                         onLengthChanged: {
                             // Prevent recursion
-                            if (applyingFormat) return;
-                            
+                            if (applyingFormat)
+                                return;
+
                             // Mark that cursor will move due to typing
                             if (length !== lastLength) {
                                 cursorMovedByTyping = true;
                             }
-                            
+
                             // Detect if text was inserted (not deleted)
                             if (length > lastLength && !hasSelection() && hasActivePreFormat()) {
                                 // Apply pre-format to newly typed character
@@ -2811,11 +2825,16 @@ Item {
                                     // Select the just-typed character
                                     select(pos - 1, pos);
                                     // Apply explicit format states
-                                    if (preFormatBold !== null) cursorSelection.font.bold = preFormatBold;
-                                    if (preFormatItalic !== null) cursorSelection.font.italic = preFormatItalic;
-                                    if (preFormatUnderline !== null) cursorSelection.font.underline = preFormatUnderline;
-                                    if (preFormatStrikeout !== null) cursorSelection.font.strikeout = preFormatStrikeout;
-                                    if (preFormatFontSize !== null) cursorSelection.font.pixelSize = preFormatFontSize;
+                                    if (preFormatBold !== null)
+                                        cursorSelection.font.bold = preFormatBold;
+                                    if (preFormatItalic !== null)
+                                        cursorSelection.font.italic = preFormatItalic;
+                                    if (preFormatUnderline !== null)
+                                        cursorSelection.font.underline = preFormatUnderline;
+                                    if (preFormatStrikeout !== null)
+                                        cursorSelection.font.strikeout = preFormatStrikeout;
+                                    if (preFormatFontSize !== null)
+                                        cursorSelection.font.pixelSize = preFormatFontSize;
                                     // Deselect and move cursor back
                                     cursorPosition = pos;
                                     applyingFormat = false;
@@ -3196,7 +3215,9 @@ Item {
                         }
                     }
 
-                    Item { Layout.fillWidth: true }
+                    Item {
+                        Layout.fillWidth: true
+                    }
                 }
             }
 
@@ -3231,7 +3252,8 @@ Item {
 
                         // Sync editor scroll to preview
                         function syncToPreview() {
-                            if (syncing || !mdPreviewFlickable) return;
+                            if (syncing || !mdPreviewFlickable)
+                                return;
                             syncing = true;
                             let ratio = contentHeight > height ? contentY / Math.max(1, contentHeight - height) : 0;
                             let targetY = ratio * (mdPreviewFlickable.contentHeight - mdPreviewFlickable.height);
@@ -3291,10 +3313,7 @@ Item {
                                     if (cursorRect.y < mdEditorFlickable.contentY) {
                                         mdEditorFlickable.contentY = Math.max(0, cursorRect.y - 20);
                                     } else if (cursorRect.y + cursorRect.height > mdEditorFlickable.contentY + mdEditorFlickable.height) {
-                                        mdEditorFlickable.contentY = Math.min(
-                                            mdEditorFlickable.contentHeight - mdEditorFlickable.height,
-                                            cursorRect.y + cursorRect.height - mdEditorFlickable.height + 20
-                                        );
+                                        mdEditorFlickable.contentY = Math.min(mdEditorFlickable.contentHeight - mdEditorFlickable.height, cursorRect.y + cursorRect.height - mdEditorFlickable.height + 20);
                                     }
                                     // Sync will happen via onContentYChanged
                                 }
@@ -3308,30 +3327,30 @@ Item {
                             Keys.onPressed: event => {
                                 if (event.modifiers & Qt.ControlModifier) {
                                     switch (event.key) {
-                                        case Qt.Key_B:
-                                            root.mdToggleBold();
-                                            event.accepted = true;
-                                            break;
-                                        case Qt.Key_I:
-                                            root.mdToggleItalic();
-                                            event.accepted = true;
-                                            break;
-                                        case Qt.Key_U:
-                                            root.mdToggleUnderline();
-                                            event.accepted = true;
-                                            break;
-                                        case Qt.Key_D:
-                                            root.mdToggleStrikethrough();
-                                            event.accepted = true;
-                                            break;
-                                        case Qt.Key_E:
-                                            root.mdToggleCode();
-                                            event.accepted = true;
-                                            break;
-                                        case Qt.Key_K:
-                                            root.mdInsertLink();
-                                            event.accepted = true;
-                                            break;
+                                    case Qt.Key_B:
+                                        root.mdToggleBold();
+                                        event.accepted = true;
+                                        break;
+                                    case Qt.Key_I:
+                                        root.mdToggleItalic();
+                                        event.accepted = true;
+                                        break;
+                                    case Qt.Key_U:
+                                        root.mdToggleUnderline();
+                                        event.accepted = true;
+                                        break;
+                                    case Qt.Key_D:
+                                        root.mdToggleStrikethrough();
+                                        event.accepted = true;
+                                        break;
+                                    case Qt.Key_E:
+                                        root.mdToggleCode();
+                                        event.accepted = true;
+                                        break;
+                                    case Qt.Key_K:
+                                        root.mdInsertLink();
+                                        event.accepted = true;
+                                        break;
                                     }
                                 }
                                 if (event.modifiers & Qt.AltModifier) {

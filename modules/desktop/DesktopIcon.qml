@@ -55,7 +55,7 @@ Item {
     Rectangle {
         id: background
         anchors.fill: root
-        color: Colors.primary
+        color: Styling.styledRectItem("overprimary")
         radius: Styling.radius(0)
         opacity: hoverHandler.hovered ? 0.25 : 0.0
 

@@ -314,14 +314,14 @@ ClippingRectangle {
                 SequentialAnimation on x {
                     running: cloudEffect.visible
                     loops: Animation.Infinite
-                    
+
                     // Move across screen
                     NumberAnimation {
                         to: cloudEffect.width + 50
                         duration: bgCloud.cycleDuration
                         easing.type: Easing.Linear
                     }
-                    
+
                     // Reset to start position smoothly
                     NumberAnimation {
                         to: -bgCloud.width - 50
@@ -386,14 +386,14 @@ ClippingRectangle {
                 SequentialAnimation on x {
                     running: cloudEffect.visible
                     loops: Animation.Infinite
-                    
+
                     // Move across screen
                     NumberAnimation {
                         to: cloudEffect.width + 50
                         duration: fgCloud.cycleDuration
                         easing.type: Easing.Linear
                     }
-                    
+
                     // Reset to start position smoothly
                     NumberAnimation {
                         to: -fgCloud.width - 50
@@ -938,7 +938,7 @@ ClippingRectangle {
         width: 20
         height: 20
         radius: 10
-        color: WeatherService.debugMode ? Colors.primary : "#555"
+        color: WeatherService.debugMode ? Styling.styledRectItem("overprimary") : "#555"
         opacity: (debugButtonHover.containsMouse || WeatherService.debugMode) ? 0.8 : 0
         visible: root.showDebugControls
 

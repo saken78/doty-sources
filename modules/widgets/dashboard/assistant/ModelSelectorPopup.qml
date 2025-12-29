@@ -206,7 +206,7 @@ Popup {
                             text: Ai.fetchingModels ? Icons.circleNotch : (refreshBtn.confirming ? Icons.sync : Icons.arrowCounterClockwise)
                             font.family: Icons.font
                             font.pixelSize: 20
-                            color: refreshBtn.confirming ? Styling.styledRectItem("primary") : Colors.primary
+                            color: refreshBtn.confirming ? Styling.styledRectItem("primary") : Styling.styledRectItem("overprimary")
 
                             RotationAnimation on rotation {
                                 loops: Animation.Infinite
@@ -460,7 +460,7 @@ Popup {
 
                         Text {
                             text: modelData.name
-                            color: delegateBtn.isSelected ? Styling.styledRectItem("primary") : (delegateBtn.isActiveModel ? Colors.primary : Colors.overBackground)
+                            color: delegateBtn.isSelected ? Styling.styledRectItem("primary") : (delegateBtn.isActiveModel ? Styling.styledRectItem("overprimary") : Colors.overBackground)
                             font.family: Config.theme.font
                             font.pixelSize: 14
                             font.weight: Font.Medium
@@ -507,7 +507,7 @@ Popup {
                             font.family: Icons.font
                             font.pixelSize: 16
                             // On primary highlight, color should be readable. srPrimary itemColor usually contrasts well.
-                            color: delegateBtn.isSelected ? Styling.styledRectItem("primary") : Colors.primary
+                            color: delegateBtn.isSelected ? Styling.styledRectItem("primary") : Styling.styledRectItem("overprimary")
                             visible: delegateBtn.isActiveModel
 
                             Behavior on color {

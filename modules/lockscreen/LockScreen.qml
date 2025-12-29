@@ -180,7 +180,7 @@ WlSessionLockSurface {
                 font.family: "Universal Accreditation"
                 font.pixelSize: 240
                 font.weight: Font.Bold
-                color: Colors.primary
+                color: Styling.styledRectItem("overprimary")
                 antialiasing: true
                 opacity: startAnim ? 1 : 0
 

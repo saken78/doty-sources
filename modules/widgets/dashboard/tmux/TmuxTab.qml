@@ -880,7 +880,8 @@ Item {
                         property bool longPressTriggered: false
 
                         onEntered: {
-                            if (resultsList.isScrolling) return;
+                            if (resultsList.isScrolling)
+                                return;
                             if (!root.deleteMode && !root.renameMode && root.expandedItemIndex === -1) {
                                 root.selectedIndex = index;
                                 resultsList.currentIndex = index;
@@ -1030,7 +1031,7 @@ Item {
                                     {
                                         text: "Open",
                                         icon: Icons.popOpen,
-                                        highlightColor: Colors.primary,
+                                        highlightColor: Styling.styledRectItem("overprimary"),
                                         textColor: Styling.styledRectItem("primary"),
                                         action: function () {
                                             root.attachToSession(modelData.name);
@@ -1886,7 +1887,7 @@ Item {
                                     anchors.fill: parent
                                     color: "transparent"
                                     border.width: modelData.active ? 2 : 0
-                                    border.color: modelData.active ? Colors.primary : "transparent"
+                                    border.color: modelData.active ? Styling.styledRectItem("overprimary") : "transparent"
                                     radius: paneRect.radius
 
                                     Behavior on border.width {
@@ -1992,7 +1993,7 @@ Item {
                                     text: Icons.spinnerGap
                                     font.family: Icons.font
                                     font.pixelSize: 20
-                                    color: Colors.primary
+                                    color: Styling.styledRectItem("overprimary")
                                     textFormat: Text.RichText
 
                                     RotationAnimator on rotation {

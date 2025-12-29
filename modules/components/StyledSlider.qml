@@ -29,7 +29,7 @@ Item {
     property real dragPosition: 0.0
     property real progressRatio: isDragging ? dragPosition : value
     property string tooltipText: `${Math.round(value * 100)}%`
-    property color progressColor: Colors.primary
+    property color progressColor: Styling.styledRectItem("overprimary")
     property color backgroundColor: Colors.surfaceBright
     property bool wavy: false
     property real wavyAmplitude: 0.8
@@ -56,7 +56,8 @@ Item {
 
     // Helper function to apply step snapping
     function applyStep(val: real): real {
-        if (stepSize <= 0) return val;
+        if (stepSize <= 0)
+            return val;
         return Math.round(val / stepSize) * stepSize;
     }
 
@@ -319,7 +320,7 @@ Item {
             z: 4
             onEntered: {
                 if (root.iconClickable) {
-                    iconColor = Colors.primary;
+                    iconColor = Styling.styledRectItem("overprimary");
                     root.iconHovered(true);
                 }
             }

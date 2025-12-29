@@ -98,7 +98,7 @@ Item {
                         return Colors.outline;
                     if (Audio.protectionTriggered && root.isMainDevice)
                         return Colors.warning;
-                    return Colors.primary;
+                    return Styling.styledRectItem("overprimary");
                 }
 
                 onValueChanged: {
@@ -123,9 +123,7 @@ Item {
 
             // Source name
             Text {
-                text: root.isMainDevice 
-                    ? Audio.friendlyDeviceName(root.node)
-                    : Audio.appNodeDisplayName(root.node)
+                text: root.isMainDevice ? Audio.friendlyDeviceName(root.node) : Audio.appNodeDisplayName(root.node)
                 font.family: Config.theme.font
                 font.pixelSize: Styling.fontSize(-2)
                 color: Colors.overSurfaceVariant

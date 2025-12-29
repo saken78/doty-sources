@@ -21,20 +21,18 @@ Item {
 
     // Function to interpolate color between green and red based on battery percentage
     function getBatteryColor() {
-        if (!Battery.available) return Colors.overBackground;
-        
+        if (!Battery.available)
+            return Colors.overBackground;
+
         const pct = Battery.percentage;
-        if (pct <= 15) return Colors.red;
-        if (pct >= 85) return Colors.green;
-        
+        if (pct <= 15)
+            return Colors.red;
+        if (pct >= 85)
+            return Colors.green;
+
         // Linear interpolation between red (15%) and green (85%)
         const ratio = (pct - 15) / (85 - 15);
-        return Qt.rgba(
-            Colors.red.r + (Colors.green.r - Colors.red.r) * ratio,
-            Colors.red.g + (Colors.green.g - Colors.red.g) * ratio,
-            Colors.red.b + (Colors.green.b - Colors.red.b) * ratio,
-            1
-        );
+        return Qt.rgba(Colors.red.r + (Colors.green.r - Colors.red.r) * ratio, Colors.red.g + (Colors.green.g - Colors.red.g) * ratio, Colors.red.b + (Colors.green.b - Colors.red.b) * ratio, 1);
     }
 
     Layout.preferredWidth: 36
@@ -56,7 +54,7 @@ Item {
         // Background highlight on hover
         Rectangle {
             anchors.fill: parent
-            color: Colors.primary
+            color: Styling.styledRectItem("overprimary")
             opacity: root.popupOpen ? 0 : (root.isHovered ? 0.25 : 0)
             radius: parent.radius ?? 0
 
@@ -103,7 +101,7 @@ Item {
 
                     // Draw background track (remaining part)
                     let totalAngleRad = (360 - 2 * progressCanvas.gapAngle) * Math.PI / 180;
-                    
+
                     ctx.strokeStyle = Colors.outlineVariant;
                     ctx.lineWidth = lineWidth;
                     ctx.beginPath();
@@ -126,7 +124,7 @@ Item {
                         canvas.requestPaint();
                     }
                 }
-                
+
                 Connections {
                     target: Battery
                     function onPercentageChanged() {
@@ -152,19 +150,21 @@ Item {
             font.family: Icons.font
             font.pixelSize: Battery.available ? 14 : 18
             color: root.popupOpen ? buttonBg.item : Colors.overBackground
-            
+
             Behavior on color {
                 enabled: Config.animDuration > 0
-                ColorAnimation { duration: Config.animDuration / 2 }
+                ColorAnimation {
+                    duration: Config.animDuration / 2
+                }
             }
-            
+
             Connections {
                 target: Battery
                 function onIsPluggedInChanged() {
-                    batteryIcon.text = Battery.available ? (Battery.isPluggedIn ? Icons.plug : Icons.lightning) : PowerProfile.getProfileIcon(PowerProfile.currentProfile)
+                    batteryIcon.text = Battery.available ? (Battery.isPluggedIn ? Icons.plug : Icons.lightning) : PowerProfile.getProfileIcon(PowerProfile.currentProfile);
                 }
                 function onAvailableChanged() {
-                    batteryIcon.text = Battery.available ? (Battery.isPluggedIn ? Icons.plug : Icons.lightning) : PowerProfile.getProfileIcon(PowerProfile.currentProfile)
+                    batteryIcon.text = Battery.available ? (Battery.isPluggedIn ? Icons.plug : Icons.lightning) : PowerProfile.getProfileIcon(PowerProfile.currentProfile);
                 }
             }
         }
@@ -225,9 +225,7 @@ Item {
                         spacing: 2
 
                         Text {
-                            text: Math.round(Battery.percentage) + "% " + (Battery.isPluggedIn ? 
-                                  (Battery.isCharging ? "Charging" : "Full") :
-                                  "On battery")
+                            text: Math.round(Battery.percentage) + "% " + (Battery.isPluggedIn ? (Battery.isCharging ? "Charging" : "Full") : "On battery")
                             font.family: Styling.defaultFont
                             font.pixelSize: Styling.fontSize(0)
                             font.bold: true
@@ -235,9 +233,7 @@ Item {
                         }
 
                         Text {
-                            text: Battery.isPluggedIn ? 
-                                  (Battery.timeToFull !== "" ? "Full in " + Battery.timeToFull : "") :
-                                  (Battery.timeToEmpty !== "" ? Battery.timeToEmpty + " remaining" : "")
+                            text: Battery.isPluggedIn ? (Battery.timeToFull !== "" ? "Full in " + Battery.timeToFull : "") : (Battery.timeToEmpty !== "" ? Battery.timeToEmpty + " remaining" : "")
                             font.family: Styling.defaultFont
                             font.pixelSize: Styling.fontSize(-1)
                             color: Colors.overBackground
@@ -258,66 +254,66 @@ Item {
                     model: PowerProfile.availableProfiles
 
                     delegate: StyledRect {
-                    id: profileButton
-                    required property string modelData
-                    required property int index
+                        id: profileButton
+                        required property string modelData
+                        required property int index
 
-                    Layout.fillWidth: true
-                    Layout.preferredWidth: 80
-                    height: 36
+                        Layout.fillWidth: true
+                        Layout.preferredWidth: 80
+                        height: 36
 
-                    readonly property bool isSelected: PowerProfile.currentProfile === modelData
-                    readonly property bool isFirst: index === 0
-                    readonly property bool isLast: index === PowerProfile.availableProfiles.length - 1
-                    property bool buttonHovered: false
+                        readonly property bool isSelected: PowerProfile.currentProfile === modelData
+                        readonly property bool isFirst: index === 0
+                        readonly property bool isLast: index === PowerProfile.availableProfiles.length - 1
+                        property bool buttonHovered: false
 
-                    readonly property real defaultRadius: Styling.radius(0)
-                    readonly property real selectedRadius: Styling.radius(0) / 2
+                        readonly property real defaultRadius: Styling.radius(0)
+                        readonly property real selectedRadius: Styling.radius(0) / 2
 
-                    variant: isSelected ? "primary" : (buttonHovered ? "focus" : "common")
-                    enableShadow: false
+                        variant: isSelected ? "primary" : (buttonHovered ? "focus" : "common")
+                        enableShadow: false
 
-                    topLeftRadius: isSelected ? (isFirst ? defaultRadius : selectedRadius) : defaultRadius
-                    bottomLeftRadius: isSelected ? (isFirst ? defaultRadius : selectedRadius) : defaultRadius
-                    topRightRadius: isSelected ? (isLast ? defaultRadius : selectedRadius) : defaultRadius
-                    bottomRightRadius: isSelected ? (isLast ? defaultRadius : selectedRadius) : defaultRadius
+                        topLeftRadius: isSelected ? (isFirst ? defaultRadius : selectedRadius) : defaultRadius
+                        bottomLeftRadius: isSelected ? (isFirst ? defaultRadius : selectedRadius) : defaultRadius
+                        topRightRadius: isSelected ? (isLast ? defaultRadius : selectedRadius) : defaultRadius
+                        bottomRightRadius: isSelected ? (isLast ? defaultRadius : selectedRadius) : defaultRadius
 
-                    RowLayout {
-                        anchors.centerIn: parent
-                        spacing: 8
+                        RowLayout {
+                            anchors.centerIn: parent
+                            spacing: 8
 
-                        Text {
-                            text: PowerProfile.getProfileIcon(profileButton.modelData)
-                            font.family: Icons.font
-                            font.pixelSize: 14
-                            color: profileButton.item
+                            Text {
+                                text: PowerProfile.getProfileIcon(profileButton.modelData)
+                                font.family: Icons.font
+                                font.pixelSize: 14
+                                color: profileButton.item
+                            }
+
+                            Text {
+                                id: profileLabel
+                                text: PowerProfile.getProfileDisplayName(profileButton.modelData)
+                                font.family: Styling.defaultFont
+                                font.pixelSize: Styling.fontSize(0)
+                                font.bold: true
+                                color: profileButton.item
+                            }
                         }
 
-                        Text {
-                            id: profileLabel
-                            text: PowerProfile.getProfileDisplayName(profileButton.modelData)
-                            font.family: Styling.defaultFont
-                            font.pixelSize: Styling.fontSize(0)
-                            font.bold: true
-                            color: profileButton.item
-                        }
-                    }
+                        MouseArea {
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
 
-                    MouseArea {
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
+                            onEntered: profileButton.buttonHovered = true
+                            onExited: profileButton.buttonHovered = false
 
-                        onEntered: profileButton.buttonHovered = true
-                        onExited: profileButton.buttonHovered = false
-
-                        onClicked: {
-                            PowerProfile.setProfile(profileButton.modelData);
+                            onClicked: {
+                                PowerProfile.setProfile(profileButton.modelData);
+                            }
                         }
                     }
                 }
             }
-        }
         }
     }
 }

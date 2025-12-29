@@ -227,7 +227,7 @@ Rectangle {
                                 text: Icons.user
                                 font.family: Icons.font
                                 font.pixelSize: Config.theme.fontSize + 2
-                                color: Colors.primary
+                                color: Styling.styledRectItem("overprimary")
                             }
 
                             Text {
@@ -253,7 +253,7 @@ Rectangle {
                                 text: Icons.at
                                 font.family: Icons.font
                                 font.pixelSize: Config.theme.fontSize + 2
-                                color: Colors.primary
+                                color: Styling.styledRectItem("overprimary")
                             }
 
                             Text {
@@ -281,7 +281,7 @@ Rectangle {
                                 text: root.osIcon || (root.linuxLogos ? root.linuxLogos["Linux"] : "")
                                 font.family: "Symbols Nerd Font Mono"
                                 font.pixelSize: Config.theme.fontSize + 2
-                                color: Colors.primary
+                                color: Styling.styledRectItem("overprimary")
                             }
 
                             Text {
@@ -828,7 +828,7 @@ Rectangle {
                             Layout.preferredHeight: parent.height
                             vertical: false
                             value: (root.chartZoom - 0.2) / 2.8  // Map 0.2-3.0 to 0-1
-                            progressColor: Colors.primary
+                            progressColor: Styling.styledRectItem("overprimary")
                             backgroundColor: Colors.surface
                             tooltipText: root.chartZoom ? `${root.chartZoom.toFixed(1)}×` : "1.0×"
                             thickness: 3

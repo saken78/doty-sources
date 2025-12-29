@@ -5,8 +5,8 @@ import qs.modules.theme
 import qs.config
 
 StyledRect {
-    variant: "pane"
     id: root
+    variant: "pane"
 
     property alias text: textField.text
     property alias placeholderText: textField.placeholderText
@@ -59,7 +59,7 @@ StyledRect {
             text: root.iconText
             font.family: Config.theme.font
             font.pixelSize: 20
-            color: Colors.primary
+            color: Styling.styledRectItem("overprimary")
             visible: root.iconText.length > 0
         }
 
