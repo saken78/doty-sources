@@ -13,10 +13,12 @@ Singleton {
 
     // Current preset being loaded/saved
     property string currentPreset: ""
+    property string activePreset: ""
 
     // Config directory paths
     readonly property string configDir: (Quickshell.env("XDG_CONFIG_HOME") || (Quickshell.env("HOME") + "/.config")) + "/Ambxst"
     readonly property string presetsDir: configDir + "/presets"
+    readonly property string activePresetFile: presetsDir + "/active_preset"
 
     // Signal when presets change
     signal presetsUpdated()
@@ -24,6 +26,7 @@ Singleton {
     // Scan presets directory
     function scanPresets() {
         scanProcess.running = true
+        readActivePresetProcess.running = true
     }
 
     // Load a preset by name
@@ -54,8 +57,10 @@ Singleton {
              copyCmd += `cp "${srcPath}" "${dstPath}" && `
         }
         
+        // Update active preset file
+        copyCmd += `echo "${presetName}" > "${activePresetFile}"`
+
         if (copyCmd.length > 0) {
-            copyCmd = copyCmd.slice(0, -4) // Remove last " && "
             loadProcess.command = ["sh", "-c", copyCmd]
             loadProcess.running = true
         } else {
@@ -195,11 +200,25 @@ Singleton {
             if (exitCode === 0) {
                 console.log("Preset loaded successfully:", root.currentPreset)
                 Quickshell.execDetached(["notify-send", "Preset Loaded", `Preset "${root.currentPreset}" loaded successfully.`])
+                root.activePreset = root.currentPreset
             } else {
                 console.warn("Failed to load preset:", root.currentPreset)
                 Quickshell.execDetached(["notify-send", "Error", `Failed to load preset "${root.currentPreset}".`])
             }
             root.currentPreset = ""
+        }
+    }
+
+    // Read active preset process
+    Process {
+        id: readActivePresetProcess
+        command: ["cat", activePresetFile]
+        running: false
+        
+        stdout: StdioCollector {
+            onStreamFinished: {
+                root.activePreset = text.trim()
+            }
         }
     }
 

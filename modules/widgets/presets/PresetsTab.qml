@@ -9,24 +9,23 @@ import qs.modules.globals
 import qs.modules.services
 import qs.config
 
-// Import Button and CheckBox
-import "." as Presets
-
 Item {
     id: root
     focus: true
 
     property string searchText: ""
-    property bool showResults: searchText.length > 0
     property int selectedIndex: -1
     property var presets: []
+    
+    // Active preset (from persistent storage)
+    readonly property string activePreset: PresetsService.activePreset
 
     // Create mode state
     property bool createMode: false
     property string presetNameToCreate: ""
-    property var selectedConfigFiles: availableConfigFiles.slice() // Select all by default
+    property var selectedConfigFiles: availableConfigFiles.slice()
 
-    // Available config files to choose from
+    // Available config files
     readonly property var availableConfigFiles: [
         "ai.js", "bar.js", "desktop.js", "dock.js", "hyprland.js",
         "lockscreen.js", "notch.js", "overview.js", "performance.js",
@@ -41,46 +40,15 @@ Item {
     property alias flickable: resultsList
     property bool needsScrollbar: resultsList.contentHeight > resultsList.height
     property bool isManualScrolling: false
-    property alias searchQuery: root.searchText
-
-    onSelectedIndexChanged: {
-        if (selectedIndex === -1 && presetsModel.count > 0) {
-            resultsList.positionViewAtIndex(0, ListView.Beginning);
-        }
-    }
-
-    onSearchTextChanged: {
-        updateFilteredPresets();
-    }
-
-    function clearSearch() {
+    
+    // Reset state when opening
+    function resetSearch() {
         searchText = "";
         selectedIndex = -1;
+        createMode = false;
+        presetNameToCreate = "";
         searchInput.focusInput();
         updateFilteredPresets();
-    }
-
-    function resetSearch() {
-        clearSearch();
-    }
-
-    function selectPreset() {
-        if (createMode) {
-            confirmCreatePreset();
-        } else {
-            if (selectedIndex >= 0 && selectedIndex < resultsList.count) {
-                let selectedPreset = presets[selectedIndex];
-                if (selectedPreset) {
-                    if (selectedPreset.isCreateSpecificButton) {
-                        enterCreateMode(selectedPreset.presetNameToCreate);
-                    } else if (selectedPreset.isCreateButton) {
-                        enterCreateMode();
-                    } else {
-                        loadPreset(selectedPreset.name);
-                    }
-                }
-            }
-        }
     }
 
     function focusSearchInput() {
@@ -89,10 +57,9 @@ Item {
 
     function updateFilteredPresets() {
         var newFilteredPresets = [];
-
         var createButtonText = "Create new preset";
         var isCreateSpecific = false;
-        var presetNameToCreate = "";
+        var nameToCreate = "";
 
         if (searchText.length === 0) {
             newFilteredPresets = presets.slice();
@@ -101,56 +68,60 @@ Item {
                 return preset.name.toLowerCase().includes(searchText.toLowerCase());
             });
 
-            if (newFilteredPresets.length === 0 && searchText.length > 0) {
+            // If strict match not found, offer creation
+            let exactMatch = presets.find(p => p.name.toLowerCase() === searchText.toLowerCase());
+            if (!exactMatch && searchText.length > 0) {
                 createButtonText = `Create preset "${searchText}"`;
                 isCreateSpecific = true;
-                presetNameToCreate = searchText;
+                nameToCreate = searchText;
             }
         }
 
-        if (!createMode) {
-            newFilteredPresets.unshift({
-                name: createButtonText,
-                isCreateButton: !isCreateSpecific,
-                isCreateSpecificButton: isCreateSpecific,
-                presetNameToCreate: presetNameToCreate,
-                configFiles: [],
-                icon: "plus"
-            });
-        }
+        // Add create button at top
+        newFilteredPresets.unshift({
+            name: createButtonText,
+            isCreateButton: !isCreateSpecific,
+            isCreateSpecificButton: isCreateSpecific,
+            presetNameToCreate: nameToCreate,
+            configFiles: [],
+            icon: "plus"
+        });
 
         // Update model
         presetsModel.clear();
         for (var i = 0; i < newFilteredPresets.length; i++) {
-            var preset = newFilteredPresets[i];
             presetsModel.append({
-                presetId: preset.isCreateButton || preset.isCreateSpecificButton ? "__create__" : preset.name,
-                presetData: preset
+                presetId: newFilteredPresets[i].isCreateButton || newFilteredPresets[i].isCreateSpecificButton ? "__create__" : newFilteredPresets[i].name,
+                presetData: newFilteredPresets[i]
             });
         }
 
-        if (!createMode) {
-            if (searchText.length > 0 && newFilteredPresets.length > 0) {
-                selectedIndex = 0;
-                resultsList.currentIndex = 0;
-            } else if (searchText.length === 0) {
-                selectedIndex = -1;
-                resultsList.currentIndex = -1;
-            }
+        // Auto-select first item if searching
+        if (searchText.length > 0 && newFilteredPresets.length > 0) {
+            selectedIndex = 0;
+            resultsList.currentIndex = 0;
+        } else if (searchText.length === 0) {
+            selectedIndex = -1;
+            resultsList.currentIndex = -1;
         }
     }
 
     function enterCreateMode(presetName) {
         createMode = true;
         presetNameToCreate = presetName || "";
-        selectedConfigFiles = availableConfigFiles.slice(); // Select all by default
-        root.forceActiveFocus();
+        selectedConfigFiles = availableConfigFiles.slice(); // Reset selection
+        
+        // Focus the input in the overlay
+        // Use a timer to ensure visibility has propagated
+        Qt.callLater(() => {
+            createInput.forceActiveFocus();
+            createInput.cursorPosition = createInput.text.length;
+        });
     }
 
     function cancelCreateMode() {
         createMode = false;
         presetNameToCreate = "";
-        selectedConfigFiles = availableConfigFiles.slice();
         searchInput.focusInput();
         updateFilteredPresets();
     }
@@ -164,10 +135,9 @@ Item {
 
     function loadPreset(presetName) {
         PresetsService.loadPreset(presetName);
-        Visibilities.setActiveModule(""); // Close popup
+        Visibilities.setActiveModule("");
     }
 
-    // Connect to service
     Connections {
         target: PresetsService
         function onPresetsUpdated() {
@@ -184,18 +154,6 @@ Item {
     implicitWidth: 400
     implicitHeight: 7 * 48 + 56
 
-    MouseArea {
-        anchors.fill: parent
-        enabled: root.createMode
-        z: -10
-
-        onClicked: {
-            if (root.createMode) {
-                root.cancelCreateMode();
-            }
-        }
-    }
-
     Behavior on height {
         enabled: Config.animDuration > 0
         NumberAnimation {
@@ -204,568 +162,382 @@ Item {
         }
     }
 
-    RowLayout {
-        id: mainLayout
+    // Main Layout
+    ColumnLayout {
         anchors.fill: parent
         spacing: 8
 
-        // Left panel: Search + Lista
-        Item {
+        // Search Input
+        SearchInput {
+            id: searchInput
             Layout.fillWidth: true
-            Layout.fillHeight: true
+            Layout.preferredHeight: 48
+            
+            text: root.searchText
+            placeholderText: "Search or create preset..."
+            
+            onSearchTextChanged: text => {
+                root.searchText = text;
+            }
 
-            // Search input
-            SearchInput {
-                id: searchInput
-                visible: true
-                width: parent.width
-                height: 48
-                anchors.top: parent.top
-                text: root.searchText
-                placeholderText: createMode ? "Enter preset name..." : "Search or create preset..."
-                iconText: ""
-                prefixIcon: ""
-
-                onSearchTextChanged: text => {
-                    if (createMode) {
-                        root.presetNameToCreate = text;
+            onAccepted: {
+                if (root.selectedIndex >= 0 && root.selectedIndex < presetsModel.count) {
+                    let item = presetsModel.get(root.selectedIndex).presetData;
+                    if (item.isCreateButton || item.isCreateSpecificButton) {
+                        root.enterCreateMode(item.presetNameToCreate);
                     } else {
-                        root.searchText = text;
+                        root.loadPreset(item.name);
                     }
+                } else if (root.searchText.length > 0) {
+                     // If nothing selected but text exists, assume creation if valid
+                     root.enterCreateMode(root.searchText);
                 }
+            }
+            
+            onEscapePressed: {
+                 Visibilities.setActiveModule("");
+            }
 
-                onAccepted: {
-                    if (createMode) {
-                        root.confirmCreatePreset();
-                    } else {
-                        if (root.selectedIndex >= 0 && root.selectedIndex < resultsList.count) {
-                            let selectedPreset = root.presets[root.selectedIndex];
-                            if (selectedPreset) {
-                                if (selectedPreset.isCreateSpecificButton) {
-                                    root.enterCreateMode(selectedPreset.presetNameToCreate);
-                                } else if (selectedPreset.isCreateButton) {
-                                    root.enterCreateMode();
-                                } else {
-                                    root.loadPreset(selectedPreset.name);
-                                }
-                            }
-                        }
+            onDownPressed: {
+                if (presetsModel.count > 0) {
+                    if (root.selectedIndex < presetsModel.count - 1) {
+                        root.selectedIndex++;
+                    } else if (root.selectedIndex === -1) {
+                        root.selectedIndex = 0;
                     }
-                }
-
-                onEscapePressed: {
-                    if (createMode) {
-                        root.cancelCreateMode();
-                    } else {
-                        Visibilities.setActiveModule("");
-                    }
-                }
-
-                onDownPressed: {
-                    if (!createMode && resultsList.count > 0) {
-                        if (root.selectedIndex === -1) {
-                            root.selectedIndex = 0;
-                            resultsList.currentIndex = 0;
-                        } else if (root.selectedIndex < resultsList.count - 1) {
-                            root.selectedIndex++;
-                            resultsList.currentIndex = root.selectedIndex;
-                        }
-                    }
-                }
-
-                onUpPressed: {
-                    if (!createMode) {
-                        if (root.selectedIndex > 0) {
-                            root.selectedIndex--;
-                            resultsList.currentIndex = root.selectedIndex;
-                        } else if (root.selectedIndex === 0 && root.searchText.length === 0) {
-                            root.selectedIndex = -1;
-                            resultsList.currentIndex = -1;
-                        }
-                    }
+                    resultsList.currentIndex = root.selectedIndex;
                 }
             }
 
-            ListView {
-                id: resultsList
-                width: parent.width
-                anchors.top: searchInput.bottom
-                anchors.bottom: parent.bottom
-                anchors.topMargin: 8
-                visible: !createMode
-                clip: true
-                interactive: !createMode
-                cacheBuffer: 96
-                reuseItems: false
+            onUpPressed: {
+                if (root.selectedIndex > 0) {
+                    root.selectedIndex--;
+                    resultsList.currentIndex = root.selectedIndex;
+                } else if (root.selectedIndex === 0 && root.searchText.length === 0) {
+                    root.selectedIndex = -1;
+                    resultsList.currentIndex = -1;
+                }
+            }
+        }
 
-                model: presetsModel
-                currentIndex: root.selectedIndex
+        // List View
+        ListView {
+            id: resultsList
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            clip: true
+            
+            model: presetsModel
+            currentIndex: root.selectedIndex
 
-                Behavior on contentY {
-                    enabled: Config.animDuration > 0 && resultsList.enableScrollAnimation && !resultsList.moving
-                    NumberAnimation {
-                        duration: Config.animDuration / 2
-                        easing.type: Easing.OutCubic
+            // Scroll Animation
+            Behavior on contentY {
+                enabled: Config.animDuration > 0 && !resultsList.moving
+                NumberAnimation {
+                    duration: Config.animDuration / 2
+                    easing.type: Easing.OutCubic
+                }
+            }
+
+            onCurrentIndexChanged: {
+                if (currentIndex !== root.selectedIndex && currentIndex !== -1) {
+                    root.selectedIndex = currentIndex;
+                }
+            }
+
+            highlight: Item {
+                // Keyboard selection highlight (Standard)
+                z: -1
+                StyledRect {
+                    anchors.fill: parent
+                    variant: "primary" // Default highlight color
+                    radius: Styling.radius(4)
+                    visible: root.selectedIndex >= 0
+                    
+                    Behavior on opacity {
+                        NumberAnimation { duration: 150 }
                     }
                 }
+            }
+            highlightFollowsCurrentItem: true
+            highlightMoveDuration: 150
 
-                property bool enableScrollAnimation: true
-
-                onCurrentIndexChanged: {
-                    if (currentIndex !== root.selectedIndex) {
-                        root.selectedIndex = currentIndex;
-                    }
-                }
-
-                highlight: Item {
-                    width: resultsList.width
-                    height: 48
-
-                    y: resultsList.currentIndex * 48
-
-                    Behavior on y {
-                        enabled: Config.animDuration > 0
-                        NumberAnimation {
-                            duration: Config.animDuration / 2
-                            easing.type: Easing.OutCubic
-                        }
-                    }
-
-                    StyledRect {
-                        anchors.fill: parent
-                        variant: "primary"
-                        radius: Styling.radius(4)
-                        visible: root.selectedIndex >= 0
-
-                        Behavior on opacity {
-                            enabled: Config.animDuration > 0
-                            NumberAnimation {
-                                duration: Config.animDuration / 2
-                                easing.type: Easing.OutQuart
-                            }
-                        }
-                    }
-                }
-
-                highlightFollowsCurrentItem: false
-
-                delegate: Rectangle {
-                    required property string presetId
-                    required property var presetData
-                    required property int index
-
-                    property var modelData: presetData
-
-                    width: resultsList.width
-                    height: 48
-                    color: "transparent"
-                    radius: 16
-
-                    clip: true
-
-                    property bool isExpanded: false
-                    property color textColor: {
-                        if (resultsList.currentIndex === index) {
-                            return Styling.styledRectItem("primary");
-                        } else {
-                            return Colors.overSurface;
-                        }
-                    }
-
-                    MouseArea {
-                        id: mouseArea
-                        anchors.fill: parent
-                        hoverEnabled: !resultsList.moving
-                        acceptedButtons: Qt.LeftButton
-
-                        onEntered: {
-                            if (resultsList.moving)
-                                return;
-                            if (!createMode) {
-                                root.selectedIndex = index;
-                                resultsList.currentIndex = index;
-                            }
-                        }
-
-                        onClicked: mouse => {
-                            if (mouse.button === Qt.LeftButton) {
-                                if (modelData.isCreateSpecificButton) {
-                                    root.enterCreateMode(modelData.presetNameToCreate);
-                                } else if (modelData.isCreateButton) {
-                                    root.enterCreateMode();
-                                } else {
-                                    root.loadPreset(modelData.name);
-                                }
-                            }
-                        }
-                    }
-
-                    RowLayout {
-                        anchors.left: parent.left
-                        anchors.right: parent.right
-                        anchors.top: parent.top
-                        anchors.margins: 8
-                        height: 32
-                        spacing: 8
-
-                        StyledRect {
-                            id: iconBackground
-                            Layout.preferredWidth: 32
-                            Layout.preferredHeight: 32
-                            variant: {
-                                if (resultsList.currentIndex === index) {
-                                    return "overprimary";
-                                } else if (modelData.isCreateButton) {
-                                    return "primary";
-                                } else {
-                                    return "common";
-                                }
-                            }
-                            radius: Styling.radius(-4)
-
-                            Text {
-                                anchors.centerIn: parent
-                                text: {
-                                    if (modelData.isCreateButton || modelData.isCreateSpecificButton) {
-                                        return Icons.plus;
-                                    } else {
-                                        return Icons.magicWand;
-                                    }
-                                }
-                                color: iconBackground.item
-                                font.family: Icons.font
-                                font.pixelSize: 16
-                                textFormat: Text.RichText
-                            }
-                        }
-
-                        ColumnLayout {
-                            Layout.fillWidth: true
-                            Layout.alignment: Qt.AlignVCenter
-                            spacing: 2
-
-                            Text {
-                                text: modelData.name
-                                color: textColor
-                                font.family: Config.theme.font
-                                font.pixelSize: Config.theme.fontSize
-                                font.weight: Font.Bold
-                                elide: Text.ElideRight
-                            }
-
-                            Text {
-                                text: {
-                                    if (modelData.isCreateButton || modelData.isCreateSpecificButton) {
-                                        return "Create a new preset";
-                                    } else {
-                                        return `${modelData.configFiles.length} config files`;
-                                    }
-                                }
-                                color: {
-                                    if (resultsList.currentIndex === index) {
-                                        return Styling.styledRectItem("primary");
-                                    } else {
-                                        return Colors.outline;
-                                    }
-                                }
-                                opacity: resultsList.currentIndex === index ? 0.8 : 1.0
-                                font.family: Config.theme.font
-                                font.pixelSize: Styling.fontSize(-2)
-                                elide: Text.ElideRight
-                                visible: !modelData.isCreateButton && !modelData.isCreateSpecificButton
-                            }
-                        }
-                    }
-                }
+            delegate: Item {
+                width: resultsList.width
+                height: 48
+                
+                required property var presetData
+                required property int index
+                
+                property bool isCreate: presetData.isCreateButton || presetData.isCreateSpecificButton
+                property bool isActive: !isCreate && presetData.name === root.activePreset
+                property bool isSelected: root.selectedIndex === index
 
                 MouseArea {
                     anchors.fill: parent
-                    enabled: createMode
-                    z: 1000
-                    acceptedButtons: Qt.LeftButton
+                    hoverEnabled: true
+                    onEntered: {
+                        root.selectedIndex = index;
+                        resultsList.currentIndex = index;
+                    }
+                    onClicked: {
+                        if (isCreate) {
+                            root.enterCreateMode(presetData.presetNameToCreate);
+                        } else {
+                            root.loadPreset(presetData.name);
+                        }
+                    }
+                }
 
-                    onClicked: mouse => {
-                        if (createMode) {
-                            root.cancelCreateMode();
-                            mouse.accepted = true;
+                RowLayout {
+                    anchors.fill: parent
+                    anchors.margins: 8
+                    spacing: 12
+
+                    // Icon / Indicator
+                    StyledRect {
+                        Layout.preferredWidth: 32
+                        Layout.preferredHeight: 32
+                        
+                        // Logic for icon background color
+                        variant: {
+                            if (isSelected) return "overprimary"; // Selected item icon
+                            if (isActive) return "primary";       // Active preset icon (if not selected)
+                            if (isCreate) return "primary";       // Create button icon
+                            return "common";
+                        }
+                        
+                        radius: Styling.radius(-4)
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: isCreate ? Icons.plus : (isActive ? Icons.check : Icons.magicWand)
+                            font.family: Icons.font
+                            font.pixelSize: 16
+                            color: parent.item
+                        }
+                    }
+
+                    // Text Info
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 0
+                        
+                        Text {
+                            text: presetData.name
+                            color: isSelected ? Styling.styledRectItem("primary") : Colors.overSurface
+                            font.family: Config.theme.font
+                            font.pixelSize: Config.theme.fontSize
+                            font.weight: isActive ? Font.Bold : Font.Normal
+                            elide: Text.ElideRight
+                            Layout.fillWidth: true
+                        }
+                        
+                        Text {
+                            text: isCreate ? "Create a new preset" : `${presetData.configFiles.length} config files`
+                            color: isSelected ? Styling.styledRectItem("primary") : Colors.outline
+                            opacity: 0.7
+                            font.family: Config.theme.font
+                            font.pixelSize: Styling.fontSize(-2)
+                            visible: true
+                        }
+                    }
+                    
+                    // Active Badge (Additional visual cue)
+                    StyledRect {
+                        visible: isActive && !isCreate
+                        Layout.preferredHeight: 20
+                        Layout.preferredWidth: 60
+                        variant: isSelected ? "overprimary" : "primary"
+                        radius: 10
+                        
+                        Text {
+                            anchors.centerIn: parent
+                            text: "ACTIVE"
+                            font.family: Config.theme.font
+                            font.pixelSize: 10
+                            font.weight: Font.Bold
+                            color: parent.item
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Create Mode Overlay
+    Rectangle {
+        id: createOverlay
+        anchors.fill: parent
+        color: Colors.background
+        visible: createMode
+        radius: 20 // Match popup radius
+        
+        // Prevent clicking through
+        MouseArea { anchors.fill: parent }
+
+        ColumnLayout {
+            anchors.fill: parent
+            anchors.margins: 16
+            spacing: 16
+
+            Text {
+                text: "Create New Preset"
+                font.family: Config.theme.font
+                font.pixelSize: Config.theme.fontSize + 4
+                font.weight: Font.Bold
+                color: Colors.overSurface
+                Layout.alignment: Qt.AlignHCenter
+            }
+
+            // Name Input
+            StyledRect {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 40
+                variant: "pane"
+                radius: Styling.radius(4)
+
+                TextInput {
+                    id: createInput
+                    anchors.fill: parent
+                    anchors.margins: 8
+                    verticalAlignment: TextInput.AlignVCenter
+                    
+                    text: root.presetNameToCreate
+                    onTextChanged: {
+                        if (root.createMode) root.presetNameToCreate = text;
+                    }
+                    
+                    color: Colors.overSurface
+                    font.family: Config.theme.font
+                    font.pixelSize: Config.theme.fontSize
+                    clip: true
+                    
+                    Keys.onEscapePressed: root.cancelCreateMode()
+                    Keys.onEnterPressed: root.confirmCreatePreset()
+                    Keys.onReturnPressed: root.confirmCreatePreset()
+                    
+                    Text {
+                        anchors.fill: parent
+                        verticalAlignment: TextInput.AlignVCenter
+                        text: "Enter preset name..."
+                        color: Colors.outline
+                        font: parent.font
+                        visible: parent.text === ""
+                    }
+                }
+            }
+
+            Text {
+                text: "Select config files:"
+                color: Colors.outline
+                font.family: Config.theme.font
+            }
+
+            // File Selection Grid
+            GridLayout {
+                columns: 2
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                
+                Repeater {
+                    model: availableConfigFiles
+                    delegate: Item {
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 32
+                        
+                        property bool checked: root.selectedConfigFiles.includes(modelData)
+                        
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                if (parent.checked) {
+                                    root.selectedConfigFiles = root.selectedConfigFiles.filter(f => f !== modelData);
+                                } else {
+                                    let list = root.selectedConfigFiles;
+                                    list.push(modelData);
+                                    root.selectedConfigFiles = list;
+                                }
+                            }
+                        }
+
+                        RowLayout {
+                            anchors.fill: parent
+                            
+                            // Checkbox
+                            StyledRect {
+                                Layout.preferredWidth: 20
+                                Layout.preferredHeight: 20
+                                variant: parent.parent.checked ? "primary" : "pane"
+                                radius: 4
+                                border.width: parent.parent.checked ? 0 : 1
+                                border.color: Colors.outline
+                                
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: Icons.check
+                                    font.family: Icons.font
+                                    visible: parent.parent.parent.checked
+                                    color: Styling.styledRectItem("primary")
+                                    font.pixelSize: 14
+                                }
+                            }
+                            
+                            Text {
+                                text: modelData
+                                color: parent.parent.checked ? Colors.overSurface : Colors.outline
+                                font.family: Config.theme.font
+                                Layout.fillWidth: true
+                            }
                         }
                     }
                 }
             }
 
-            // Create mode UI
-            Item {
-                anchors.fill: parent
-                visible: createMode
-                z: 10
-
-                ColumnLayout {
-                    anchors.fill: parent
-                    anchors.margins: 16
-                    spacing: 16
-
+            // Buttons
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 12
+                
+                // Cancel
+                StyledRect {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 36
+                    variant: "pane"
+                    radius: 4
+                    
                     Text {
-                        text: "Create New Preset"
-                        font.family: Config.theme.font
-                        font.pixelSize: Config.theme.fontSize + 4
+                        anchors.centerIn: parent
+                        text: "Cancel"
+                        color: Colors.overSurface
+                    }
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: root.cancelCreateMode()
+                    }
+                }
+
+                // Create
+                StyledRect {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 36
+                    variant: "primary"
+                    radius: 4
+                    opacity: (root.presetNameToCreate.trim() !== "" && root.selectedConfigFiles.length > 0) ? 1 : 0.5
+                    
+                    Text {
+                        anchors.centerIn: parent
+                        text: "Create"
+                        color: Styling.styledRectItem("primary")
                         font.weight: Font.Bold
-                        color: Colors.overSurface
-                        horizontalAlignment: Text.AlignHCenter
-                        Layout.alignment: Qt.AlignHCenter
                     }
-
-                    Text {
-                        text: "Preset name:"
-                        font.family: Config.theme.font
-                        font.pixelSize: Config.theme.fontSize
-                        color: Colors.overSurface
-                        Layout.alignment: Qt.AlignHCenter
-                    }
-
-                    StyledRect {
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: 40
-                        variant: "pane"
-                        radius: Styling.radius(4)
-
-                        TextInput {
-                            id: createInput
-                            anchors.fill: parent
-                            anchors.margins: 8
-                            verticalAlignment: TextInput.AlignVCenter
-                            text: root.presetNameToCreate
-                            color: Colors.overSurface
-                            font.family: Config.theme.font
-                            font.pixelSize: Config.theme.fontSize
-                            onTextChanged: root.presetNameToCreate = text
-                            clip: true
-
-                            KeyNavigation.down: filesGrid.children[0]
-                            Keys.onPressed: event => {
-                                if (event.key === Qt.Key_Escape) {
-                                    root.cancelCreateMode();
-                                    event.accepted = true;
-                                }
-                            }
-
-                            Text {
-                                anchors.fill: parent
-                                verticalAlignment: TextInput.AlignVCenter
-                                text: "Enter preset name..."
-                                color: Colors.outline
-                                font: parent.font
-                                visible: parent.text === ""
-                            }
-
-                            Component.onCompleted: {
-                                forceActiveFocus();
-                            }
-                        }
-                    }
-
-                    Text {
-                        text: "Select config files to save:"
-                        font.family: Config.theme.font
-                        font.pixelSize: Config.theme.fontSize
-                        color: Colors.overSurface
-                        Layout.alignment: Qt.AlignHCenter
-                    }
-
-                    GridLayout {
-                        id: filesGrid
-                        columns: 2
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-
-                        Repeater {
-                            model: availableConfigFiles
-
-                            Item {
-                                id: configItem
-                                Layout.fillWidth: true
-                                Layout.preferredHeight: 32
-                                focus: true
-
-                                property bool isChecked: root.selectedConfigFiles.includes(modelData)
-
-                                function toggle() {
-                                    if (isChecked) {
-                                        const index = root.selectedConfigFiles.indexOf(modelData);
-                                        if (index > -1) {
-                                            root.selectedConfigFiles.splice(index, 1);
-                                        }
-                                    } else {
-                                        if (!root.selectedConfigFiles.includes(modelData)) {
-                                            root.selectedConfigFiles.push(modelData);
-                                        }
-                                    }
-                                    root.selectedConfigFiles = root.selectedConfigFiles;
-                                }
-
-                                Keys.onPressed: event => {
-                                    if (event.key === Qt.Key_Space || event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-                                        toggle();
-                                        event.accepted = true;
-                                    } else if (event.key === Qt.Key_Escape) {
-                                        root.cancelCreateMode();
-                                        event.accepted = true;
-                                    }
-                                }
-
-                                KeyNavigation.up: index < 2 ? createInput : filesGrid.children[index - 2]
-                                KeyNavigation.down: index >= availableConfigFiles.length - 2 ? cancelButtonContainer : filesGrid.children[index + 2]
-                                KeyNavigation.left: index % 2 !== 0 ? filesGrid.children[index - 1] : null
-                                KeyNavigation.right: index % 2 === 0 ? filesGrid.children[index + 1] : null
-
-                                RowLayout {
-                                    anchors.fill: parent
-                                    spacing: 8
-
-                                    Item {
-                                        Layout.preferredWidth: 24
-                                        Layout.preferredHeight: 24
-
-                                        Rectangle {
-                                            anchors.fill: parent
-                                            color: Colors.surface
-                                            radius: Styling.radius(4)
-                                            visible: !parent.parent.parent.isChecked
-                                            border.width: configItem.activeFocus ? 2 : 1
-                                            border.color: configItem.activeFocus ? Styling.styledRectItem("primary") : Colors.outline
-                                        }
-
-                                        StyledRect {
-                                            anchors.fill: parent
-                                            variant: "primary"
-                                            radius: Styling.radius(4)
-                                            visible: parent.parent.parent.isChecked
-                                            border.width: configItem.activeFocus ? 2 : 0
-                                            border.color: Styling.styledRectItem("overprimary")
-
-                                            Text {
-                                                anchors.centerIn: parent
-                                                text: Icons.accept
-                                                font.family: Icons.font
-                                                font.pixelSize: 16
-                                                color: Styling.styledRectItem("primary")
-                                            }
-                                        }
-
-                                        MouseArea {
-                                            anchors.fill: parent
-                                            onClicked: {
-                                                configItem.forceActiveFocus();
-                                                parent.parent.parent.toggle();
-                                            }
-                                            cursorShape: Qt.PointingHandCursor
-                                        }
-                                    }
-
-                                    Text {
-                                        text: modelData
-                                        color: configItem.activeFocus ? Styling.styledRectItem("primary") : Colors.overSurface
-                                        font.family: Config.theme.font
-                                        font.pixelSize: Config.theme.fontSize
-                                        Layout.fillWidth: true
-
-                                        MouseArea {
-                                            anchors.fill: parent
-                                            onClicked: {
-                                                configItem.forceActiveFocus();
-                                                parent.parent.parent.toggle();
-                                            }
-                                            cursorShape: Qt.PointingHandCursor
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    RowLayout {
-                        Layout.alignment: Qt.AlignHCenter
-                        spacing: 16
-
-                        // Cancel Button
-                        Item {
-                            id: cancelButtonContainer
-                            Layout.preferredWidth: 100
-                            Layout.preferredHeight: 32
-                            focus: true
-
-                            KeyNavigation.up: filesGrid.children[availableConfigFiles.length - 1]
-                            KeyNavigation.right: createButtonContainer
-
-                            Keys.onPressed: event => {
-                                if (event.key === Qt.Key_Space || event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-                                    root.cancelCreateMode();
-                                    event.accepted = true;
-                                }
-                            }
-
-                            StyledRect {
-                                anchors.fill: parent
-                                variant: cancelButtonContainer.activeFocus ? "focus" : "pane"
-                                radius: Styling.radius(4)
-
-                                Text {
-                                    anchors.centerIn: parent
-                                    text: "Cancel"
-                                    color: Colors.overSurface
-                                    font.family: Config.theme.font
-                                    font.pixelSize: Config.theme.fontSize
-                                }
-                            }
-
-                            MouseArea {
-                                anchors.fill: parent
-                                cursorShape: Qt.PointingHandCursor
-                                onClicked: root.cancelCreateMode()
-                            }
-                        }
-
-                        // Create Button
-                        Item {
-                            id: createButtonContainer
-                            Layout.preferredWidth: 100
-                            Layout.preferredHeight: 32
-                            opacity: (root.presetNameToCreate.trim() !== "" && root.selectedConfigFiles.length > 0) ? 1.0 : 0.5
-                            focus: true
-
-                            KeyNavigation.up: filesGrid.children[availableConfigFiles.length - 1]
-                            KeyNavigation.left: cancelButtonContainer
-
-                            Keys.onPressed: event => {
-                                if (event.key === Qt.Key_Space || event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-                                    if (root.presetNameToCreate.trim() !== "" && root.selectedConfigFiles.length > 0) {
-                                        root.confirmCreatePreset();
-                                    }
-                                    event.accepted = true;
-                                }
-                            }
-
-                            StyledRect {
-                                anchors.fill: parent
-                                variant: createButtonContainer.activeFocus ? "overprimary" : "primary"
-                                radius: Styling.radius(4)
-
-                                Text {
-                                    anchors.centerIn: parent
-                                    text: "Create"
-                                    color: Styling.styledRectItem("primary")
-                                    font.family: Config.theme.font
-                                    font.pixelSize: Config.theme.fontSize
-                                    font.weight: Font.Bold
-                                }
-                            }
-
-                            MouseArea {
-                                anchors.fill: parent
-                                cursorShape: Qt.PointingHandCursor
-                                enabled: root.presetNameToCreate.trim() !== "" && root.selectedConfigFiles.length > 0
-                                onClicked: root.confirmCreatePreset()
-                            }
-                        }
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        enabled: parent.opacity === 1
+                        onClicked: root.confirmCreatePreset()
                     }
                 }
             }
