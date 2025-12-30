@@ -269,8 +269,8 @@ Item {
                 required property var presetData
                 required property int index
                 
-                property bool isCreate: presetData.isCreateButton || presetData.isCreateSpecificButton
-                property bool isActive: !isCreate && presetData.name === root.activePreset
+                property bool isCreate: presetData ? (presetData.isCreateButton || presetData.isCreateSpecificButton) : false
+                property bool isActive: (!isCreate && presetData) ? (presetData.name === root.activePreset) : false
                 property bool isSelected: root.selectedIndex === index
 
                 MouseArea {
@@ -296,6 +296,7 @@ Item {
 
                     // Icon / Indicator
                     StyledRect {
+                        id: iconRect
                         Layout.preferredWidth: 32
                         Layout.preferredHeight: 32
                         
@@ -314,7 +315,7 @@ Item {
                             text: isCreate ? Icons.plus : (isActive ? Icons.check : Icons.magicWand)
                             font.family: Icons.font
                             font.pixelSize: 16
-                            color: parent.item
+                            color: iconRect.item
                         }
                     }
 
@@ -324,7 +325,7 @@ Item {
                         spacing: 0
                         
                         Text {
-                            text: presetData.name
+                            text: presetData ? presetData.name : ""
                             color: isSelected ? Styling.styledRectItem("primary") : Colors.overSurface
                             font.family: Config.theme.font
                             font.pixelSize: Config.theme.fontSize
@@ -334,7 +335,7 @@ Item {
                         }
                         
                         Text {
-                            text: isCreate ? "Create a new preset" : `${presetData.configFiles.length} config files`
+                            text: isCreate ? "Create a new preset" : (presetData ? `${presetData.configFiles.length} config files` : "")
                             color: isSelected ? Styling.styledRectItem("primary") : Colors.outline
                             opacity: 0.7
                             font.family: Config.theme.font
@@ -345,6 +346,7 @@ Item {
                     
                     // Active Badge (Additional visual cue)
                     StyledRect {
+                        id: badgeRect
                         visible: isActive && !isCreate
                         Layout.preferredHeight: 20
                         Layout.preferredWidth: 60
@@ -357,7 +359,7 @@ Item {
                             font.family: Config.theme.font
                             font.pixelSize: 10
                             font.weight: Font.Bold
-                            color: parent.item
+                            color: badgeRect.item
                         }
                     }
                 }
@@ -443,20 +445,22 @@ Item {
                 Repeater {
                     model: availableConfigFiles
                     delegate: Item {
+                        id: fileDelegate
                         Layout.fillWidth: true
                         Layout.preferredHeight: 32
                         
-                        property bool checked: root.selectedConfigFiles.includes(modelData)
+                        property string fileName: modelData ? modelData : ""
+                        property bool checked: root.selectedConfigFiles.includes(fileName)
                         
                         MouseArea {
                             anchors.fill: parent
                             cursorShape: Qt.PointingHandCursor
                             onClicked: {
-                                if (parent.checked) {
-                                    root.selectedConfigFiles = root.selectedConfigFiles.filter(f => f !== modelData);
+                                if (fileDelegate.checked) {
+                                    root.selectedConfigFiles = root.selectedConfigFiles.filter(f => f !== fileDelegate.fileName);
                                 } else {
                                     let list = root.selectedConfigFiles;
-                                    list.push(modelData);
+                                    list.push(fileDelegate.fileName);
                                     root.selectedConfigFiles = list;
                                 }
                             }
@@ -469,24 +473,24 @@ Item {
                             StyledRect {
                                 Layout.preferredWidth: 20
                                 Layout.preferredHeight: 20
-                                variant: parent.parent.checked ? "primary" : "pane"
+                                variant: fileDelegate.checked ? "primary" : "pane"
                                 radius: 4
-                                border.width: parent.parent.checked ? 0 : 1
+                                border.width: fileDelegate.checked ? 0 : 1
                                 border.color: Colors.outline
                                 
                                 Text {
                                     anchors.centerIn: parent
                                     text: Icons.check
                                     font.family: Icons.font
-                                    visible: parent.parent.parent.checked
+                                    visible: fileDelegate.checked
                                     color: Styling.styledRectItem("primary")
                                     font.pixelSize: 14
                                 }
                             }
                             
                             Text {
-                                text: modelData
-                                color: parent.parent.checked ? Colors.overSurface : Colors.outline
+                                text: fileDelegate.fileName
+                                color: fileDelegate.checked ? Colors.overSurface : Colors.outline
                                 font.family: Config.theme.font
                                 Layout.fillWidth: true
                             }
