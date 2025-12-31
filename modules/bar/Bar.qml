@@ -279,8 +279,20 @@ PanelWindow {
                 Layout.fillWidth: true
 
                 ColumnLayout {
-                    anchors.centerIn: parent
-                    height: Math.min(parent.height, implicitHeight)
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    
+                    // Calculate target position to be absolutely centered in the bar (vertically)
+                    property real targetY: (bar.height - height) / 2 - parent.y
+                    
+                    // Clamp y position
+                    y: Math.max(0, Math.min(parent.height - height, targetY))
+                    
+                    // Calculate max height
+                    property real availableTop: (bar.height / 2) - parent.y
+                    property real availableBottom: (parent.y + parent.height) - (bar.height / 2)
+                    property real maxCenteredHeight: Math.max(0, Math.min(availableTop, availableBottom) * 2)
+
+                    height: Math.min(parent.height, Math.min(implicitHeight, maxCenteredHeight))
                     width: parent.width
                     spacing: 4
 
