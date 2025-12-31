@@ -244,8 +244,8 @@ PanelWindow {
                 layerEnabled: false
             }
 
-            ToolsButton {
-                id: toolsButtonVert
+            Item {
+                Layout.fillHeight: true
             }
 
             LayoutSelectorButton {
@@ -254,16 +254,16 @@ PanelWindow {
                 layerEnabled: false
             }
 
-            Item {
-                Layout.fillHeight: true
-            }
-
             Workspaces {
                 orientation: panel.orientation
                 bar: QtObject {
                     property var screen: panel.screen
                 }
                 layer.enabled: false
+            }
+
+            ToolsButton {
+                id: toolsButtonVert
             }
 
             Item {
