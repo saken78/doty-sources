@@ -277,7 +277,7 @@ Item {
             StackView {
                 id: stackViewInternal
                 anchors.fill: parent
-                anchors.margins: (screenNotchOpen || (Config.notchTheme === "island" && hasActiveNotifications)) ? 16 : 0
+                anchors.margins: screenNotchOpen ? 16 : 0
                 initialItem: defaultViewComponent
 
                 Component.onCompleted: {
