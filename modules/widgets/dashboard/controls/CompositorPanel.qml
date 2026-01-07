@@ -1017,6 +1017,27 @@ Item {
                                 }
                             }
 
+                            ToggleRow {
+                                label: "Explicit Ignorealpha"
+                                checked: Config.hyprland.blurExplicitIgnoreAlpha ?? false
+                                onToggled: value => {
+                                    GlobalStates.markCompositorChanged();
+                                    Config.hyprland.blurExplicitIgnoreAlpha = value;
+                                }
+                            }
+
+                            DecimalInputRow {
+                                label: "Ignorealpha Value"
+                                value: Config.hyprland.blurIgnoreAlphaValue ?? 0.2
+                                minValue: 0.0
+                                maxValue: 1.0
+                                enabled: Config.hyprland.blurExplicitIgnoreAlpha
+                                onValueEdited: newValue => {
+                                    GlobalStates.markCompositorChanged();
+                                    Config.hyprland.blurIgnoreAlphaValue = newValue;
+                                }
+                            }
+
                             DecimalInputRow {
                                 label: "Noise"
                                 value: Config.hyprland.blurNoise ?? 0.01

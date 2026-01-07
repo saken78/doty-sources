@@ -775,6 +775,8 @@ Singleton {
             property int blurSize: 4
             property int blurPasses: 2
             property bool blurIgnoreOpacity: true
+            property bool blurExplicitIgnoreAlpha: false
+            property real blurIgnoreAlphaValue: 0.2
             property bool blurNewOptimizations: true
             property bool blurXray: false
             property real blurNoise: 0.0
