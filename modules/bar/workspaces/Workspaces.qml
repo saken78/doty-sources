@@ -67,26 +67,32 @@ Item {
     function updateOccupiedRanges() {
         const ranges = [];
         let rangeStart = -1;
-        
+
         for (let i = 0; i < effectiveWorkspaceCount; i++) {
             const isOccupied = workspaceOccupied[i];
-            
+
             if (isOccupied) {
                 if (rangeStart === -1) {
                     rangeStart = i;
                 }
             } else {
                 if (rangeStart !== -1) {
-                    ranges.push({ start: rangeStart, end: i - 1 });
+                    ranges.push({
+                        start: rangeStart,
+                        end: i - 1
+                    });
                     rangeStart = -1;
                 }
             }
         }
-        
+
         if (rangeStart !== -1) {
-            ranges.push({ start: rangeStart, end: effectiveWorkspaceCount - 1 });
+            ranges.push({
+                start: rangeStart,
+                end: effectiveWorkspaceCount - 1
+            });
         }
-        
+
         occupiedRanges = ranges;
     }
 
@@ -193,7 +199,7 @@ Item {
                 z: 1
                 width: (modelData.end - modelData.start + 1) * workspaceButtonWidth
                 height: workspaceButtonWidth
-                
+
                 radius: Styling.radius(0) > 0 ? Math.max(Styling.radius(0) - widgetPadding, 0) : 0
 
                 opacity: Config.theme.srFocus.opacity
@@ -244,7 +250,7 @@ Item {
                 z: 1
                 width: workspaceButtonWidth
                 height: (modelData.end - modelData.start + 1) * workspaceButtonWidth
-                
+
                 radius: Styling.radius(0) > 0 ? Math.max(Styling.radius(0) - widgetPadding, 0) : 0
 
                 opacity: Config.theme.srFocus.opacity
@@ -413,7 +419,8 @@ Item {
                     implicitHeight: workspaceButtonWidth
                     property var focusedWindow: {
                         const windowsInThisWorkspace = HyprlandData.windowList.filter(w => w.workspace.id == button.workspaceValue);
-                        if (windowsInThisWorkspace.length === 0) return null;
+                        if (windowsInThisWorkspace.length === 0)
+                            return null;
                         // Get the window with the lowest focusHistoryID (most recently focused)
                         return windowsInThisWorkspace.reduce((best, win) => {
                             const bestFocus = best?.focusHistoryID ?? Infinity;
@@ -434,7 +441,7 @@ Item {
                         font.pixelSize: workspaceLabelFontSize(text)
                         text: `${button.workspaceValue}`
                         elide: Text.ElideRight
-                        color: (monitor?.activeWorkspace?.id == button.workspaceValue) ? Styling.styledRectItem("primary") : (workspaceOccupied[index] ? Colors.overBackground : Colors.overSecondaryFixedVariant)
+                        color: (monitor?.activeWorkspace?.id == button.workspaceValue) ? Styling.srItem("primary") : (workspaceOccupied[index] ? Colors.overBackground : Colors.overSecondaryFixedVariant)
 
                         Behavior on opacity {
                             enabled: Config.animDuration > 0
@@ -451,7 +458,7 @@ Item {
                         width: workspaceButtonWidth * 0.2
                         height: width
                         radius: width / 2
-                        color: (monitor?.activeWorkspace?.id == button.workspaceValue) ? Styling.styledRectItem("primary") : Colors.overBackground
+                        color: (monitor?.activeWorkspace?.id == button.workspaceValue) ? Styling.srItem("primary") : Colors.overBackground
 
                         Behavior on opacity {
                             enabled: Config.animDuration > 0
@@ -544,7 +551,8 @@ Item {
                     implicitHeight: workspaceButtonWidth
                     property var focusedWindow: {
                         const windowsInThisWorkspace = HyprlandData.windowList.filter(w => w.workspace.id == buttonVert.workspaceValue);
-                        if (windowsInThisWorkspace.length === 0) return null;
+                        if (windowsInThisWorkspace.length === 0)
+                            return null;
                         // Get the window with the lowest focusHistoryID (most recently focused)
                         return windowsInThisWorkspace.reduce((best, win) => {
                             const bestFocus = best?.focusHistoryID ?? Infinity;
@@ -565,7 +573,7 @@ Item {
                         font.pixelSize: workspaceLabelFontSize(text)
                         text: `${buttonVert.workspaceValue}`
                         elide: Text.ElideRight
-                        color: (monitor?.activeWorkspace?.id == buttonVert.workspaceValue) ? Styling.styledRectItem("primary") : (workspaceOccupied[index] ? Colors.overBackground : Colors.overSecondaryFixedVariant)
+                        color: (monitor?.activeWorkspace?.id == buttonVert.workspaceValue) ? Styling.srItem("primary") : (workspaceOccupied[index] ? Colors.overBackground : Colors.overSecondaryFixedVariant)
 
                         Behavior on opacity {
                             enabled: Config.animDuration > 0
@@ -582,7 +590,7 @@ Item {
                         width: workspaceButtonWidth * 0.2
                         height: width
                         radius: width / 2
-                        color: (monitor?.activeWorkspace?.id == buttonVert.workspaceValue) ? Styling.styledRectItem("primary") : Colors.overBackground
+                        color: (monitor?.activeWorkspace?.id == buttonVert.workspaceValue) ? Styling.srItem("primary") : Colors.overBackground
 
                         Behavior on opacity {
                             enabled: Config.animDuration > 0

@@ -147,7 +147,7 @@ PanelWindow {
                         text: Icons.overview
                         font.family: Icons.font
                         font.pixelSize: 24
-                        color: Styling.styledRectItem("overprimary")
+                        color: Styling.srItem("overprimary")
                     }
                 }
 
@@ -181,7 +181,7 @@ PanelWindow {
                         }
                         font.family: Config.theme.font
                         font.pixelSize: Config.theme.fontSize - 2
-                        color: (overviewLoader.item && overviewLoader.item.matchingWindows.length > 0) ? Styling.styledRectItem("overprimary") : Colors.error
+                        color: (overviewLoader.item && overviewLoader.item.matchingWindows.length > 0) ? Styling.srItem("overprimary") : Colors.error
                         opacity: 0.8
                     }
 
@@ -337,7 +337,7 @@ PanelWindow {
                 contentItem: Rectangle {
                     implicitWidth: 12
                     radius: 6
-                    color: externalScrollBar.pressed ? Styling.styledRectItem("overprimary") : (externalScrollBar.hovered ? Qt.lighter(Styling.styledRectItem("overprimary"), 1.2) : Styling.styledRectItem("overprimary"))
+                    color: externalScrollBar.pressed ? Styling.srItem("overprimary") : (externalScrollBar.hovered ? Qt.lighter(Styling.srItem("overprimary"), 1.2) : Styling.srItem("overprimary"))
 
                     Behavior on color {
                         enabled: Config.animDuration > 0

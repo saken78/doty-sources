@@ -137,8 +137,8 @@ Item {
                 x: toggleSwitch.leftPadding
                 y: parent.height / 2 - height / 2
                 radius: height / 2
-                color: toggleSwitch.checked ? Styling.styledRectItem("overprimary") : Colors.surfaceBright
-                border.color: toggleSwitch.checked ? Styling.styledRectItem("overprimary") : Colors.outline
+                color: toggleSwitch.checked ? Styling.srItem("overprimary") : Colors.surfaceBright
+                border.color: toggleSwitch.checked ? Styling.srItem("overprimary") : Colors.outline
 
                 Behavior on color {
                     enabled: Config.animDuration > 0
@@ -930,7 +930,7 @@ Item {
                                 id: overviewScaleSlider
                                 Layout.fillWidth: true
                                 Layout.preferredHeight: 20
-                                progressColor: Styling.styledRectItem("overprimary")
+                                progressColor: Styling.srItem("overprimary")
                                 tooltipText: `${(value * 0.2).toFixed(2)}`
                                 scroll: true
                                 stepSize: 0.05  // 0.05 * 0.2 = 0.01 scale steps
@@ -1380,7 +1380,7 @@ Item {
                                     text: "OCR Languages"
                                     font.family: Config.theme.font
                                     font.pixelSize: Styling.fontSize(-2)
-                                    color: Styling.styledRectItem("overprimary")
+                                    color: Styling.srItem("overprimary")
                                     font.bold: true
                                     Layout.topMargin: 8
                                 }

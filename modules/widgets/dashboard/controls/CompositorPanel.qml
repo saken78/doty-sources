@@ -141,8 +141,8 @@ Item {
                 x: toggleSwitch.leftPadding
                 y: parent.height / 2 - height / 2
                 radius: height / 2
-                color: toggleSwitch.checked ? Styling.styledRectItem("overprimary") : Colors.surfaceBright
-                border.color: toggleSwitch.checked ? Styling.styledRectItem("overprimary") : Colors.outline
+                color: toggleSwitch.checked ? Styling.srItem("overprimary") : Colors.surfaceBright
+                border.color: toggleSwitch.checked ? Styling.srItem("overprimary") : Colors.outline
 
                 Behavior on color {
                     enabled: Config.animDuration > 0
@@ -374,7 +374,7 @@ Item {
                         radius: width / 2
                         color: Config.resolveColor(parent.modelData)
                         border.width: 2
-                        border.color: parent.containsMouse ? Styling.styledRectItem("overprimary") : Colors.outline
+                        border.color: parent.containsMouse ? Styling.srItem("overprimary") : Colors.outline
 
                         // Inner check for visual depth
                         Rectangle {

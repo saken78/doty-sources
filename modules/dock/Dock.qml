@@ -425,7 +425,7 @@ Scope {
 
                                 background: Rectangle {
                                     radius: Styling.radius(-2)
-                                    color: root.pinned ? Styling.styledRectItem("overprimary") : (pinButton.hovered ? Qt.rgba(Styling.styledRectItem("overprimary").r, Styling.styledRectItem("overprimary").g, Styling.styledRectItem("overprimary").b, 0.15) : "transparent")
+                                    color: root.pinned ? Styling.srItem("overprimary") : (pinButton.hovered ? Qt.rgba(Styling.srItem("overprimary").r, Styling.srItem("overprimary").g, Styling.srItem("overprimary").b, 0.15) : "transparent")
 
                                     Behavior on color {
                                         enabled: Config.animDuration > 0
@@ -510,7 +510,7 @@ Scope {
 
                                 background: Rectangle {
                                     radius: Styling.radius(-2)
-                                    color: overviewButton.hovered ? Qt.rgba(Styling.styledRectItem("overprimary").r, Styling.styledRectItem("overprimary").g, Styling.styledRectItem("overprimary").b, 0.15) : "transparent"
+                                    color: overviewButton.hovered ? Qt.rgba(Styling.srItem("overprimary").r, Styling.srItem("overprimary").g, Styling.srItem("overprimary").b, 0.15) : "transparent"
 
                                     Behavior on color {
                                         enabled: Config.animDuration > 0
@@ -567,7 +567,7 @@ Scope {
 
                                 background: Rectangle {
                                     radius: Styling.radius(-2)
-                                    color: root.pinned ? Styling.styledRectItem("overprimary") : (pinButtonV.hovered ? Qt.rgba(Styling.styledRectItem("overprimary").r, Styling.styledRectItem("overprimary").g, Styling.styledRectItem("overprimary").b, 0.15) : "transparent")
+                                    color: root.pinned ? Styling.srItem("overprimary") : (pinButtonV.hovered ? Qt.rgba(Styling.srItem("overprimary").r, Styling.srItem("overprimary").g, Styling.srItem("overprimary").b, 0.15) : "transparent")
 
                                     Behavior on color {
                                         enabled: Config.animDuration > 0
@@ -652,7 +652,7 @@ Scope {
 
                                 background: Rectangle {
                                     radius: Styling.radius(-2)
-                                    color: overviewButtonV.hovered ? Qt.rgba(Styling.styledRectItem("overprimary").r, Styling.styledRectItem("overprimary").g, Styling.styledRectItem("overprimary").b, 0.15) : "transparent"
+                                    color: overviewButtonV.hovered ? Qt.rgba(Styling.srItem("overprimary").r, Styling.srItem("overprimary").g, Styling.srItem("overprimary").b, 0.15) : "transparent"
 
                                     Behavior on color {
                                         enabled: Config.animDuration > 0

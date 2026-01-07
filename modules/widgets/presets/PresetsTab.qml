@@ -568,15 +568,15 @@ Item {
                 property bool isActive: (!modelData.isCreateButton && !modelData.isCreateSpecificButton) ? (modelData.name === root.activePreset) : false
                 property color textColor: {
                     if (isInDeleteMode) {
-                        return Styling.styledRectItem("error");
+                        return Styling.srItem("error");
                     } else if (isInRenameMode) {
-                        return Styling.styledRectItem("secondary");
+                        return Styling.srItem("secondary");
                     } else if (isInUpdateMode) {
-                        return Styling.styledRectItem("tertiary");
+                        return Styling.srItem("tertiary");
                     } else if (isExpanded) {
-                        return Styling.styledRectItem("pane");
+                        return Styling.srItem("pane");
                     } else if (root.selectedIndex === index) {
-                        return Styling.styledRectItem("primary");
+                        return Styling.srItem("primary");
                     } else {
                         return Colors.overSurface;
                     }
@@ -691,7 +691,7 @@ Item {
                                     text: "Rename",
                                     icon: Icons.edit,
                                     highlightColor: Colors.secondary,
-                                    textColor: Styling.styledRectItem("secondary"),
+                                    textColor: Styling.srItem("secondary"),
                                     action: function () {
                                         root.enterRenameMode(modelData.name);
                                         root.expandedItemIndex = -1;
@@ -701,7 +701,7 @@ Item {
                                     text: "Update",
                                     icon: Icons.arrowCounterClockwise,
                                     highlightColor: Colors.tertiary,
-                                    textColor: Styling.styledRectItem("tertiary"),
+                                    textColor: Styling.srItem("tertiary"),
                                     action: function () {
                                         root.enterUpdateMode(modelData.name);
                                         root.expandedItemIndex = -1;
@@ -711,7 +711,7 @@ Item {
                                     text: "Delete",
                                     icon: Icons.trash,
                                     highlightColor: Colors.error,
-                                    textColor: Styling.styledRectItem("error"),
+                                    textColor: Styling.srItem("error"),
                                     action: function () {
                                         root.enterDeleteMode(modelData.name);
                                         root.expandedItemIndex = -1;
@@ -1262,7 +1262,7 @@ Item {
                                     return `${modelData.configFiles.length} config files`;
                                 }
                             }
-                            color: root.selectedIndex === index ? Styling.styledRectItem("primary") : Colors.outline
+                            color: root.selectedIndex === index ? Styling.srItem("primary") : Colors.outline
                             opacity: 0.7
                             font.family: Config.theme.font
                             font.pixelSize: Styling.fontSize(-2)
@@ -1284,7 +1284,7 @@ Item {
                             font.family: Config.theme.font
                             font.pixelSize: 10
                             font.weight: Font.Bold
-                            color: root.selectedIndex === index ? activeBadge.item : Styling.styledRectItem("primary")
+                            color: root.selectedIndex === index ? activeBadge.item : Styling.srItem("primary")
                         }
                     }
                 }
@@ -1474,7 +1474,7 @@ Item {
                         text: Icons.arrowCounterClockwise
                         font.family: Icons.font
                         font.pixelSize: 16
-                        color: Styling.styledRectItem("overtertiary")
+                        color: Styling.srItem("overtertiary")
                     }
                 }
 
@@ -1544,7 +1544,7 @@ Item {
                                     text: Icons.accept
                                     font.family: Icons.font
                                     visible: fileDelegate.checked
-                                    color: Styling.styledRectItem("tertiary")
+                                    color: Styling.srItem("tertiary")
                                     font.pixelSize: 12
                                 }
                             }
@@ -1595,7 +1595,7 @@ Item {
                     Text {
                         anchors.centerIn: parent
                         text: `Update (${root.selectedConfigFiles.length})`
-                        color: Styling.styledRectItem("tertiary")
+                        color: Styling.srItem("tertiary")
                         font.family: Config.theme.font
                         font.weight: Font.Bold
                     }

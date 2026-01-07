@@ -199,7 +199,7 @@ PanelWindow {
                 contentItem: Rectangle {
                     implicitWidth: 12
                     radius: 6
-                    color: externalScrollBar.pressed ? Styling.styledRectItem("overprimary") : (externalScrollBar.hovered ? Qt.lighter(Styling.styledRectItem("overprimary"), 1.2) : Styling.styledRectItem("overprimary"))
+                    color: externalScrollBar.pressed ? Styling.srItem("overprimary") : (externalScrollBar.hovered ? Qt.lighter(Styling.srItem("overprimary"), 1.2) : Styling.srItem("overprimary"))
 
                     Behavior on color {
                         enabled: Config.animDuration > 0
@@ -218,8 +218,6 @@ PanelWindow {
             }
         }
     }
-
-
 
     // Ensure focus when presets opens
     onPresetsOpenChanged: {
