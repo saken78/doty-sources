@@ -25,14 +25,32 @@ PanelWindow {
     }
     
     // Width/Height handled by content + margins
-    width: mainRow.width + 20
-    height: mainRow.height + 20
+    implicitWidth: mainRow.width + 20
+    implicitHeight: mainRow.height + 20
     
     color: "transparent"
     visible: imagePath !== ""
 
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
+
+    // Timer to auto-hide after 5 seconds
+    Timer {
+        id: hideTimer
+        interval: 5000
+        repeat: false
+        running: root.visible && !mouseAreaHover.containsMouse
+        onTriggered: root.imagePath = ""
+    }
+
+    // MouseArea to detect hover and prevent auto-hide
+    MouseArea {
+        id: mouseAreaHover
+        anchors.fill: parent
+        hoverEnabled: true
+        acceptedButtons: Qt.NoButton // Pass clicks through
+        propagateComposedEvents: true
+    }
 
     // Listen for the saved signal from Screenshot service
     Connections {
@@ -157,7 +175,7 @@ PanelWindow {
                         anchors.centerIn: parent
                         text: Icons.handGrab // Assuming this exists per user request
                         font.family: Icons.font
-                        color: Colors.foreground
+                        color: Colors.overBackground
                     }
                 }
             }
@@ -197,7 +215,7 @@ PanelWindow {
                         text: btn.icon
                         font.family: Icons.font
                         font.pixelSize: 16
-                        color: Styling.srItem(parent.variant) || Colors.foreground
+                        color: Styling.srItem(parent.variant) || Colors.overBackground
                     }
                 }
                 
