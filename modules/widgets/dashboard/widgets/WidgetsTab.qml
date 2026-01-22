@@ -1292,13 +1292,27 @@ Rectangle {
                         }
                     }
 
-                    FullPlayer {
+                    Loader {
                         Layout.fillWidth: true
+                        asynchronous: true
+                        visible: status === Loader.Ready
+                        sourceComponent: Component {
+                            FullPlayer { 
+                                width: parent.width 
+                            }
+                        }
                     }
 
-                    Calendar {
+                    Loader {
                         Layout.fillWidth: true
                         Layout.preferredHeight: width
+                        asynchronous: true
+                        visible: status === Loader.Ready
+                        sourceComponent: Component {
+                            Calendar { 
+                                anchors.fill: parent 
+                            }
+                        }
                     }
 
                     StyledRect {
@@ -1311,10 +1325,16 @@ Rectangle {
         }
 
         // Notification History (only visible when in launcher tab)
-        NotificationHistory {
+        Loader {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            visible: currentTab === 0
+            visible: currentTab === 0 && status === Loader.Ready
+            asynchronous: true
+            sourceComponent: Component {
+                NotificationHistory {
+                    anchors.fill: parent
+                }
+            }
         }
 
         // Circular controls column (only visible when in launcher tab)

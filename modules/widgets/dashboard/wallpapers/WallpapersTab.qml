@@ -756,14 +756,16 @@ FocusScope {
                             // Lazy loader que solo carga cuando el item está visible
                             Loader {
                                 anchors.fill: parent
-                                sourceComponent: wallpaperComponent
+                                sourceComponent: staticImageComponent
                                 property string sourceFile: modelData
+                                active: isInViewport
+                                asynchronous: true
 
                                 // Placeholder mientras carga
                                 Rectangle {
                                     anchors.fill: parent
                                     color: Colors.surface
-                                    visible: !parent.active
+                                    visible: !parent.active || parent.status !== Loader.Ready
 
                                     Text {
                                         anchors.centerIn: parent
