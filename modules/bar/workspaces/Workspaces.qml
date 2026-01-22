@@ -308,9 +308,9 @@ Item {
 
         radius: {
             const currentWorkspaceHasWindows = Hyprland.workspaces.values.some(ws => ws.id === (monitor?.activeWorkspace?.id || 1) && HyprlandData.windowList.some(w => w.workspace.id === ws.id));
-            if (workspacesWidget.startRadius === 0)
+            if (workspacesWidget.radius === 0)
                 return 0;
-            return currentWorkspaceHasWindows ? workspacesWidget.startRadius > 0 ? Math.max(workspacesWidget.startRadius - parent.widgetPadding - activeWorkspaceMargin, 0) : 0 : implicitHeight / 2;
+            return currentWorkspaceHasWindows ? workspacesWidget.radius > 0 ? Math.max(workspacesWidget.radius - parent.widgetPadding - activeWorkspaceMargin, 0) : 0 : implicitHeight / 2;
         }
 
         anchors.verticalCenter: parent.verticalCenter
@@ -363,9 +363,9 @@ Item {
 
         radius: {
             const currentWorkspaceHasWindows = Hyprland.workspaces.values.some(ws => ws.id === (monitor?.activeWorkspace?.id || 1) && HyprlandData.windowList.some(w => w.workspace.id === ws.id));
-            if (workspacesWidget.startRadius === 0)
+            if (workspacesWidget.radius === 0)
                 return 0;
-            return currentWorkspaceHasWindows ? workspacesWidget.startRadius > 0 ? Math.max(workspacesWidget.startRadius - parent.widgetPadding - activeWorkspaceMargin, 0) : 0 : implicitWidth / 2;
+            return currentWorkspaceHasWindows ? workspacesWidget.radius > 0 ? Math.max(workspacesWidget.radius - parent.widgetPadding - activeWorkspaceMargin, 0) : 0 : implicitWidth / 2;
         }
 
         anchors.horizontalCenter: parent.horizontalCenter
