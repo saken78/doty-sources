@@ -20,8 +20,16 @@ Item {
     Component.onCompleted: {
         // Only refresh device list, don't start scanning automatically
         if (BluetoothService.enabled) {
-            BluetoothService.updateDevices();
+            // Defer update to avoid blocking UI initialization
+            initialUpdateTimer.start();
         }
+    }
+
+    Timer {
+        id: initialUpdateTimer
+        interval: 10
+        repeat: false
+        onTriggered: BluetoothService.updateDevices()
     }
 
     Component.onDestruction: {

@@ -17,7 +17,15 @@ Item {
     readonly property real sideMargin: (width - contentWidth) / 2
 
     Component.onCompleted: {
-        NetworkService.rescanWifi();
+        // Defer scan to avoid blocking UI initialization
+        initialScanTimer.start();
+    }
+
+    Timer {
+        id: initialScanTimer
+        interval: 10
+        repeat: false
+        onTriggered: NetworkService.rescanWifi()
     }
 
     // Network list - fills entire width for scroll/drag
