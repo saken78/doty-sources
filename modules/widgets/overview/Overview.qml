@@ -242,12 +242,11 @@ Item {
                             clip: true
 
                             // Wallpaper background for each workspace
-                            Image {
+                            TintedWallpaper {
                                 id: workspaceWallpaper
                                 anchors.fill: parent
-                                fillMode: Image.PreserveAspectCrop
-                                asynchronous: true
-                                smooth: true
+                                radius: Styling.radius(2)
+                                tintEnabled: GlobalStates.wallpaperManager ? GlobalStates.wallpaperManager.tintEnabled : false
 
                                 property string lockscreenFramePath: {
                                     if (!GlobalStates.wallpaperManager)
@@ -256,21 +255,6 @@ Item {
                                 }
 
                                 source: lockscreenFramePath ? "file://" + lockscreenFramePath : ""
-
-                                // Rounded corners mask
-                                layer.enabled: true
-                                layer.effect: MultiEffect {
-                                    maskEnabled: true
-                                    maskThresholdMin: 0.5
-                                    maskSpreadAtMin: 1.0
-                                    maskSource: ShaderEffectSource {
-                                        sourceItem: Rectangle {
-                                            width: workspaceWallpaper.width
-                                            height: workspaceWallpaper.height
-                                            radius: Styling.radius(2)
-                                        }
-                                    }
-                                }
                             }
 
                             MouseArea {

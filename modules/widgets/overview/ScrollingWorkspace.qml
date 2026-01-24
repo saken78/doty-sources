@@ -162,12 +162,11 @@ Item {
             clip: true
 
             // Wallpaper background
-            Image {
+            TintedWallpaper {
                 id: workspaceWallpaper
                 anchors.fill: parent
-                fillMode: Image.PreserveAspectCrop
-                asynchronous: true
-                smooth: true
+                radius: Styling.radius(1)
+                tintEnabled: GlobalStates.wallpaperManager ? GlobalStates.wallpaperManager.tintEnabled : false
 
                 property string lockscreenFramePath: {
                     if (!GlobalStates.wallpaperManager)
@@ -175,20 +174,6 @@ Item {
                     return GlobalStates.wallpaperManager.getLockscreenFramePath(GlobalStates.wallpaperManager.currentWallpaper);
                 }
                 source: lockscreenFramePath ? "file://" + lockscreenFramePath : ""
-
-                layer.enabled: true
-                layer.effect: MultiEffect {
-                    maskEnabled: true
-                    maskThresholdMin: 0.5
-                    maskSpreadAtMin: 1.0
-                    maskSource: ShaderEffectSource {
-                        sourceItem: Rectangle {
-                            width: workspaceWallpaper.width
-                            height: workspaceWallpaper.height
-                            radius: Styling.radius(1)
-                        }
-                    }
-                }
             }
 
             // Semi-transparent overlay
