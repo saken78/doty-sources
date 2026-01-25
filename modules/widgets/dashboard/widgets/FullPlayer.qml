@@ -28,6 +28,14 @@ StyledRect {
     property real length: MprisController.activePlayer?.length ?? 1.0
     property bool hasArtwork: (MprisController.activePlayer?.trackArtUrl ?? "") !== ""
     property bool hasActivePlayer: MprisController.activePlayer !== null
+    property bool isSeeking: false
+
+    Timer {
+        id: seekUnlockTimer
+        interval: 1000
+        repeat: false
+        onTriggered: player.isSeeking = false
+    }
 
     function formatTime(seconds) {
 
@@ -48,7 +56,7 @@ StyledRect {
         interval: 1000
         repeat: true
         onTriggered: {
-            if (!seekBar.isDragging && player.hasActivePlayer) {
+            if (!seekBar.isDragging && !player.isSeeking && player.hasActivePlayer) {
                 seekBar.value = player.length > 0 ? player.position / player.length : 0;
             }
             MprisController.activePlayer?.positionChanged();
@@ -58,7 +66,7 @@ StyledRect {
     Connections {
         target: MprisController.activePlayer
         function onPositionChanged() {
-            if (!seekBar.isDragging && player.hasActivePlayer) {
+            if (!seekBar.isDragging && !player.isSeeking && player.hasActivePlayer) {
                 seekBar.value = player.length > 0 ? player.position / player.length : 0;
             }
         }
@@ -99,6 +107,8 @@ StyledRect {
                 
                 onValueEdited: newValue => {
                     if (MprisController.activePlayer && MprisController.activePlayer.canSeek) {
+                        player.isSeeking = true;
+                        seekUnlockTimer.restart();
                         seekBar.value = newValue; // Optimistic update
                         MprisController.activePlayer.position = newValue * player.length;
                     }
@@ -250,7 +260,14 @@ StyledRect {
                 Layout.preferredWidth: 44
                 Layout.preferredHeight: 44
                 variant: "primary"
-                radius: 22
+                radius: player.isPlaying ? Styling.radius(0) : Styling.radius(16)
+                
+                Behavior on radius {
+                    NumberAnimation {
+                        duration: 300
+                        easing.type: Easing.OutBack
+                    }
+                }
                 
                 Text {
                     anchors.centerIn: parent
