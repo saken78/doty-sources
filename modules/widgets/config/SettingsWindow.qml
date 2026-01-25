@@ -9,8 +9,8 @@ FloatingWindow {
     id: settingsWindow
     
     // Window properties
-    width: 900
-    height: 650
+    implicitWidth: 900
+    implicitHeight: 650
     visible: GlobalStates.settingsWindowVisible
     
     // Center on screen (approximate, since FloatingWindow usually centers by default or relies on WM)
