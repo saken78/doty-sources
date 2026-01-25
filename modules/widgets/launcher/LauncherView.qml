@@ -21,12 +21,19 @@ Rectangle {
     implicitWidth: 664
     implicitHeight: 430
 
+    property int leftPanelWidth: 380
     property int currentTab: GlobalStates.widgetsTabCurrentIndex  // 0=launcher, 1=clip, 2=emoji, 3=tmux, 4=notes
     property bool prefixDisabled: false  // Flag to prevent re-activation after backspace
 
     // Sync with GlobalStates
     onCurrentTabChanged: {
         GlobalStates.widgetsTabCurrentIndex = currentTab;
+    }
+
+    onActiveFocusChanged: {
+        if (activeFocus) {
+            focusSearchInput();
+        }
     }
 
     // Function to focus app search when tab becomes active
@@ -1071,7 +1078,7 @@ Rectangle {
             active: currentTab === 1 || item !== null
             sourceComponent: Component {
                 ClipboardTab {
-                    leftPanelWidth: root.width
+                    leftPanelWidth: root.leftPanelWidth
                     prefixIcon: Icons.clipboard
                     onBackspaceOnEmpty: {
                         prefixDisabled = true;
@@ -1121,10 +1128,12 @@ Rectangle {
         // Tab 3: Tmux
         Loader {
             id: tmuxLoader
+            Layout.fillWidth: true
+            Layout.fillHeight: true
             active: currentTab === 3 || item !== null
             sourceComponent: Component {
                 TmuxTab {
-                    leftPanelWidth: root.width
+                    leftPanelWidth: root.leftPanelWidth
                     prefixIcon: Icons.terminal
                     onBackspaceOnEmpty: {
                         prefixDisabled = true;
@@ -1150,7 +1159,7 @@ Rectangle {
             sourceComponent: Component {
                 NotesTab {
                     anchors.fill: parent
-                    leftPanelWidth: root.width
+                    leftPanelWidth: root.leftPanelWidth
                     prefixIcon: Icons.note
                     onBackspaceOnEmpty: {
                         prefixDisabled = true;

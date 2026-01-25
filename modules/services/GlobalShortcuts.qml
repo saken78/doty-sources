@@ -13,7 +13,6 @@ Item {
     readonly property string ipcPipe: "/tmp/ambxst_ipc.pipe"
 
     // High-performance Pipe Listener (Daemon mode)
-    // Creates a named pipe and listens for commands continuously
     Process {
         id: pipeListener
         command: ["bash", "-c", "rm -f " + root.ipcPipe + "; mkfifo " + root.ipcPipe + "; tail -f " + root.ipcPipe]
@@ -34,10 +33,10 @@ Item {
         switch (command) {
             // Launcher (Standalone Notch Module)
             case "launcher": toggleLauncher(); break;
-            case "clipboard": toggleLauncherWithPrefix(Config.prefix.clipboard + " "); break;
-            case "emoji": toggleLauncherWithPrefix(Config.prefix.emoji + " "); break;
-            case "tmux": toggleLauncherWithPrefix(Config.prefix.tmux + " "); break;
-            case "notes": toggleLauncherWithPrefix(Config.prefix.notes + " "); break;
+            case "clipboard": toggleLauncherWithPrefix(1, Config.prefix.clipboard + " "); break;
+            case "emoji": toggleLauncherWithPrefix(2, Config.prefix.emoji + " "); break;
+            case "tmux": toggleLauncherWithPrefix(3, Config.prefix.tmux + " "); break;
+            case "notes": toggleLauncherWithPrefix(4, Config.prefix.notes + " "); break;
 
             // Dashboard
             case "dashboard": toggleDashboardTab(0); break;
@@ -92,39 +91,35 @@ Item {
     }
 
     function toggleLauncher() {
-        if (Visibilities.currentActiveModule === "launcher" && GlobalStates.widgetsTabCurrentIndex === 0 && GlobalStates.launcherSearchText === "") {
+        const isActive = Visibilities.currentActiveModule === "launcher";
+        if (isActive && GlobalStates.widgetsTabCurrentIndex === 0 && GlobalStates.launcherSearchText === "") {
             Visibilities.setActiveModule("");
         } else {
             GlobalStates.widgetsTabCurrentIndex = 0;
             GlobalStates.launcherSearchText = "";
             GlobalStates.launcherSelectedIndex = -1;
-            Visibilities.setActiveModule("launcher");
+            if (!isActive) {
+                Visibilities.setActiveModule("launcher");
+            }
         }
     }
 
-    function toggleLauncherWithPrefix(prefix) {
+    function toggleLauncherWithPrefix(tabIndex, prefix) {
         const isActive = Visibilities.currentActiveModule === "launcher";
-        let tabIndex = 0;
-        const p = prefix.trim();
-        if (p === Config.prefix.clipboard) tabIndex = 1;
-        else if (p === Config.prefix.emoji) tabIndex = 2;
-        else if (p === Config.prefix.tmux) tabIndex = 3;
-        else if (p === Config.prefix.notes) tabIndex = 4;
+        const currentTab = GlobalStates.widgetsTabCurrentIndex;
+        const currentText = GlobalStates.launcherSearchText;
 
-        if (isActive && GlobalStates.widgetsTabCurrentIndex === tabIndex && GlobalStates.launcherSearchText === prefix) {
+        if (isActive && currentTab === tabIndex && (currentText === prefix || currentText === "")) {
             Visibilities.setActiveModule("");
             GlobalStates.clearLauncherState();
             return;
         }
 
         GlobalStates.widgetsTabCurrentIndex = tabIndex;
+        GlobalStates.launcherSearchText = prefix;
+        
         if (!isActive) {
             Visibilities.setActiveModule("launcher");
-            Qt.callLater(() => {
-                GlobalStates.launcherSearchText = prefix;
-            });
-        } else {
-            GlobalStates.launcherSearchText = prefix;
         }
     }
 
@@ -164,25 +159,20 @@ Item {
     function toggleDashboardWithPrefix(prefix) {
         const isActive = Visibilities.currentActiveModule === "dashboard";
         
-        // Check if dashboard is already open with this prefix
         if (isActive && GlobalStates.dashboardCurrentTab === 0 && GlobalStates.launcherSearchText === prefix) {
-            // Toggle off - close dashboard
             Visibilities.setActiveModule("");
             GlobalStates.clearLauncherState();
             return;
         }
 
-        // Always go to widgets tab first
         GlobalStates.dashboardCurrentTab = 0;
         
         if (!isActive) {
-            // Open dashboard first, then set prefix after a brief delay
             Visibilities.setActiveModule("dashboard");
             Qt.callLater(() => {
                 GlobalStates.launcherSearchText = prefix;
             });
         } else {
-            // Dashboard already open, just set the prefix
             GlobalStates.launcherSearchText = prefix;
         }
     }
@@ -265,7 +255,7 @@ Item {
         name: "clipboard"
         description: "Open launcher clipboard"
 
-        onPressed: toggleLauncherWithPrefix(Config.prefix.clipboard + " ")
+        onPressed: toggleLauncherWithPrefix(1, Config.prefix.clipboard + " ")
     }
 
     GlobalShortcut {
@@ -273,7 +263,7 @@ Item {
         name: "emoji"
         description: "Open launcher emoji picker"
 
-        onPressed: toggleLauncherWithPrefix(Config.prefix.emoji + " ")
+        onPressed: toggleLauncherWithPrefix(2, Config.prefix.emoji + " ")
     }
 
     GlobalShortcut {
@@ -281,7 +271,7 @@ Item {
         name: "tmux"
         description: "Open launcher tmux sessions"
 
-        onPressed: toggleLauncherWithPrefix(Config.prefix.tmux + " ")
+        onPressed: toggleLauncherWithPrefix(3, Config.prefix.tmux + " ")
     }
 
     GlobalShortcut {
@@ -289,7 +279,7 @@ Item {
         name: "notes"
         description: "Open launcher notes"
 
-        onPressed: toggleLauncherWithPrefix(Config.prefix.notes + " ")
+        onPressed: toggleLauncherWithPrefix(4, Config.prefix.notes + " ")
     }
 
     // Dashboard shortcuts
