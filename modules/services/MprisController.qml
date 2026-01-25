@@ -10,7 +10,7 @@ import qs.config
 
 Singleton {
     id: root
-    property MprisPlayer trackedPlayer: null
+    property var trackedPlayer: null
     property var filteredPlayers: {
         const filtered = Mpris.players.values.filter(player => {
             const dbusName = (player.dbusName || "").toLowerCase();
@@ -21,7 +21,7 @@ Singleton {
         });
         return filtered;
     }
-    property MprisPlayer activePlayer: trackedPlayer ?? filteredPlayers[0] ?? null
+    property var activePlayer: trackedPlayer ?? filteredPlayers[0] ?? null
 
     property string cacheFilePath: Quickshell.dataPath("lastPlayer.json")
     property bool isInitializing: true
@@ -100,7 +100,7 @@ Singleton {
         model: Mpris.players
 
         Connections {
-            required property MprisPlayer modelData
+            required property var modelData
             target: modelData
 
             Component.onCompleted: {
@@ -121,8 +121,8 @@ Singleton {
                         }
                     }
 
-                    if (trackedPlayer == null && root.filteredPlayers.length != 0) {
-                        trackedPlayer = root.filteredPlayers[0];
+                    if (root.trackedPlayer == null && root.filteredPlayers.length != 0) {
+                        root.trackedPlayer = root.filteredPlayers[0];
                     }
                 }
             }
@@ -134,50 +134,50 @@ Singleton {
         }
     }
 
-    property bool isPlaying: this.activePlayer && this.activePlayer.isPlaying
-    property bool canTogglePlaying: this.activePlayer?.canTogglePlaying ?? false
+    property bool isPlaying: root.activePlayer && root.activePlayer.isPlaying
+    property bool canTogglePlaying: root.activePlayer?.canTogglePlaying ?? false
     function togglePlaying() {
-        if (this.canTogglePlaying)
-            this.activePlayer.togglePlaying();
+        if (root.canTogglePlaying)
+            root.activePlayer.togglePlaying();
     }
 
-    property bool canGoPrevious: this.activePlayer?.canGoPrevious ?? false
+    property bool canGoPrevious: root.activePlayer?.canGoPrevious ?? false
     function previous() {
-        if (this.canGoPrevious) {
-            this.activePlayer.previous();
+        if (root.canGoPrevious) {
+            root.activePlayer.previous();
         }
     }
 
-    property bool canGoNext: this.activePlayer?.canGoNext ?? false
+    property bool canGoNext: root.activePlayer?.canGoNext ?? false
     function next() {
-        if (this.canGoNext) {
-            this.activePlayer.next();
+        if (root.canGoNext) {
+            root.activePlayer.next();
         }
     }
 
-    property bool canChangeVolume: this.activePlayer && this.activePlayer.volumeSupported && this.activePlayer.canControl
+    property bool canChangeVolume: root.activePlayer && root.activePlayer.volumeSupported && root.activePlayer.canControl
 
-    property bool loopSupported: this.activePlayer && this.activePlayer.loopSupported && this.activePlayer.canControl
-    property var loopState: this.activePlayer?.loopState ?? MprisLoopState.None
+    property bool loopSupported: root.activePlayer && root.activePlayer.loopSupported && root.activePlayer.canControl
+    property var loopState: root.activePlayer?.loopState ?? MprisLoopState.None
     function setLoopState(loopState) {
-        if (this.loopSupported) {
-            this.activePlayer.loopState = loopState;
+        if (root.loopSupported) {
+            root.activePlayer.loopState = loopState;
         }
     }
 
-    property bool shuffleSupported: this.activePlayer && this.activePlayer.shuffleSupported && this.activePlayer.canControl
-    property bool hasShuffle: this.activePlayer?.shuffle ?? false
+    property bool shuffleSupported: root.activePlayer && root.activePlayer.shuffleSupported && root.activePlayer.canControl
+    property bool hasShuffle: root.activePlayer?.shuffle ?? false
     function setShuffle(shuffle) {
-        if (this.shuffleSupported) {
-            this.activePlayer.shuffle = shuffle;
+        if (root.shuffleSupported) {
+            root.activePlayer.shuffle = shuffle;
         }
     }
 
     function setActivePlayer(player) {
-        const targetPlayer = player ?? Mpris.players[0];
+        const targetPlayer = player ?? root.filteredPlayers[0] ?? null;
 
-        this.trackedPlayer = targetPlayer;
-        this.saveLastPlayer();
+        root.trackedPlayer = targetPlayer;
+        root.saveLastPlayer();
     }
 
     function cyclePlayer(direction) {
@@ -185,7 +185,7 @@ Singleton {
         if (players.length === 0)
             return;
 
-        const currentIndex = players.indexOf(this.activePlayer);
+        const currentIndex = players.indexOf(root.activePlayer);
         let newIndex;
 
         if (direction > 0) {
@@ -194,7 +194,7 @@ Singleton {
             newIndex = (currentIndex - 1 + players.length) % players.length;
         }
 
-        this.trackedPlayer = players[newIndex];
-        this.saveLastPlayer();
+        root.trackedPlayer = players[newIndex];
+        root.saveLastPlayer();
     }
 }

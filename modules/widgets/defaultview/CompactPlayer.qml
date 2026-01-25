@@ -11,7 +11,7 @@ import qs.config
 Item {
     id: compactPlayer
 
-    required property MprisPlayer player
+    required property var player
     required property bool notchHovered
 
     property bool isPlaying: player?.playbackState === MprisPlaybackState.Playing
