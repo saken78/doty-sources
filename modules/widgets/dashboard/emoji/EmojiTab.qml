@@ -27,7 +27,7 @@ Rectangle {
     property int selectedRecentIndex: -1
     property var recentEmojis: []
     property var filteredEmojis: []
-    property real recentX: selectedRecentIndex >= 0 ? (selectedRecentIndex * 56) + 8 : 0
+    property real recentX: selectedRecentIndex >= 0 ? (selectedRecentIndex * 56) + 16 : 0
     property real recentContentX: 0
     property var emojiData: []
     // No behavior on recentX to avoid conflict with the highlight's own behavior
@@ -46,6 +46,8 @@ Rectangle {
     property int expandedItemIndex: -1
     property int selectedOptionIndex: 0
     property bool keyboardNavigation: false
+    property bool clearButtonFocused: false
+    property bool clearButtonConfirmState: false
 
     function getSkinToneName(modifier) {
         for (var i = 0; i < skinTones.length; i++) {
@@ -113,6 +115,8 @@ Rectangle {
         searchText = "";
         selectedIndex = -1;
         selectedRecentIndex = -1;
+        clearButtonFocused = false;
+        resetClearButton();
         searchInput.focusInput();
         loadInitialEmojis();
         emojiList.enableScrollAnimation = false;
@@ -125,10 +129,14 @@ Rectangle {
         saveRecentEmojis();
         updateRecentModel();
         loadInitialEmojis();
+        clearButtonFocused = false;
+        resetClearButton();
         searchInput.focusInput();
     }
 
     function focusSearchInput() { searchInput.focusInput(); }
+
+    function resetClearButton() { clearButtonConfirmState = false; }
 
     function performSearch() {
         if (searchText.length === 0) {
@@ -256,7 +264,7 @@ Rectangle {
         }
     }
 
-    implicitWidth: 480
+    implicitWidth: 464 // 8 emojis (8 * 56) + padding (2 * 8)
     implicitHeight: 296
     color: "transparent"
 
@@ -383,22 +391,35 @@ Rectangle {
 
             StyledRect {
                 id: clearButton
-                width: clearButtonConfirmState ? 140 : 48
+                width: root.clearButtonConfirmState ? 140 : 48
                 height: 48
                 radius: searchInput.radius
-                variant: clearButtonConfirmState ? "error" : (clearButtonMouseArea.containsMouse ? "focus" : "pane")
+                variant: {
+                    if (root.clearButtonConfirmState) return "error";
+                    else if (root.clearButtonFocused || clearButtonMouseArea.containsMouse) return "focus";
+                    else return "pane";
+                }
                 visible: recentEmojis.length > 0 && searchText === ""
+                activeFocusOnTab: true
 
                 Behavior on width { NumberAnimation { duration: Config.animDuration; easing.type: Easing.OutQuart } }
 
-                property bool clearButtonConfirmState: false
+                onActiveFocusChanged: {
+                    if (activeFocus) {
+                        root.clearButtonFocused = true;
+                    } else {
+                        root.clearButtonFocused = false;
+                        root.resetClearButton();
+                    }
+                }
+
                 MouseArea {
                     id: clearButtonMouseArea
                     anchors.fill: parent
                     hoverEnabled: true
                     onClicked: {
-                        if (parent.clearButtonConfirmState) root.clearRecentEmojis();
-                        else parent.clearButtonConfirmState = true;
+                        if (root.clearButtonConfirmState) root.clearRecentEmojis();
+                        else root.clearButtonConfirmState = true;
                     }
                 }
                 Row {
@@ -407,9 +428,9 @@ Rectangle {
                     spacing: 8
                     Text {
                         width: 32; height: parent.height
-                        text: parent.parent.clearButtonConfirmState ? Icons.xeyes : Icons.broom
+                        text: root.clearButtonConfirmState ? Icons.xeyes : Icons.broom
                         font.family: Icons.font; font.pixelSize: 20
-                        color: parent.parent.clearButtonConfirmState ? clearButton.item : Styling.srItem("overprimary")
+                        color: root.clearButtonConfirmState ? clearButton.item : Styling.srItem("overprimary")
                         horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter
                         textFormat: Text.RichText
                     }
@@ -417,9 +438,27 @@ Rectangle {
                         text: "Clear recent?"
                         font.family: Config.theme.font; font.weight: Font.Bold; font.pixelSize: Config.theme.fontSize
                         color: clearButton.item
-                        opacity: parent.parent.clearButtonConfirmState ? 1.0 : 0.0
+                        opacity: root.clearButtonConfirmState ? 1.0 : 0.0
                         visible: opacity > 0; verticalAlignment: Text.AlignVCenter
                         Behavior on opacity { NumberAnimation { duration: Config.animDuration / 2; easing.type: Easing.OutQuart } }
+                    }
+                }
+
+                Keys.onPressed: event => {
+                    if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+                        if (root.clearButtonConfirmState) root.clearRecentEmojis();
+                        else root.clearButtonConfirmState = true;
+                        event.accepted = true;
+                    } else if (event.key === Qt.Key_Escape) {
+                        root.resetClearButton();
+                        root.clearButtonFocused = false;
+                        searchInput.focusInput();
+                        event.accepted = true;
+                    } else if (event.key === Qt.Key_Tab && (event.modifiers & Qt.ShiftModifier)) {
+                        root.resetClearButton();
+                        root.clearButtonFocused = false;
+                        searchInput.focusInput();
+                        event.accepted = true;
                     }
                 }
             }
@@ -493,6 +532,8 @@ Rectangle {
                         ListView {
                             id: horizontalRecent
                             anchors.fill: parent
+                            anchors.leftMargin: 8
+                            anchors.rightMargin: 8
                             orientation: ListView.Horizontal
                             spacing: 0
                             model: recentModel

@@ -20,12 +20,12 @@ Rectangle {
     color: "transparent"
     
     readonly property bool isCompact: currentTab === 0 || currentTab === 2
-    implicitWidth: isCompact ? 480 : 900
+    implicitWidth: isCompact ? 464 : 900
     implicitHeight: isCompact ? 296 : 392
     
     focus: true
 
-    property int leftPanelWidth: isCompact ? 480 : 300
+    property int leftPanelWidth: isCompact ? 464 : 300
     property int currentTab: GlobalStates.widgetsTabCurrentIndex  // 0=launcher, 1=clip, 2=emoji, 3=tmux, 4=notes
     property bool prefixDisabled: false  // Flag to prevent re-activation after backspace
 
