@@ -18,9 +18,9 @@ void main() {
     for (let i = 0; i < paletteColors.length; i++) {
         let color = paletteColors[i];
         
-        let r = (color.r !== undefined ? color.r : 0.0).toFixed(5);
-        let g = (color.g !== undefined ? color.g : 0.0).toFixed(5);
-        let b = (color.b !== undefined ? color.b : 0.0).toFixed(5);
+        let r = (typeof color.r === 'number' ? color.r : 0.0).toFixed(5);
+        let g = (typeof color.g === 'number' ? color.g : 0.0).toFixed(5);
+        let b = (typeof color.b === 'number' ? color.b : 0.0).toFixed(5);
         
         unrolledLogic += `
     {
@@ -50,7 +50,7 @@ void main() {
 //!DESC Ambxst Palette Tint
 
 // Simple dithering function
-float random(vec2 uv) {
+float noise_random(vec2 uv) {
     return fract(sin(dot(uv, vec2(12.9898, 78.233))) * 43758.5453);
 }
 
@@ -59,7 +59,7 @@ vec4 hook() {
     vec3 color = tex.rgb;
 
     // Add slight dithering to input to break banding before quantization
-    float noise = (random(HOOKED_pos * 100.0 + sin(HOOKED_pos.x)) - 0.5) / 64.0;
+    float noise = (noise_random(HOOKED_pos * 100.0 + sin(HOOKED_pos.x)) - 0.5) / 64.0;
     color += noise;
 
     vec3 accumulatedColor = vec3(0.0);

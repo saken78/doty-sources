@@ -434,7 +434,9 @@ PanelWindow {
             var rawColor = Colors[optimizedPalette[i]];
             if (rawColor) {
                 var c = Qt.darker(rawColor, 1.0);
-                colors.push({r: c.r, g: c.g, b: c.b});
+                if (c && !isNaN(c.r) && !isNaN(c.g) && !isNaN(c.b)) {
+                    colors.push({r: c.r, g: c.g, b: c.b});
+                }
             }
         }
         
@@ -473,11 +475,32 @@ PanelWindow {
         mpvShaderWriter.running = true;
     }
 
+    property int ipcRetryCount: 0
+
+    Timer {
+        id: ipcRetryTimer
+        interval: 200
+        repeat: false
+        onTriggered: {
+            // Retry the last command (which is currently set in mpvIpcProcess)
+            mpvIpcProcess.running = true;
+        }
+    }
+
     Process {
         id: mpvIpcProcess
         running: false
         onExited: code => {
-            if (code !== 0) console.warn("MPV IPC failed (is mpvpaper running?)");
+            if (code !== 0) {
+                console.warn("MPV IPC failed (is mpvpaper running?) Code:", code);
+                if (ipcRetryCount < 10) {
+                    ipcRetryCount++;
+                    console.log("Retrying IPC (" + ipcRetryCount + "/10)...");
+                    ipcRetryTimer.restart();
+                }
+            } else {
+                ipcRetryCount = 0;
+            }
         }
     }
 
