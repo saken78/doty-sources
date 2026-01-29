@@ -15,14 +15,19 @@ Item {
     readonly property bool isHorizontal: position === "top" || position === "bottom"
     readonly property bool cornersVisible: Config.theme.enableCorners && cornerSize > 0
 
-    // StyledRect expandido que cubre bar + corners
+    // New logic: padding 2 if opaque, 0 if transparent
+    readonly property real bgOpacity: Config.theme.srBarBg.opacity
+    readonly property int padding: bgOpacity < 1.0 ? 0 : 4
+    readonly property int borderWidth: Config.theme.srBarBg.border[1]
+
+    // StyledRect expanded that covers bar + corners
     StyledRect {
         id: barBackground
         variant: "barbg"
         radius: Config.bar.containBar ? Styling.radius(4) : 0
         enableBorder: false
 
-        // Posicion y tamaño expandidos para cubrir corners
+        // Position and size expanded to cover corners
         x: (position === "right") ? -cornerSize : 0
         y: (position === "bottom") ? -cornerSize : 0
         width: root.width + (isHorizontal ? 0 : cornerSize)

@@ -154,7 +154,18 @@ Item {
     readonly property bool dockAtEnd: integratedDockEnabled && integratedDockPosition === "end"
 
     readonly property int frameOffset: Config.bar?.frameEnabled ? (Config.bar?.frameThickness ?? 6) : 0
-    readonly property int borderWidth: Config.theme.srBg.border[1]
+    readonly property int borderWidth: Config.theme.srBarBg.border[1]
+    
+    // Displacement logic: only when !containBar
+    readonly property int barDisplacement: !Config.bar.containBar ? root.borderWidth : 0
+
+    // Size derived from barBg padding
+    readonly property int barPadding: barBg.padding
+    readonly property int contentImplicitWidth: orientation === "horizontal" ? horizontalLayout.implicitWidth : verticalLayout.implicitWidth
+    readonly property int contentImplicitHeight: orientation === "horizontal" ? horizontalLayout.implicitHeight : verticalLayout.implicitHeight
+    
+    readonly property int barTargetWidth: orientation === "vertical" ? (contentImplicitWidth + 2 * barPadding) : 0
+    readonly property int barTargetHeight: orientation === "horizontal" ? (contentImplicitHeight + 2 * barPadding) : 0
 
     // Shadow logic for bar components
     readonly property bool shadowsEnabled: Config.showBackground && (!Config.bar.containBar || Config.bar.keepBarShadow)
@@ -167,9 +178,9 @@ Item {
         id: barMouseArea
         hoverEnabled: true
 
-        // Size
-        width: root.orientation === "horizontal" ? root.width : (root.reveal ? bar.width + root.frameOffset : Math.max(Config.bar?.hoverRegionHeight ?? 8, 4) + root.frameOffset)
-        height: root.orientation === "vertical" ? root.height : (root.reveal ? bar.height + root.frameOffset : Math.max(Config.bar?.hoverRegionHeight ?? 8, 4) + root.frameOffset)
+        // Size includes displacement
+        width: root.orientation === "horizontal" ? root.width : (root.reveal ? root.barTargetWidth + root.frameOffset + root.barDisplacement : Math.max(Config.bar?.hoverRegionHeight ?? 8, 4) + root.frameOffset + root.barDisplacement)
+        height: root.orientation === "vertical" ? root.height : (root.reveal ? root.barTargetHeight + root.frameOffset + root.barDisplacement : Math.max(Config.bar?.hoverRegionHeight ?? 8, 4) + root.frameOffset + root.barDisplacement)
 
         // Position using x/y
         x: {
@@ -221,10 +232,10 @@ Item {
                 left: (root.barPosition === "left" || root.orientation === "horizontal") ? parent.left : undefined
                 right: (root.barPosition === "right" || root.orientation === "horizontal") ? parent.right : undefined
 
-                topMargin: root.frameOffset
-                bottomMargin: root.frameOffset
-                leftMargin: root.frameOffset
-                rightMargin: root.frameOffset
+                topMargin: root.frameOffset + (root.barPosition === "top" ? root.barDisplacement : 0)
+                bottomMargin: root.frameOffset + (root.barPosition === "bottom" ? root.barDisplacement : 0)
+                leftMargin: root.frameOffset + (root.barPosition === "left" ? root.barDisplacement : 0)
+                rightMargin: root.frameOffset + (root.barPosition === "right" ? root.barDisplacement : 0)
             }
 
 
@@ -247,18 +258,18 @@ Item {
                     if (!root.shouldAutoHide)
                         return 0;
                     if (root.barPosition === "left")
-                        return root.reveal ? 0 : -bar.width;
+                        return root.reveal ? 0 : -bar.width - root.barDisplacement;
                     if (root.barPosition === "right")
-                        return root.reveal ? 0 : bar.width;
+                        return root.reveal ? 0 : bar.width + root.barDisplacement;
                     return 0;
                 }
                 y: {
                     if (!root.shouldAutoHide)
                         return 0;
                     if (root.barPosition === "top")
-                        return root.reveal ? 0 : -bar.height;
+                        return root.reveal ? 0 : -bar.height - root.barDisplacement;
                     if (root.barPosition === "bottom")
-                        return root.reveal ? 0 : bar.height;
+                        return root.reveal ? 0 : bar.height + root.barDisplacement;
                     return 0;
                 }
                 Behavior on x {
@@ -283,7 +294,7 @@ Item {
                     when: root.barPosition === "top"
                     PropertyChanges {
                         target: bar
-                        height: 44
+                        height: root.barTargetHeight
                     }
                 },
                 State {
@@ -291,7 +302,7 @@ Item {
                     when: root.barPosition === "bottom"
                     PropertyChanges {
                         target: bar
-                        height: 44
+                        height: root.barTargetHeight
                     }
                 },
                 State {
@@ -299,7 +310,7 @@ Item {
                     when: root.barPosition === "left"
                     PropertyChanges {
                         target: bar
-                        width: 44
+                        width: root.barTargetWidth
                     }
                 },
                 State {
@@ -307,7 +318,7 @@ Item {
                     when: root.barPosition === "right"
                     PropertyChanges {
                         target: bar
-                        width: 44
+                        width: root.barTargetWidth
                     }
                 }
             ]
@@ -322,7 +333,7 @@ Item {
                 id: horizontalLayout
                 visible: root.orientation === "horizontal"
                 anchors.fill: parent
-                anchors.margins: 4 + root.borderWidth
+                anchors.margins: root.barPadding
                 spacing: 4
 
                 // Obtener referencia al notch de esta pantalla
@@ -522,7 +533,7 @@ Item {
                 id: verticalLayout
                 visible: root.orientation === "vertical"
                 anchors.fill: parent
-                anchors.margins: 4 + root.borderWidth
+                anchors.margins: root.barPadding
                 spacing: 4
 
                 LauncherButton {

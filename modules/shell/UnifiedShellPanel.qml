@@ -39,6 +39,8 @@ PanelWindow {
     readonly property alias barHoverActive: barContent.hoverActive
     readonly property alias barFullscreen: barContent.activeWindowFullscreen
     readonly property alias barReveal: barContent.reveal
+    readonly property alias barTargetWidth: barContent.barTargetWidth
+    readonly property alias barTargetHeight: barContent.barTargetHeight
 
     readonly property alias dockPosition: dockContent.position
     readonly property alias dockPinned: dockContent.pinned
