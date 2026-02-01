@@ -173,16 +173,15 @@ Item {
         DefaultView {}
     }
 
-    // Launcher view component
-    Component {
-        id: launcherViewComponent
-        LauncherView {}
+    // Persistent views to avoid creation lag when opening the notch
+    LauncherView {
+        id: persistentLauncherView
+        visible: false
     }
 
-    // Dashboard view component
-    Component {
-        id: dashboardViewComponent
-        DashboardView {}
+    DashboardView {
+        id: persistentDashboardView
+        visible: false
     }
 
     // Power menu view component
@@ -430,7 +429,7 @@ Item {
 
         function onLauncherChanged() {
             if (screenVisibilities.launcher) {
-                notchContainer.stackView.push(launcherViewComponent);
+                notchContainer.stackView.push(persistentLauncherView);
                 Qt.callLater(() => {
                     if (notchContainer.stackView.currentItem) {
                         notchContainer.stackView.currentItem.forceActiveFocus();
@@ -447,7 +446,7 @@ Item {
 
         function onDashboardChanged() {
             if (screenVisibilities.dashboard) {
-                notchContainer.stackView.push(dashboardViewComponent);
+                notchContainer.stackView.push(persistentDashboardView);
                 Qt.callLater(() => {
                     if (notchContainer.stackView.currentItem) {
                         notchContainer.stackView.currentItem.forceActiveFocus();

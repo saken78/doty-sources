@@ -56,6 +56,9 @@ NotchAnimationBehavior {
     function updateLoadedTabs() {
         let newLoadedTabs = {};
         
+        // Always load tab 0 (WidgetsTab) to avoid "jumpy" opening
+        newLoadedTabs[0] = true;
+        
         // Always load current tab
         newLoadedTabs[root.state.currentTab] = true;
 
@@ -73,6 +76,8 @@ NotchAnimationBehavior {
 
     // Check if a tab should be loaded
     function shouldTabBeLoaded(tabIndex) {
+        if (tabIndex === 0) return true; // Always load WidgetsTab (Tab 0)
+
         if (Config.performance.dashboardPersistTabs) {
             return lruTabsLoaded[tabIndex] === true;
         } else {
