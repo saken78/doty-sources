@@ -224,7 +224,7 @@ Item {
         // HoverHandler doesn't block mouse events
         HoverHandler {
             id: notchMouseAreaHover
-            enabled: root.shouldAutoHide
+            enabled: true
         }
     }
 
@@ -240,7 +240,7 @@ Item {
         // HoverHandler to detect when mouse is over the revealed notch
         HoverHandler {
             id: notchRegionHover
-            enabled: root.shouldAutoHide
+            enabled: true
         }
 
         // Animation container for reveal/hide
@@ -285,6 +285,7 @@ Item {
             Notch {
                 id: notchContainer
                 unifiedEffectActive: root.unifiedEffectActive
+                parentHovered: root.isMouseOverNotch
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.top: root.notchPosition === "top" ? parent.top : undefined
                 anchors.bottom: root.notchPosition === "bottom" ? parent.bottom : undefined

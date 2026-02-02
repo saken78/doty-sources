@@ -22,7 +22,23 @@ Item {
     property Component notificationViewComponent
     property var stackView: stackViewInternal
     property bool isExpanded: stackViewInternal.depth > 1
+    property bool parentHovered: false
     property bool isHovered: false
+
+    onParentHoveredChanged: updateChildHover()
+    onIsHoveredChanged: updateChildHover()
+
+    function updateChildHover() {
+        if (stackViewInternal.currentItem) {
+            const h = isHovered || parentHovered;
+            if (stackViewInternal.currentItem.hasOwnProperty("notchHovered")) {
+                stackViewInternal.currentItem.notchHovered = h;
+            }
+            if (stackViewInternal.currentItem.hasOwnProperty("parentHoverActive")) {
+                stackViewInternal.currentItem.parentHoverActive = h;
+            }
+        }
+    }
 
     // Screen-specific visibility properties passed from parent
     property var visibilities
@@ -275,9 +291,6 @@ Item {
 
             onHoveredChanged: {
                 isHovered = hovered;
-                if (stackViewInternal.currentItem && stackViewInternal.currentItem.hasOwnProperty("notchHovered")) {
-                    stackViewInternal.currentItem.notchHovered = hovered;
-                }
             }
         }
 
@@ -315,6 +328,10 @@ Item {
                 anchors.fill: parent
                 anchors.margins: screenNotchOpen ? 16 : 0
                 initialItem: defaultViewComponent
+
+                onCurrentItemChanged: {
+                    notchContainer.updateChildHover();
+                }
 
                 Component.onCompleted: {
                     isShowingDefault = true;

@@ -20,6 +20,7 @@ Item {
     readonly property bool hasActiveNotifications: Notifications.popupList.length > 0
     readonly property var activePlayer: MprisController.activePlayer
     property bool notchHovered: false
+    property bool parentHoverActive: false
     property bool isNavigating: false
 
     // Position detection
@@ -30,7 +31,7 @@ Item {
         id: contentHoverHandler
     }
 
-    readonly property bool expandedState: contentHoverHandler.hovered || notchHovered || isNavigating || Visibilities.playerMenuOpen
+    readonly property bool expandedState: contentHoverHandler.hovered || notchHovered || parentHoverActive || isNavigating || Visibilities.playerMenuOpen
 
     property bool mediaHoverExpanded: false
 
