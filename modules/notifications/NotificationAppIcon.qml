@@ -33,7 +33,7 @@ ClippingRectangle {
         border.width: root.urgency == NotificationUrgency.Critical ? 2 : 0
         border.color: root.urgency == NotificationUrgency.Critical ? Colors.criticalRed : "transparent"
         radius: root.radius
-        visible: root.image == "" && root.appIcon == ""
+        visible: (root.image == "" && root.appIcon == "") || (appIconLoader.active && appIconLoader.item && appIconLoader.item.status === Image.Error)
 
         Text {
             anchors.centerIn: parent
@@ -69,6 +69,7 @@ ClippingRectangle {
         id: appIconLoader
         active: root.image == "" && root.appIcon != ""
         anchors.fill: parent
+        visible: item && item.status !== Image.Error
         sourceComponent: Image {
             id: appIconImage
             anchors.fill: parent

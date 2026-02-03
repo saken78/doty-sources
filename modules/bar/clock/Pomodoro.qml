@@ -115,7 +115,6 @@ Item {
             "--action=check=Check",
             "--action=stop=Stop",
             "-a", "Pomodoro",
-            "-i", "timer",
             "Pomodoro",
             sessionType + " session finished!"
         ];
