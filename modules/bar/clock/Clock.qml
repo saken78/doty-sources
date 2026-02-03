@@ -614,6 +614,7 @@ Item {
                     id: pomodoroWidget
                     anchors.centerIn: parent
                     width: 300
+                    onRequestPopupOpen: clockPopup.open()
                 }
             }
         }

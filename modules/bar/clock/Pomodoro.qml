@@ -4,6 +4,7 @@ import QtQuick.Layouts
 import QtQuick.Controls
 import QtMultimedia
 import Quickshell
+import Quickshell.Io
 import qs.modules.theme
 import qs.modules.components
 import qs.config
@@ -17,6 +18,34 @@ Item {
     property bool isRunning: false
     property bool isWorkSession: true
     property bool alarmActive: false
+    
+    // --- IPC & Notifications ---
+    IpcHandler {
+        target: "pomodoro"
+        function check() {
+            root.requestPopupOpen();
+        }
+        function stop() {
+            root.stopAlarm();
+            root.isRunning = false;
+        }
+    }
+
+    signal requestPopupOpen()
+
+    Process {
+        id: notifyProcess
+        stdout: StdioCollector { id: notifyStdout }
+        onExited: (exitCode) => {
+            let action = notifyStdout.text.trim();
+            if (action === "check") {
+                root.requestPopupOpen();
+            } else if (action === "stop") {
+                root.stopAlarm();
+                root.isRunning = false;
+            }
+        }
+    }
     
     // Internal countdown state
     property int timeLeft: Config.system.pomodoro.workTime
@@ -77,6 +106,20 @@ Item {
         visualProgress = 0; // Ensure it's exactly 0
         alarmSound.loops = Config.system.pomodoro.autoStart ? 4 : SoundEffect.Infinite;
         alarmSound.play();
+
+        // Send notification with actions
+        let sessionType = isWorkSession ? "Work" : "Rest";
+        notifyProcess.command = [
+            "notify-send",
+            "--wait",
+            "--action=check=Check",
+            "--action=stop=Stop",
+            "-a", "Pomodoro",
+            "-i", "timer",
+            "Pomodoro",
+            sessionType + " session finished!"
+        ];
+        notifyProcess.running = true;
     }
 
     function stopAlarm() {

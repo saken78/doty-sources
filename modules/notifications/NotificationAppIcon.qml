@@ -10,6 +10,7 @@ import qs.config
 ClippingRectangle {
     id: root
     property var appIcon: ""
+    property string appName: ""
     property var summary: ""
     property var urgency: NotificationUrgency.Normal
     property var image: ""
@@ -36,7 +37,11 @@ ClippingRectangle {
 
         Text {
             anchors.centerIn: parent
-            text: root.urgency == NotificationUrgency.Critical ? Icons.alert : Icons.bell
+            text: {
+                if (root.urgency == NotificationUrgency.Critical) return Icons.alert;
+                if (root.appName === "Pomodoro") return Icons.timer;
+                return Icons.bell;
+            }
             font.family: Icons.font
             font.pixelSize: root.size * 0.5
             color: root.urgency == NotificationUrgency.Critical ? Colors.criticalText : Styling.srItem("overprimary")
