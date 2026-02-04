@@ -11,6 +11,8 @@ StyledRect {
     required property string iconName
     required property string tooltipText
     signal clicked
+    signal rightClicked
+    signal longPressed
 
     property bool isHovered: mouseArea.containsMouse
 
@@ -47,12 +49,21 @@ StyledRect {
     MouseArea {
         id: mouseArea
         anchors.fill: parent
+        acceptedButtons: Qt.LeftButton | Qt.RightButton
         hoverEnabled: true
+        pressAndHoldInterval: 1000
         cursorShape: Qt.PointingHandCursor
-        onClicked: root.clicked()
+        onClicked: (mouse) => {
+            if (mouse.button === Qt.RightButton) {
+                root.rightClicked();
+            } else {
+                root.clicked();
+            }
+        }
+        onPressAndHold: root.longPressed()
 
         StyledToolTip {
-            visible: parent.containsMouse
+            visible: mouseArea.containsMouse
             tooltipText: root.tooltipText
         }
     }
