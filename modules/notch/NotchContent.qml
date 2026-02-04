@@ -184,16 +184,16 @@ Item {
         visible: false
     }
 
-    // Power menu view component
-    Component {
-        id: powermenuViewComponent
-        PowerMenuView {}
+    // Persistent power menu view
+    PowerMenuView {
+        id: persistentPowerMenuView
+        visible: false
     }
 
-    // Tools menu view component
-    Component {
-        id: toolsMenuViewComponent
-        ToolsMenuView {}
+    // Persistent tools menu view
+    ToolsMenuView {
+        id: persistentToolsMenuView
+        visible: false
     }
 
     // Notification view component
@@ -299,10 +299,10 @@ Item {
                 // layer.effect: Shadow {}
 
                 defaultViewComponent: defaultViewComponent
-                launcherViewComponent: launcherViewComponent
-                dashboardViewComponent: dashboardViewComponent
-                powermenuViewComponent: powermenuViewComponent
-                toolsMenuViewComponent: toolsMenuViewComponent
+                launcherViewComponent: null
+                dashboardViewComponent: null
+                powermenuViewComponent: null
+                toolsMenuViewComponent: null
                 notificationViewComponent: notificationViewComponent
                 visibilities: root.screenVisibilities
 
@@ -464,7 +464,7 @@ Item {
 
         function onPowermenuChanged() {
             if (screenVisibilities.powermenu) {
-                notchContainer.stackView.push(powermenuViewComponent);
+                notchContainer.stackView.push(persistentPowerMenuView);
                 Qt.callLater(() => {
                     if (notchContainer.stackView.currentItem) {
                         notchContainer.stackView.currentItem.forceActiveFocus();
@@ -481,7 +481,7 @@ Item {
 
         function onToolsChanged() {
             if (screenVisibilities.tools) {
-                notchContainer.stackView.push(toolsMenuViewComponent);
+                notchContainer.stackView.push(persistentToolsMenuView);
                 Qt.callLater(() => {
                     if (notchContainer.stackView.currentItem) {
                         notchContainer.stackView.currentItem.forceActiveFocus();

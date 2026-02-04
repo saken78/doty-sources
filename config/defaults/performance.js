@@ -5,5 +5,5 @@ var data = {
     "windowPreview": true,
     "wavyLine": true,
     "dashboardPersistTabs": true,
-    "dashboardMaxPersistentTabs": 2
+    "dashboardMaxPersistentTabs": 4
 }
