@@ -49,8 +49,8 @@ PanelWindow {
             
             RowLayout {
                 anchors.fill: parent
-                anchors.leftMargin: 18
-                anchors.rightMargin: 18
+                anchors.leftMargin: 12
+                anchors.rightMargin: 24
                 anchors.topMargin: 8
                 anchors.bottomMargin: 8
                 spacing: 14
