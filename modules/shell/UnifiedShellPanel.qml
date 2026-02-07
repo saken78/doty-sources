@@ -43,6 +43,36 @@ PanelWindow {
     readonly property alias barTargetHeight: barContent.barTargetHeight
     readonly property alias barOuterMargin: barContent.baseOuterMargin
 
+    /*
+    // BAR DISABLED FOR DEBUGGING
+    readonly property string barPosition: "top" // barContent.barPosition
+    readonly property bool barPinned: true // barContent.pinned
+    readonly property bool barHoverActive: false // barContent.hoverActive
+    readonly property bool barFullscreen: false // barContent.activeWindowFullscreen
+    readonly property bool barReveal: false // barContent.reveal
+    readonly property int barTargetWidth: 0 // barContent.barTargetWidth
+    readonly property int barTargetHeight: 0 // barContent.barTargetHeight
+    readonly property int barOuterMargin: 0 // barContent.baseOuterMargin
+
+    // DOCK DISABLED FOR DEBUGGING
+    readonly property string dockPosition: "bottom" // dockContent.position
+    readonly property bool dockPinned: false // dockContent.pinned
+    readonly property bool dockReveal: false // dockContent.reveal
+    readonly property bool dockFullscreen: false // dockContent.activeWindowFullscreen
+    readonly property int dockHeight: 0 // dockContent.dockSize + dockContent.totalMargin
+
+    // NOTCH DISABLED FOR DEBUGGING
+    readonly property bool notchHoverActive: false // notchContent.hoverActive
+    readonly property bool notchOpen: false // notchContent.screenNotchOpen
+    readonly property bool notchReveal: false // notchContent.reveal
+
+    // Generic names for external compatibility (Visibilities expects these on the panel object)
+    readonly property bool pinned: true // barContent.pinned
+    readonly property bool reveal: false // barContent.reveal
+    readonly property bool hoverActive: false // barContent.hoverActive // Default hoverActive points to bar
+    readonly property bool notch_hoverActive: false // notchContent.hoverActive // Used by bar to check notch
+    */
+
     readonly property alias dockPosition: dockContent.position
     readonly property alias dockPinned: dockContent.pinned
     readonly property alias dockReveal: dockContent.reveal
@@ -59,7 +89,7 @@ PanelWindow {
     readonly property alias hoverActive: barContent.hoverActive // Default hoverActive points to bar
     readonly property alias notch_hoverActive: notchContent.hoverActive // Used by bar to check notch
 
-    readonly property bool unifiedEffectActive: true // Flag to notify children to disable internal borders
+    readonly property bool unifiedEffectActive: false // Flag to notify children to disable internal borders
 
     readonly property var hyprlandMonitor: Hyprland.monitorFor(targetScreen)
     readonly property bool hasFullscreenWindow: {
@@ -144,35 +174,8 @@ PanelWindow {
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // VISUAL CONTENT (Unified Shadow & Border Wrapper)
+    // VISUAL CONTENT
     // ═══════════════════════════════════════════════════════════════
-
-    Item {
-        id: shadowMask
-        anchors.fill: parent
-        visible: false
-
-        Rectangle {
-            id: barCutout
-            visible: unifiedPanel.containBar && !unifiedPanel.keepBarShadow
-            color: "black" // Opaque for mask
-
-            // Bind to barHitbox geometry
-            x: barContent.barHitbox.x
-            y: barContent.barHitbox.y
-            width: barContent.barHitbox.width
-            height: barContent.barHitbox.height
-        }
-    }
-
-    UnifiedPanelEffect {
-        id: unifiedEffect
-        anchors.fill: parent
-        sourceItem: visualContent
-        maskEnabled: barCutout.visible
-        maskSource: shadowMask
-        maskInverted: true
-    }
 
     Item {
         id: visualContent
@@ -191,19 +194,6 @@ PanelWindow {
             anchors.fill: parent
             screen: unifiedPanel.targetScreen
             z: 2
-
-            // Keep the masking logic to cut out the notch area from the bar
-            layer.enabled: true
-            layer.effect: MultiEffect {
-                maskEnabled: true
-                maskInverted: true
-                maskThresholdMin: 0.3
-                maskSpreadAtMin: 0.5
-                maskSource: ShaderEffectSource {
-                    sourceItem: notchContent
-                    hideSource: false
-                }
-            }
         }
 
         DockContent {
