@@ -238,7 +238,7 @@ WlSessionLockSurface {
                 color: hoursText.color
                 antialiasing: true
                 anchors.top: hoursText.top
-                anchors.topMargin: hoursText.height * 0.35 
+                anchors.topMargin: hoursText.height * 0.35
                 visible: Config.bar.use12hFormat
                 opacity: startAnim ? 1 : 0
 
@@ -271,7 +271,7 @@ WlSessionLockSurface {
 
         Timer {
             interval: 1000
-            running: true
+            running: false
             repeat: true
             onTriggered: clockContainer.currentTime = new Date()
         }
@@ -596,7 +596,7 @@ WlSessionLockSurface {
     Process {
         id: usernameProc
         command: ["whoami"]
-        running: true
+        running: false
 
         stdout: StdioCollector {
             id: usernameCollector
@@ -607,7 +607,7 @@ WlSessionLockSurface {
     Process {
         id: hostnameProc
         command: ["hostname"]
-        running: true
+        running: false
 
         stdout: StdioCollector {
             id: hostnameCollector
