@@ -21,11 +21,11 @@ import qs.modules.frame
 import qs.modules.components
 import qs.modules.desktop
 import qs.modules.lockscreen
-import qs.modules.dock
+// import qs.modules.dock
 import qs.modules.globals
 import qs.modules.shell
 import qs.config
-import qs.modules.shell.osd
+// import qs.modules.shell.osd
 import "modules/tools"
 
 ShellRoot {
@@ -246,13 +246,13 @@ ShellRoot {
     }
 
     // OSD
-    Variants {
-        model: Quickshell.screens
+    // Variants {
+    //     model: Quickshell.screens
 
-        OSD {
-            targetScreen: modelData
-        }
-    }
+    //     OSD {
+    //         targetScreen: modelData
+    //     }
+    // }
 
     // Initialize clipboard service at startup to ensure clipboard watching starts immediately
     Connections {
