@@ -19,7 +19,7 @@ import "defaults/lockscreen.js" as LockscreenDefaults
 import "defaults/prefix.js" as PrefixDefaults
 import "defaults/system.js" as SystemDefaults
 import "defaults/dock.js" as DockDefaults
-import "defaults/ai.js" as AiDefaults
+// import "defaults/ai.js" as AiDefaults
 import "ConfigValidator.js" as ConfigValidator
 
 Singleton {
@@ -1267,7 +1267,8 @@ Singleton {
     // Function to repair missing binds
     function repairKeybinds() {
         const raw = keybindsRawLoader.text();
-        if (!raw) return;
+        if (!raw)
+            return;
 
         try {
             const current = JSON.parse(raw);
@@ -1283,7 +1284,7 @@ Singleton {
             if (current.ambxst.dashboard && typeof current.ambxst.dashboard === "object" && !current.ambxst.dashboard.modifiers) {
                 console.log("Migrating nested ambxst binds to flat structure...");
                 const nested = current.ambxst.dashboard;
-                
+
                 // Map old names to new names and update arguments
                 if (nested.widgets) {
                     current.ambxst.launcher = nested.widgets;
@@ -1330,7 +1331,8 @@ Singleton {
 
             // Get default binds from adapter
             const adapter = keybindsLoader.adapter;
-            if (!adapter || !adapter.ambxst) return;
+            if (!adapter || !adapter.ambxst)
+                return;
 
             // Helper function to create clean bind object
             function createCleanBind(bindObj) {
@@ -1599,26 +1601,134 @@ Singleton {
             // Functions to get defaults
             readonly property var defaultAmbxstBinds: {
                 "ambxst": {
-                    "launcher": { "modifiers": ["SUPER"], "key": "Super_L", "dispatcher": "exec", "argument": "ambxst run launcher", "flags": "r" },
-                    "dashboard": { "modifiers": ["SUPER"], "key": "D", "dispatcher": "exec", "argument": "ambxst run dashboard", "flags": "" },
-                    "assistant": { "modifiers": ["SUPER"], "key": "A", "dispatcher": "exec", "argument": "ambxst run assistant", "flags": "" },
-                    "clipboard": { "modifiers": ["SUPER"], "key": "V", "dispatcher": "exec", "argument": "ambxst run clipboard", "flags": "" },
-                    "emoji": { "modifiers": ["SUPER"], "key": "PERIOD", "dispatcher": "exec", "argument": "ambxst run emoji", "flags": "" },
-                    "notes": { "modifiers": ["SUPER"], "key": "N", "dispatcher": "exec", "argument": "ambxst run notes", "flags": "" },
-                    "tmux": { "modifiers": ["SUPER"], "key": "T", "dispatcher": "exec", "argument": "ambxst run tmux", "flags": "" },
-                    "wallpapers": { "modifiers": ["SUPER"], "key": "COMMA", "dispatcher": "exec", "argument": "ambxst run wallpapers", "flags": "" }
+                    "launcher": {
+                        "modifiers": ["SUPER"],
+                        "key": "Super_L",
+                        "dispatcher": "exec",
+                        "argument": "ambxst run launcher",
+                        "flags": "r"
+                    },
+                    "dashboard": {
+                        "modifiers": ["SUPER"],
+                        "key": "D",
+                        "dispatcher": "exec",
+                        "argument": "ambxst run dashboard",
+                        "flags": ""
+                    },
+                    "assistant": {
+                        "modifiers": ["SUPER"],
+                        "key": "A",
+                        "dispatcher": "exec",
+                        "argument": "ambxst run assistant",
+                        "flags": ""
+                    },
+                    "clipboard": {
+                        "modifiers": ["SUPER"],
+                        "key": "V",
+                        "dispatcher": "exec",
+                        "argument": "ambxst run clipboard",
+                        "flags": ""
+                    },
+                    "emoji": {
+                        "modifiers": ["SUPER"],
+                        "key": "PERIOD",
+                        "dispatcher": "exec",
+                        "argument": "ambxst run emoji",
+                        "flags": ""
+                    },
+                    "notes": {
+                        "modifiers": ["SUPER"],
+                        "key": "N",
+                        "dispatcher": "exec",
+                        "argument": "ambxst run notes",
+                        "flags": ""
+                    },
+                    "tmux": {
+                        "modifiers": ["SUPER"],
+                        "key": "T",
+                        "dispatcher": "exec",
+                        "argument": "ambxst run tmux",
+                        "flags": ""
+                    },
+                    "wallpapers": {
+                        "modifiers": ["SUPER"],
+                        "key": "COMMA",
+                        "dispatcher": "exec",
+                        "argument": "ambxst run wallpapers",
+                        "flags": ""
+                    }
                 },
                 "system": {
-                    "config": { "modifiers": ["SUPER", "SHIFT"], "key": "C", "dispatcher": "exec", "argument": "ambxst run config", "flags": "" },
-                    "lockscreen": { "modifiers": ["SUPER"], "key": "L", "dispatcher": "exec", "argument": "loginctl lock-session", "flags": "" },
-                    "overview": { "modifiers": ["SUPER"], "key": "TAB", "dispatcher": "exec", "argument": "ambxst run overview", "flags": "" },
-                    "powermenu": { "modifiers": ["SUPER"], "key": "ESCAPE", "dispatcher": "exec", "argument": "ambxst run powermenu", "flags": "" },
-                    "tools": { "modifiers": ["SUPER"], "key": "S", "dispatcher": "exec", "argument": "ambxst run tools", "flags": "" },
-                    "screenshot": { "modifiers": ["SUPER", "SHIFT"], "key": "S", "dispatcher": "exec", "argument": "ambxst run screenshot", "flags": "" },
-                    "screenrecord": { "modifiers": ["SUPER", "SHIFT"], "key": "R", "dispatcher": "exec", "argument": "ambxst run screenrecord", "flags": "" },
-                    "lens": { "modifiers": ["SUPER", "SHIFT"], "key": "A", "dispatcher": "exec", "argument": "ambxst run lens", "flags": "" },
-                    "reload": { "modifiers": ["SUPER", "ALT"], "key": "B", "dispatcher": "exec", "argument": "ambxst reload", "flags": "" },
-                    "quit": { "modifiers": ["SUPER", "CTRL", "ALT"], "key": "B", "dispatcher": "exec", "argument": "ambxst quit", "flags": "" }
+                    "config": {
+                        "modifiers": ["SUPER", "SHIFT"],
+                        "key": "C",
+                        "dispatcher": "exec",
+                        "argument": "ambxst run config",
+                        "flags": ""
+                    },
+                    "lockscreen": {
+                        "modifiers": ["SUPER"],
+                        "key": "L",
+                        "dispatcher": "exec",
+                        "argument": "loginctl lock-session",
+                        "flags": ""
+                    },
+                    "overview": {
+                        "modifiers": ["SUPER"],
+                        "key": "TAB",
+                        "dispatcher": "exec",
+                        "argument": "ambxst run overview",
+                        "flags": ""
+                    },
+                    "powermenu": {
+                        "modifiers": ["SUPER"],
+                        "key": "ESCAPE",
+                        "dispatcher": "exec",
+                        "argument": "ambxst run powermenu",
+                        "flags": ""
+                    },
+                    "tools": {
+                        "modifiers": ["SUPER"],
+                        "key": "S",
+                        "dispatcher": "exec",
+                        "argument": "ambxst run tools",
+                        "flags": ""
+                    },
+                    "screenshot": {
+                        "modifiers": ["SUPER", "SHIFT"],
+                        "key": "S",
+                        "dispatcher": "exec",
+                        "argument": "ambxst run screenshot",
+                        "flags": ""
+                    },
+                    "screenrecord": {
+                        "modifiers": ["SUPER", "SHIFT"],
+                        "key": "R",
+                        "dispatcher": "exec",
+                        "argument": "ambxst run screenrecord",
+                        "flags": ""
+                    },
+                    "lens": {
+                        "modifiers": ["SUPER", "SHIFT"],
+                        "key": "A",
+                        "dispatcher": "exec",
+                        "argument": "ambxst run lens",
+                        "flags": ""
+                    },
+                    "reload": {
+                        "modifiers": ["SUPER", "ALT"],
+                        "key": "B",
+                        "dispatcher": "exec",
+                        "argument": "ambxst reload",
+                        "flags": ""
+                    },
+                    "quit": {
+                        "modifiers": ["SUPER", "CTRL", "ALT"],
+                        "key": "B",
+                        "dispatcher": "exec",
+                        "argument": "ambxst quit",
+                        "flags": ""
+                    }
                 }
             }
 
@@ -3407,7 +3517,8 @@ Singleton {
     property string notchPosition: notch.position
 
     onNotchPositionChanged: {
-        if (!initialLoadComplete || !dockReady) return;
+        if (!initialLoadComplete || !dockReady)
+            return;
 
         // If notch moves to bottom
         if (notchPosition === "bottom") {
@@ -3423,11 +3534,11 @@ Singleton {
                 // Trigger save
                 GlobalStates.markShellChanged();
             }
-        } 
+        } else
         // If notch moves to top
-        else if (notchPosition === "top") {
+        if (notchPosition === "top") {
             // Optional: Move Dock back to bottom if it was displaced?
-            // User implied "change with this". A safe default is restoring to bottom 
+            // User implied "change with this". A safe default is restoring to bottom
             // if it's currently on the sides, assuming Bottom is the preferred Dock state.
             if (dock.position === "left" || dock.position === "right") {
                 console.log("Notch moved to top, restoring Dock to bottom...");
@@ -3526,21 +3637,24 @@ Singleton {
     }
 
     function resolveColor(colorValue) {
-        if (!colorValue) return "transparent"; // Fallback safe color
-        
+        if (!colorValue)
+            return "transparent"; // Fallback safe color
+
         if (isHexColor(colorValue)) {
             return colorValue;
         }
-        
+
         // Check if Colors singleton is ready
-        if (typeof Colors === 'undefined' || !Colors) return "transparent";
-        
-        return Colors[colorValue] || "transparent"; 
+        if (typeof Colors === 'undefined' || !Colors)
+            return "transparent";
+
+        return Colors[colorValue] || "transparent";
     }
 
     function resolveColorWithOpacity(colorValue, opacity) {
-        if (!colorValue) return Qt.rgba(0,0,0,0);
-        
+        if (!colorValue)
+            return Qt.rgba(0, 0, 0, 0);
+
         const color = isHexColor(colorValue) ? Qt.color(colorValue) : (Colors[colorValue] || Qt.color("transparent"));
         return Qt.rgba(color.r, color.g, color.b, opacity);
     }

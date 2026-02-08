@@ -24,7 +24,7 @@ PanelWindow {
     color: "transparent"
 
     property string wallpaperDir: wallpaperConfig.adapter.wallPath
-    property string fallbackDir: decodeURIComponent(Qt.resolvedUrl("../../../../assets/wallpapers_example").toString().replace("file://", ""))
+    property string fallbackDir: decodeURIComponent(Qt.resolvedUrl("/home/saken/Documents/wallpapers_example").toString().replace("file://", ""))
     property var wallpaperPaths: []
     property var subfolderFilters: []
     property var allSubdirs: []
