@@ -25,8 +25,8 @@ QtObject {
         // --- Mixer ---
         { label: "Audio Mixer", keywords: "sound volume output input mic speaker", section: 2, subSection: "", subLabel: "", icon: Icons.faders, isIcon: true },
         
-        // --- Effects ---
-        { label: "Audio Effects", keywords: "equalizer bass treble easyeffects", section: 3, subSection: "", subLabel: "", icon: Icons.waveform, isIcon: true },
+        // --- Network Protocols ---
+        { label: "Network Protocols", keywords: "ipv4 ipv6 tcp ip networking internet", section: 3, subSection: "", subLabel: "", icon: Icons.waveform, isIcon: true },
         
         // --- Theme ---
         { label: "Theme", keywords: "appearance look style customize", section: 4, subSection: "", subLabel: "Theme", icon: Icons.paintBrush, isIcon: true },

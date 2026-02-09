@@ -27,12 +27,14 @@ Item {
     readonly property var screenVisibilities: Visibilities.getForScreen(screen.name)
     readonly property bool isScreenFocused: Hyprland.focusedMonitor && Hyprland.focusedMonitor.name === screen.name
 
-    // Monitor reference
+    // Monitor reference and refrence to toplevels on monitor
     readonly property var hyprlandMonitor: Hyprland.monitorFor(screen)
+    readonly property var toplevels: hyprlandMonitor.activeWorkspace.toplevels.values
 
     // Check if there are any windows on the current monitor and workspace
     readonly property bool hasWindows: {
-        if (!hyprlandMonitor) return false;
+        if (!hyprlandMonitor)
+            return false;
         const activeWorkspaceId = hyprlandMonitor.activeWorkspace.id;
         const monId = hyprlandMonitor.id;
         const wins = HyprlandData.windowList;
@@ -62,7 +64,7 @@ Item {
         // Fallback to config only if panel ref is missing
         return Config.bar?.pinnedOnStartup ?? true;
     }
-    
+
     // Check if bar is hovering (for synchronized reveal when bar is at same side)
     readonly property bool barHoverActive: {
         if (barPosition !== notchPosition)
@@ -75,21 +77,13 @@ Item {
 
     // Fullscreen detection - check if active toplevel is fullscreen on this screen
     readonly property bool activeWindowFullscreen: {
-        if (!hyprlandMonitor) return false;
-        
-        const activeWorkspaceId = hyprlandMonitor.activeWorkspace.id;
-        const monId = hyprlandMonitor.id;
-        
-        // Check active toplevel first (fast path)
-        const toplevel = ToplevelManager.activeToplevel;
-        if (toplevel && toplevel.fullscreen && Hyprland.focusedMonitor.id === monId) {
-             return true;
-        }
+        if (!hyprlandMonitor || !toplevels)
+            return false;
 
-        // Check all windows on this monitor (robust path)
-        const wins = HyprlandData.windowList;
-        for (let i = 0; i < wins.length; i++) {
-            if (wins[i].monitor === monId && wins[i].fullscreen && wins[i].workspace.id === activeWorkspaceId) {
+        // Check all toplevels on active workspcace
+        for (var i = 0; i < toplevels.length; i++) {
+            // Checks first if the wayland handle is ready
+            if (toplevels[i].wayland && toplevels[i].wayland.fullscreen == true) {
                 return true;
             }
         }
@@ -101,7 +95,8 @@ Item {
     // 2. If notch and bar are on same side: hide only if bar is unpinned OR if fullscreen is present
     readonly property bool shouldAutoHide: {
         if (barPosition !== notchPosition) {
-            if (Config.notch?.keepHidden ?? false) return true;
+            if (Config.notch?.keepHidden ?? false)
+                return true;
             return hasWindows || activeWindowFullscreen;
         }
         return !barPinned || activeWindowFullscreen;
@@ -120,6 +115,13 @@ Item {
     // Track if mouse is over any notch-related area
     readonly property bool isMouseOverNotch: notchMouseAreaHover.hovered || notchRegionHover.hovered
 
+    readonly property real reportedNotchWidth: Math.max(notchContainer.implicitWidth ?? 0, notchContainer.width ?? 0, notchRegionContainer.width ?? 0)
+
+    onReportedNotchWidthChanged: {
+        if (root.screen && root.screen.name)
+            Visibilities.setNotchWidth(root.screen.name, reportedNotchWidth);
+    }
+
     // Reveal logic:
     readonly property bool reveal: {
         // If keepHidden is true, ONLY show on interaction
@@ -129,14 +131,15 @@ Item {
         }
 
         // If not auto-hiding (pinned and not fullscreen), always show
-        if (!shouldAutoHide) return true;
-        
+        if (!shouldAutoHide)
+            return true;
+
         // Show on interaction (hover, open, notifications)
         // This works even in fullscreen, ensuring hover always works
         if (screenNotchOpen || hasActiveNotifications || hoverActive || barHoverActive) {
             return true;
         }
-        
+
         return false;
     }
 
@@ -230,7 +233,7 @@ Item {
 
     Item {
         id: notchRegionContainer
-        
+
         width: Math.max(notchAnimationContainer.width, notificationPopupContainer.visible ? notificationPopupContainer.width : 0)
         height: notchAnimationContainer.height + (notificationPopupContainer.visible ? notificationPopupContainer.height + notificationPopupContainer.anchors.topMargin : 0)
 
@@ -266,7 +269,8 @@ Item {
             // Slide animation (slide up when hidden)
             transform: Translate {
                 y: {
-                    if (root.reveal) return 0;
+                    if (root.reveal)
+                        return 0;
                     if (root.notchPosition === "top")
                         return -(Math.max(notchContainer.height, 50) + 16);
                     else
@@ -325,7 +329,7 @@ Item {
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.topMargin: root.notchPosition === "top" ? 4 : 0
             anchors.bottomMargin: root.notchPosition === "bottom" ? 4 : 0
-            
+
             width: Math.round(popupHovered ? 420 + 48 : 320 + 48)
             height: shouldShowNotificationPopup ? (popupHovered ? notificationPopup.implicitHeight + 32 : notificationPopup.implicitHeight + 32) : 0
             clip: false
@@ -345,7 +349,8 @@ Item {
 
             transform: Translate {
                 y: {
-                    if (root.reveal) return 0;
+                    if (root.reveal)
+                        return 0;
                     if (root.notchPosition === "top")
                         return -(notchContainer.height + 16);
                     else
@@ -499,4 +504,15 @@ Item {
 
     // Export some internal items for Visibilities
     property alias notchContainerRef: notchContainer
+    property alias notchRegionWidth: notchRegionContainer.width
+
+    Component.onCompleted: {
+        if (root.screen && root.screen.name)
+            Visibilities.setNotchWidth(root.screen.name, reportedNotchWidth);
+    }
+
+    Component.onDestruction: {
+        if (root.screen && root.screen.name)
+            Visibilities.clearNotchWidth(root.screen.name);
+    }
 }
