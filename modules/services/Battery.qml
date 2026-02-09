@@ -23,19 +23,26 @@ Singleton {
     function formatTime(seconds) {
         const h = Math.floor(seconds / 3600);
         const m = Math.floor((seconds % 3600) / 60);
-        if (h > 0) return h + "h " + m + "m";
+        if (h > 0)
+            return h + "h " + m + "m";
         return m + "m";
     }
 
     function getBatteryIcon() {
-        if (!available) return Icons.batteryEmpty;
-        if (isPluggedIn) return Icons.batteryCharging;
-        
+        if (!available)
+            return Icons.batteryEmpty;
+        if (isPluggedIn)
+            return Icons.batteryCharging;
+
         const pct = percentage;
-        if (pct > 75) return Icons.batteryFull;
-        if (pct > 50) return Icons.batteryHigh;
-        if (pct > 25) return Icons.batteryMedium;
-        if (pct > 5) return Icons.batteryLow;
+        if (pct > 75)
+            return Icons.batteryFull;
+        if (pct > 50)
+            return Icons.batteryHigh;
+        if (pct > 25)
+            return Icons.batteryMedium;
+        if (pct > 5)
+            return Icons.batteryLow;
         return Icons.batteryEmpty;
     }
 }
