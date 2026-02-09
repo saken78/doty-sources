@@ -7,7 +7,8 @@ The architecture follows a "Reactive Singleton" pattern where services maintain 
 
 ## WHERE TO LOOK
 - `Battery.qml` / `NetworkService.qml`: Core system status providers using UPower and nmcli.
-- `Audio.qml` / `EasyEffectsService.qml`: PulseAudio/PipeWire and DSP control logic.
+- `Audio.qml`: PulseAudio/PipeWire control logic.
+- `NetworkProtocolPanel.qml`: Panel for managing network protocol settings (IPv4/IPv6).
 - `Notifications.qml`: Full DBus notification server implementation with persistence.
 - `Ai.qml` & `ai/`: Hub for AI assistant strategies (OpenAI, Gemini, Mistral).
 - `HyprlandConfig.qml` / `GlobalShortcuts.qml`: Compositor-level interaction and keybind management.
