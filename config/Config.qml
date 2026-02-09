@@ -52,10 +52,10 @@ Singleton {
     property bool prefixReady: false
     property bool systemReady: false
     property bool dockReady: false
-    property bool aiReady: false
+    // property bool aiReady: false
     property bool keybindsInitialLoadComplete: false
 
-    property bool initialLoadComplete: themeReady && barReady && workspacesReady && overviewReady && notchReady && hyprlandReady && performanceReady && weatherReady && desktopReady && lockscreenReady && prefixReady && systemReady && dockReady && aiReady
+    property bool initialLoadComplete: themeReady && barReady && workspacesReady && overviewReady && notchReady && hyprlandReady && performanceReady && weatherReady && desktopReady && lockscreenReady && prefixReady && systemReady && dockReady
 
     // Aliases for backward compatibility
     property alias loader: themeLoader
@@ -157,11 +157,11 @@ Singleton {
                     dockRawLoader.setText(JSON.stringify(DockDefaults.data, null, 4));
                     root.dockReady = true;
                 }
-                if (missing.includes("ai")) {
-                    console.log("ai.json missing, creating default...");
-                    aiRawLoader.setText(JSON.stringify(AiDefaults.data, null, 4));
-                    root.aiReady = true;
-                }
+                // if (missing.includes("ai")) {
+                //     console.log("ai.json missing, creating default...");
+                //     aiRawLoader.setText(JSON.stringify(AiDefaults.data, null, 4));
+                //     root.aiReady = true;
+                // }
             }
         }
     }
@@ -613,6 +613,12 @@ Singleton {
             property bool containBar: false
             property bool keepBarShadow: false
             property bool keepBarBorder: false
+            property var itemsLeft: ["launcher", "workspaces", "layout", "pin"]
+            property var itemsCenter: ["dock"]
+            property var itemsRight: ["presets", "tools", "systray", "controls", "battery", "clock", "power"]
+            property var itemsLeftVertical: ["launcher", "systray", "tools", "presets"]
+            property var itemsCenterVertical: ["layout", "workspaces", "pin", "dock"]
+            property var itemsRightVertical: ["controls", "battery", "clock", "power"]
         }
     }
 
@@ -1046,7 +1052,9 @@ Singleton {
 
         adapter: JsonAdapter {
             property list<string> disks: ["/"]
-            property bool updateServiceEnabled: true
+            property bool ipv6Disabled: false
+            property bool vpnDisabled: false
+            property bool updateServiceEnabled: false
             property JsonObject idle: JsonObject {
                 property JsonObject general: JsonObject {
                     property string lock_cmd: "ambxst lock"
@@ -1076,7 +1084,7 @@ Singleton {
             }
             property JsonObject ocr: JsonObject {
                 property bool eng: true
-                property bool spa: true
+                property bool spa: false
                 property bool lat: false
                 property bool jpn: false
                 property bool chi_sim: false
@@ -1189,42 +1197,42 @@ Singleton {
     // ============================================
     // AI MODULE
     // ============================================
-    FileView {
-        id: aiRawLoader
-        path: root.configDir + "/ai.json"
-        onLoaded: {
-            if (!root.aiReady) {
-                validateModule("ai", aiRawLoader, AiDefaults.data, () => {
-                    root.aiReady = true;
-                });
-            }
-        }
-    }
+    // FileView {
+    //     id: aiRawLoader
+    //     path: root.configDir + "/ai.json"
+    //     onLoaded: {
+    //         if (!root.aiReady) {
+    //             validateModule("ai", aiRawLoader, AiDefaults.data, () => {
+    //                 root.aiReady = true;
+    //             });
+    //         }
+    //     }
+    // }
 
-    FileView {
-        id: aiLoader
-        path: root.configDir + "/ai.json"
-        atomicWrites: true
-        watchChanges: true
-        onFileChanged: {
-            root.pauseAutoSave = true;
-            reload();
-            root.pauseAutoSave = false;
-        }
-        onPathChanged: reload()
-        onAdapterUpdated: {
-            if (root.aiReady && !root.pauseAutoSave) {
-                aiLoader.writeAdapter();
-            }
-        }
+    // FileView {
+    //     id: aiLoader
+    //     path: root.configDir + "/ai.json"
+    //     atomicWrites: true
+    //     watchChanges: true
+    //     onFileChanged: {
+    //         root.pauseAutoSave = true;
+    //         reload();
+    //         root.pauseAutoSave = false;
+    //     }
+    //     onPathChanged: reload()
+    //     onAdapterUpdated: {
+    //         if (root.aiReady && !root.pauseAutoSave) {
+    //             aiLoader.writeAdapter();
+    //         }
+    //     }
 
-        adapter: JsonAdapter {
-            property string systemPrompt: "You are a helpful assistant running on a Linux system. You have access to some tools to control the system."
-            property string tool: "none"
-            property list<var> extraModels: []
-            property string defaultModel: "gemini-pro"
-        }
-    }
+    //     adapter: JsonAdapter {
+    //         property string systemPrompt: "You are a helpful assistant running on a Linux system. You have access to some tools to control the system."
+    //         property string tool: "none"
+    //         property list<var> extraModels: []
+    //         property string defaultModel: "gemini-pro"
+    //     }
+    // }
 
     // ============================================
     // KEYBINDS (kept separate as binds.json)
@@ -3582,7 +3590,7 @@ Singleton {
     property QtObject pinnedApps: pinnedAppsLoader.adapter
 
     // AI configuration
-    property QtObject ai: aiLoader.adapter
+    // property QtObject ai: aiLoader.adapter
 
     // Save functions for modules
     function saveBar() {
@@ -3624,9 +3632,9 @@ Singleton {
     function savePinnedApps() {
         pinnedAppsLoader.writeAdapter();
     }
-    function saveAi() {
-        aiLoader.writeAdapter();
-    }
+    // function saveAi() {
+    //     aiLoader.writeAdapter();
+    // }
 
     // Helper functions for color handling (HEX or named colors)
     function isHexColor(colorValue) {
