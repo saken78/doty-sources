@@ -10,7 +10,7 @@ import qs.modules.notch
 import qs.modules.widgets.dashboard.widgets
 import qs.modules.widgets.dashboard.controls
 import qs.modules.widgets.dashboard.wallpapers
-import qs.modules.widgets.dashboard.assistant
+// import qs.modules.widgets.dashboard.
 import qs.modules.widgets.dashboard.metrics
 import qs.config
 
@@ -23,7 +23,7 @@ NotchAnimationBehavior {
         property int currentTab: GlobalStates.dashboardCurrentTab
     }
 
-    readonly property var tabModel: [Icons.widgets, Icons.wallpapers, Icons.heartbeat, Icons.assistant]
+    readonly property var tabModel: [Icons.widgets, Icons.wallpapers, Icons.heartbeat]
     readonly property int tabCount: tabModel.length
     readonly property int tabSpacing: 8
 
@@ -34,11 +34,15 @@ NotchAnimationBehavior {
     implicitHeight: 430
 
     // Track which tabs have been loaded (for lazy loading)
-    property var loadedTabs: ({0: true}) // Tab 0 (widgets) loaded by default
+    property var loadedTabs: ({
+            0: true
+        }) // Tab 0 (widgets) loaded by default
 
     // LRU Tab Management
     property var lruAccessOrder: [0]  // Tracks access order: [0] means tab 0 is most recent
-    property var lruTabsLoaded: ({0: true})  // Reflects which tabs are actually loaded
+    property var lruTabsLoaded: ({
+            0: true
+        })  // Reflects which tabs are actually loaded
 
     // Update LRU on tab access
     function updateLRUAccess(tabIndex) {
@@ -55,10 +59,10 @@ NotchAnimationBehavior {
     // Determine which tabs should be loaded based on LRU and config
     function updateLoadedTabs() {
         let newLoadedTabs = {};
-        
+
         // Always load tab 0 (WidgetsTab) to avoid "jumpy" opening
         newLoadedTabs[0] = true;
-        
+
         // Always load current tab
         newLoadedTabs[root.state.currentTab] = true;
 
@@ -76,7 +80,8 @@ NotchAnimationBehavior {
 
     // Check if a tab should be loaded
     function shouldTabBeLoaded(tabIndex) {
-        if (tabIndex === 0) return true; // Always load WidgetsTab (Tab 0)
+        if (tabIndex === 0)
+            return true; // Always load WidgetsTab (Tab 0)
 
         if (Config.performance.dashboardPersistTabs) {
             return lruTabsLoaded[tabIndex] === true;
@@ -342,7 +347,7 @@ NotchAnimationBehavior {
             vert: true
         }
 
-            // Content area
+        // Content area
         Rectangle {
             id: viewWrapper
 
@@ -378,51 +383,12 @@ NotchAnimationBehavior {
 
                         root.state.currentTab = index;
                         GlobalStates.dashboardCurrentTab = index;
-                        
+
                         // Update LRU when tab is accessed
                         root.updateLRUAccess(index);
 
                         if (index === 0) {
                             Notifications.hideAllPopups();
-                            focusUnifiedLauncherTimer.restart();
-                        }
-                    }
-                }
-
-                // Generic Tab Loader Component
-                component TabLoader : Loader {
-                    anchors.fill: parent
-                    // Load based on LRU strategy or if currently active
-                    active: root.shouldTabBeLoaded(index) || root.state.currentTab === index
-                    
-                    // Visibility handles the "switching"
-                    visible: root.state.currentTab === index
-                    
-                    // Transitions
-                    opacity: visible ? 1 : 0
-                    transform: Translate {
-                        y: visible ? 0 : (root.state.currentTab > index ? -20 : 20)
-                        Behavior on y {
-                             enabled: Config.animDuration > 0
-                             NumberAnimation { duration: Config.animDuration; easing.type: Easing.OutQuart } 
-                        }
-                    }
-
-                    Behavior on opacity {
-                        enabled: Config.animDuration > 0
-                        NumberAnimation { duration: Config.animDuration; easing.type: Easing.OutQuart }
-                    }
-
-                    // Forward focus
-                    onLoaded: {
-                        if (visible && item && item.focusSearchInput) {
-                            focusUnifiedLauncherTimer.restart();
-                        }
-                    }
-                    
-                    // Ensure focus when becoming visible
-                    onVisibleChanged: {
-                        if (visible && item && item.focusSearchInput) {
                             focusUnifiedLauncherTimer.restart();
                         }
                     }
@@ -450,20 +416,25 @@ NotchAnimationBehavior {
                 }
 
                 // Tab 3: Assistant
-                TabLoader {
-                    property int index: 3
-                    sourceComponent: assistantComponent
-                    z: visible ? 1 : 0
-                }
-                
+                // TabLoader {
+                //     property int index: 3
+                //     sourceComponent: assistantComponent
+                //     z: visible ? 1 : 0
+                // }
+
                 // Helper to access current item for focus
                 property var currentItem: {
-                    switch(root.state.currentTab) {
-                        case 0: return children[0].item;
-                        case 1: return children[1].item;
-                        case 2: return children[2].item;
-                        case 3: return children[3].item;
-                        default: return null;
+                    switch (root.state.currentTab) {
+                    case 0:
+                        return children[0].item;
+                    case 1:
+                        return children[1].item;
+                    case 2:
+                        return children[2].item;
+                    case 3:
+                        return children[3].item;
+                    default:
+                        return null;
                     }
                 }
 
@@ -474,7 +445,7 @@ NotchAnimationBehavior {
                     property real startX: 0
                     property bool swiping: false
                     property real swipeThreshold: 50
-                    
+
                     // Allow clicking through to tabs
                     propagateComposedEvents: true
                     preventStealing: false
@@ -512,6 +483,51 @@ NotchAnimationBehavior {
                         mouse.accepted = false;
                     }
                 }
+            }
+        }
+    }
+
+    // Generic Tab Loader Component
+    component TabLoader: Loader {
+        anchors.fill: parent
+        // Load based on LRU strategy or if currently active
+        active: root.shouldTabBeLoaded(index) || root.state.currentTab === index
+
+        // Visibility handles the "switching"
+        visible: root.state.currentTab === index
+
+        // Transitions
+        opacity: visible ? 1 : 0
+        transform: Translate {
+            y: visible ? 0 : (root.state.currentTab > index ? -20 : 20)
+            Behavior on y {
+                enabled: Config.animDuration > 0
+                NumberAnimation {
+                    duration: Config.animDuration
+                    easing.type: Easing.OutQuart
+                }
+            }
+        }
+
+        Behavior on opacity {
+            enabled: Config.animDuration > 0
+            NumberAnimation {
+                duration: Config.animDuration
+                easing.type: Easing.OutQuart
+            }
+        }
+
+        // Forward focus
+        onLoaded: {
+            if (visible && item && item.focusSearchInput) {
+                focusUnifiedLauncherTimer.restart();
+            }
+        }
+
+        // Ensure focus when becoming visible
+        onVisibleChanged: {
+            if (visible && item && item.focusSearchInput) {
+                focusUnifiedLauncherTimer.restart();
             }
         }
     }
@@ -579,10 +595,10 @@ NotchAnimationBehavior {
         }
     }
 
-    Component {
-        id: assistantComponent
-        AssistantTab {}
-    }
+    // Component {
+    //     id: assistantComponent
+    //     AssistantTab {}
+    // }
 
     Component {
         id: metricsComponent
