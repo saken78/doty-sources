@@ -23,6 +23,7 @@ Singleton {
 
     Process {
         id: checkProc
+        workingDirectory: "/"
         command: ["/sbin/tlp", "--version"]
         running: false
         stdout: SplitParser {
@@ -53,6 +54,7 @@ Singleton {
 
     Process {
         id: getProc
+        workingDirectory: "/"
         command: ["bash", "-c", "/sbin/tlp-stat -p 2>/dev/null | grep -i 'Active profile' | head -1"]
         running: false
         stdout: SplitParser {
@@ -88,6 +90,7 @@ Singleton {
 
     Process {
         id: setProc
+        workingDirectory: "/"
         running: false
         stdout: SplitParser {}
         stderr: SplitParser {
