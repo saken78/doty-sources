@@ -101,7 +101,7 @@ QtObject {
             return;
 
         var outputFile = root.videosDir + "/" + new Date().toISOString().replace(/[:.]/g, "-") + ".mp4";
-        var cmd = "gpu-screen-recorder -f 60";
+        var cmd = "gpu-screen-recorder -f 60 -k hevc -q very_high -tune quality";
 
         // Window mode: -w based on mode
         if (mode === "portal") {
