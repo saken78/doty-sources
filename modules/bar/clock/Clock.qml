@@ -20,7 +20,7 @@ Item {
     property bool vertical: bar.orientation === "vertical"
     property bool isHovered: false
     property bool layerEnabled: true
-    
+
     property real radius: 0
     property real startRadius: radius
     property real endRadius: radius
@@ -28,7 +28,7 @@ Item {
     // Popup visibility state
     property bool popupOpen: clockPopup.isOpen
 
-    readonly property bool weatherAvailable: WeatherService.dataAvailable
+    readonly property bool weatherAvailable: false
 
     Layout.preferredWidth: vertical ? 36 : buttonBg.implicitWidth
     Layout.preferredHeight: vertical ? buttonBg.implicitHeight : 36

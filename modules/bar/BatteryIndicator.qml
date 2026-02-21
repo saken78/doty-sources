@@ -158,6 +158,8 @@ Item {
             text: Battery.available ? (Battery.isPluggedIn ? Icons.plug : Icons.lightning) : PowerProfile.getProfileIcon(PowerProfile.currentProfile)
             font.family: Icons.font
             font.pixelSize: Battery.available ? 14 : 18
+            renderType: Text.QtRendering
+            antialiasing: true
             color: root.popupOpen ? buttonBg.item : Colors.overBackground
 
             Behavior on color {
@@ -226,6 +228,8 @@ Item {
                         text: Battery.getBatteryIcon()
                         font.family: Icons.font
                         font.pixelSize: 24
+                        renderType: Text.QtRendering
+                        antialiasing: true
                         color: root.getBatteryColor()
                     }
 
@@ -295,6 +299,8 @@ Item {
                                 text: PowerProfile.getProfileIcon(profileButton.modelData)
                                 font.family: Icons.font
                                 font.pixelSize: 14
+                                renderType: Text.QtRendering
+                                antialiasing: true
                                 color: profileButton.item
                             }
 

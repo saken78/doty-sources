@@ -573,6 +573,8 @@ Item {
                                     text: Icons.pin
                                     font.family: Icons.font
                                     font.pixelSize: 18
+                                    renderType: Text.QtRendering
+                                    antialiasing: true
                                     color: root.pinned ? pinButtonBg.item : (pinButton.pressed ? Colors.background : (Styling.srItem("overprimary") || Colors.foreground))
                                     horizontalAlignment: Text.AlignHCenter
                                     verticalAlignment: Text.AlignVCenter

@@ -82,6 +82,8 @@ Item {
                 text: root.icon
                 font.family: Icons.font
                 font.pixelSize: 18
+                renderType: Text.QtRendering
+                antialiasing: true
                 color: iconMouseArea.containsMouse ? Styling.srItem("overprimary") : Colors.overBackground
                 rotation: root._animatedIconRotation
                 scale: root._animatedIconScale

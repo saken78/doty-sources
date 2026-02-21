@@ -50,11 +50,13 @@ Singleton {
                 root.wasCancelled = true;
                 weatherProcess.running = false;
             }
-            if (retryTimer) retryTimer.stop();
+            if (retryTimer)
+                retryTimer.stop();
         }
         function onWakingUp() {
             // Delay refresh on wake to allow network to stabilize
-            if (wakeRefreshTimer) wakeRefreshTimer.restart();
+            if (wakeRefreshTimer)
+                wakeRefreshTimer.restart();
         }
     }
 
@@ -437,7 +439,7 @@ Singleton {
                                 var year = parseInt(dateParts[0]);
                                 var month = parseInt(dateParts[1]) - 1; // Months are 0-indexed
                                 var day = parseInt(dateParts[2]);
-                                
+
                                 var dayDate = new Date(year, month, day);
                                 var rawDayName = i === 0 ? "Today" : dayDate.toLocaleDateString(Qt.locale(), "ddd");
                                 var dayName = rawDayName.charAt(0).toUpperCase() + rawDayName.slice(1);
@@ -495,12 +497,14 @@ Singleton {
     property bool _initialized: false
 
     onConfigLocationChanged: {
-        if (!_initialized) return;
+        if (!_initialized)
+            return;
         console.log("WeatherService: Location changed to '" + configLocation + "'");
         updateWeather();
     }
     onConfigUnitChanged: {
-        if (!_initialized) return;
+        if (!_initialized)
+            return;
         console.log("WeatherService: Unit changed to '" + configUnit + "'");
         updateWeather();
     }
@@ -523,11 +527,14 @@ Singleton {
 
         var locationStr = Config.weather.location || "";
         var location = locationStr.trim();
-        
-        console.log("WeatherService: Fetching weather for '" + location + "'");
-        
+
+        if (weatherProcess.running) {
+            console.log("WeatherService: Fetching weather for '" + location + "'");
+        }
+        console.log("WeatherService: disabled");
+
         weatherProcess.command = [scriptPath, location];
-        weatherProcess.running = true;
+        weatherProcess.running = false;
     }
 
     Component.onCompleted: {

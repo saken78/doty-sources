@@ -258,7 +258,10 @@ Item {
                 Text {
                     anchors.centerIn: parent
                     text: Icons.arrowCounterClockwise
-                    font.family: Icons.font; font.pixelSize: 14
+                    font.family: Icons.font
+                    font.pixelSize: 14
+                    renderType: Text.QtRendering
+                    antialiasing: true
                     color: Colors.overBackground
                 }
                 MouseArea {

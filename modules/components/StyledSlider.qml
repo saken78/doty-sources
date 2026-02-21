@@ -307,6 +307,8 @@ Item {
         text: root.icon
         font.family: Icons.font
         font.pixelSize: 18
+        renderType: Text.QtRendering
+        antialiasing: true
         color: Colors.overBackground
         rotation: root.iconRotation
         scale: root.iconScale

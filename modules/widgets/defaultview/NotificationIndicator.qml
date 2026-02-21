@@ -64,6 +64,8 @@ Item {
             textFormat: Text.RichText
             font.family: Icons.font
             font.pixelSize: 18
+            renderType: Text.QtRendering
+            antialiasing: true
             color: hovered ? Styling.srItem("overprimary") : (Notifications.list.length > 0 ? Colors.error : Colors.overBackground)
 
             HoverHandler {
