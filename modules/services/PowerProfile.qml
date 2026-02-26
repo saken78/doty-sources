@@ -55,7 +55,7 @@ Singleton {
     Process {
         id: getProc
         workingDirectory: "/"
-        command: ["bash", "-c", "/sbin/tlp-stat -p 2>/dev/null | grep -i 'Active profile' | head -1"]
+        command: ["/sbin/tlpctl", "get"]
         running: false
         stdout: SplitParser {
             onRead: data => {
@@ -168,11 +168,11 @@ Singleton {
 
         let cmd = [];
         if (profileName === "performance") {
-            cmd = ["sudo", "/sbin/tlp", "performance"];
+            cmd = ["/sbin/tlpctl", "performance"];
         } else if (profileName === "balanced") {
-            cmd = ["sudo", "/sbin/tlp", "balanced"];
+            cmd = ["/sbin/tlpctl", "balanced"];
         } else if (profileName === "power-saver") {
-            cmd = ["sudo", "/sbin/tlp", "power-saver"];
+            cmd = ["/sbin/tlpctl", "power-saver"];
         }
 
         console.info("PowerProfile: Executing:", cmd.join(" "));
