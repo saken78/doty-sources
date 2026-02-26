@@ -593,16 +593,16 @@ Item {
                     // ═══════════════════════════════════════════════════════════════
                     // MENU SECTION
                     // ═══════════════════════════════════════════════════════════════
-                    ColumnLayout {
-                        visible: root.currentSection === ""
-                        Layout.fillWidth: true
-                        spacing: 0
+                    // ColumnLayout {
+                    //     visible: root.currentSection === ""
+                    //     Layout.fillWidth: true
+                    //     spacing: 0
 
-                        SectionButton {
-                            text: "System"
-                            sectionId: "system"
-                        }
-                    }
+                    //     SectionButton {
+                    //         text: "System"
+                    //         sectionId: "system"
+                    //     }
+                    // }
 
                     Separator {
                         Layout.fillWidth: true
@@ -613,7 +613,7 @@ Item {
                     // SYSTEM SECTION
                     // ═══════════════════════════════════════════════════════════════
                     ColumnLayout {
-                        visible: root.currentSection === "system"
+                        // visible: root.currentSection === "system"
                         Layout.fillWidth: true
                         spacing: 8
 
