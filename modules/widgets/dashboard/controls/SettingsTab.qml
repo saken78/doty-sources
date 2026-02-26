@@ -209,7 +209,7 @@ Rectangle {
         },
         {
             icon: Icons.waveform,
-            label: "Network IPV4 & IPV6",
+            label: "Network",
             section: 3,
             isIcon: true
         },
