@@ -1,6 +1,7 @@
 pragma Singleton
 
 import QtQuick
+import QtQuick.Effects
 
 QtObject {
     // Icon font
@@ -21,6 +22,7 @@ QtObject {
     readonly property string logout: ""
     readonly property string reboot: ""
     readonly property string shutdown: ""
+    readonly property string pokerface: ""
     readonly property string hibernate: ""
 
     // Caret
@@ -141,7 +143,8 @@ QtObject {
 
     // Battery
     readonly property string lightning: ""
-    readonly property string plug: ""
+    // readonly property string plug: ""
+    readonly property string plug: ""
 
     // Power-profiles
     readonly property string powerSave: ""
