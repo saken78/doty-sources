@@ -32,6 +32,7 @@ Item {
     property color progressColor: Styling.srItem("overprimary")
     property color backgroundColor: Colors.surfaceBright
     property bool wavy: false
+    property bool playing: false // Nuevo estado para controlar la animación
     property real wavyAmplitude: 0.8
     property real wavyFrequency: 8
     property real heightMultiplier: 8
@@ -158,22 +159,22 @@ Item {
                 z: 0
             }
 
-            WavyLine {
-                id: hWavyFill
+            Loader {
+                active: root.wavy
                 anchors.left: parent.left
                 anchors.right: hDragHandle.left
                 anchors.rightMargin: root.handleSpacing
                 anchors.verticalCenter: parent.verticalCenter
-                frequency: root.wavyFrequency
-                color: root.progressColor
-                amplitudeMultiplier: root.wavyAmplitude
-                height: parent.height * heightMultiplier
-                lineWidth: root.thickness
-                fullLength: parent.width
-                visible: root.wavy
+                height: hSliderItem.height * root.heightMultiplier
                 z: 1
-                FrameAnimation {
-                    running: visible
+                sourceComponent: CarouselProgress {
+                    anchors.fill: parent
+                    frequency: root.wavyFrequency
+                    color: root.progressColor
+                    amplitudeMultiplier: root.wavyAmplitude
+                    lineWidth: root.thickness
+                    fullLength: hSliderItem.width
+                    active: root.playing
                 }
             }
             Rectangle {
@@ -256,27 +257,27 @@ Item {
                 z: 0
             }
 
-            Item {
+            Loader {
+                active: root.wavy
                 anchors.top: vDragHandle.bottom
                 anchors.topMargin: root.handleSpacing
                 anchors.bottom: parent.bottom
                 anchors.horizontalCenter: parent.horizontalCenter
                 width: parent.width * heightMultiplier
-                visible: root.wavy
-                WavyLine {
-                    id: vWavyFill
-                    anchors.centerIn: parent
-                    rotation: -90
-                    frequency: root.wavyFrequency
-                    color: root.progressColor
-                    amplitudeMultiplier: root.wavyAmplitude
-                    height: parent.width
-                    width: parent.height
-                    lineWidth: root.thickness
-                    fullLength: vSliderItem.height
-                    z: 1
-                    FrameAnimation {
-                        running: visible
+                sourceComponent: Item {
+                    anchors.fill: parent
+                    CarouselProgress {
+                        anchors.centerIn: parent
+                        rotation: -90
+                        frequency: root.wavyFrequency
+                        color: root.progressColor
+                        amplitudeMultiplier: root.wavyAmplitude
+                        height: parent.width
+                        width: parent.height
+                        lineWidth: root.thickness
+                        fullLength: vSliderItem.height
+                        z: 1
+                        active: root.playing
                     }
                 }
             }
@@ -307,8 +308,6 @@ Item {
         text: root.icon
         font.family: Icons.font
         font.pixelSize: 18
-        renderType: Text.QtRendering
-        antialiasing: true
         color: Colors.overBackground
         rotation: root.iconRotation
         scale: root.iconScale
