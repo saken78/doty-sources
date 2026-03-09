@@ -25,6 +25,8 @@ Item {
 
     Layout.preferredWidth: 36
     Layout.preferredHeight: 36
+    Layout.maximumWidth: 36
+    Layout.maximumHeight: 36
     Layout.fillWidth: vertical
     Layout.fillHeight: !vertical
 
@@ -89,8 +91,6 @@ Item {
             text: root.getLayoutIcon(GlobalStates.hyprlandLayout)
             font.family: Icons.font
             font.pixelSize: 18
-            renderType: Text.QtRendering
-            antialiasing: true
             color: root.popupOpen ? buttonBg.item : Styling.srItem("overprimary")
         }
 
@@ -164,8 +164,6 @@ Item {
                             text: root.getLayoutIcon(layoutButton.modelData)
                             font.family: Icons.font
                             font.pixelSize: 14
-                            renderType: Text.QtRendering
-                            antialiasing: true
                             color: layoutButton.item
                         }
 

@@ -82,8 +82,6 @@ Item {
                 text: root.icon
                 font.family: Icons.font
                 font.pixelSize: 18
-                renderType: Text.QtRendering
-                antialiasing: true
                 color: iconMouseArea.containsMouse ? Styling.srItem("overprimary") : Colors.overBackground
                 rotation: root._animatedIconRotation
                 scale: root._animatedIconScale
@@ -135,21 +133,22 @@ Item {
             }
 
             // Progress fill (wavy or solid)
-            WavyLine {
+            Loader {
+                active: root.wavy
                 anchors.left: parent.left
                 anchors.right: dragHandle.left
                 anchors.rightMargin: 4
                 anchors.verticalCenter: parent.verticalCenter
-                frequency: root._animatedWavyFrequency
-                color: root.progressColor
-                amplitudeMultiplier: root._animatedWavyAmplitude
                 height: 32
-                lineWidth: 4
-                fullLength: sliderContainer.width
-                visible: root.wavy
                 z: 1
-                FrameAnimation {
-                    running: visible
+                sourceComponent: CarouselProgress {
+                    anchors.fill: parent
+                    frequency: root._animatedWavyFrequency
+                    color: root.progressColor
+                    amplitudeMultiplier: root._animatedWavyAmplitude
+                    lineWidth: 4
+                    fullLength: sliderContainer.width
+                    active: true
                 }
             }
 
