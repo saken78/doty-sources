@@ -238,7 +238,7 @@ WlSessionLockSurface {
                 color: hoursText.color
                 antialiasing: true
                 anchors.top: hoursText.top
-                anchors.topMargin: hoursText.height * 0.35
+                anchors.topMargin: hoursText.height * 0.35 
                 visible: Config.bar.use12hFormat
                 opacity: startAnim ? 1 : 0
 
@@ -271,7 +271,7 @@ WlSessionLockSurface {
 
         Timer {
             interval: 1000
-            running: false
+            running: true
             repeat: true
             onTriggered: clockContainer.currentTime = new Date()
         }
@@ -404,6 +404,7 @@ WlSessionLockSurface {
                     anchors.verticalCenter: parent.verticalCenter
 
                     Image {
+                        mipmap: true
                         id: userAvatar
                         anchors.fill: parent
                         source: `file://${Quickshell.env("HOME")}/.face.icon`
@@ -454,7 +455,7 @@ WlSessionLockSurface {
                         // User icon / Spinner
                         Text {
                             id: userIcon
-                            text: authenticating ? Icons.spinnerGap : Icons.user
+                            text: authenticating ? Icons.circleNotch : Icons.user
                             font.family: Icons.font
                             font.pixelSize: 24
                             color: passwordFieldBg.item
@@ -596,7 +597,7 @@ WlSessionLockSurface {
     Process {
         id: usernameProc
         command: ["whoami"]
-        running: false
+        running: true
 
         stdout: StdioCollector {
             id: usernameCollector
@@ -607,7 +608,7 @@ WlSessionLockSurface {
     Process {
         id: hostnameProc
         command: ["hostname"]
-        running: false
+        running: true
 
         stdout: StdioCollector {
             id: hostnameCollector

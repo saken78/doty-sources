@@ -33,8 +33,7 @@ Item {
 
     // Check if there are any windows on the current monitor and workspace
     readonly property bool hasWindows: {
-        if (!hyprlandMonitor)
-            return false;
+        if (!hyprlandMonitor) return false;
         const activeWorkspaceId = hyprlandMonitor.activeWorkspace.id;
         const monId = hyprlandMonitor.id;
         const wins = HyprlandData.windowList;
@@ -64,7 +63,7 @@ Item {
         // Fallback to config only if panel ref is missing
         return Config.bar?.pinnedOnStartup ?? true;
     }
-
+    
     // Check if bar is hovering (for synchronized reveal when bar is at same side)
     readonly property bool barHoverActive: {
         if (barPosition !== notchPosition)
@@ -77,14 +76,13 @@ Item {
 
     // Fullscreen detection - check if active toplevel is fullscreen on this screen
     readonly property bool activeWindowFullscreen: {
-        if (!hyprlandMonitor || !toplevels)
-            return false;
+        if (!hyprlandMonitor || !toplevels) return false;
 
         // Check all toplevels on active workspcace
         for (var i = 0; i < toplevels.length; i++) {
             // Checks first if the wayland handle is ready
             if (toplevels[i].wayland && toplevels[i].wayland.fullscreen == true) {
-                return true;
+               return true;
             }
         }
         return false;
@@ -95,8 +93,7 @@ Item {
     // 2. If notch and bar are on same side: hide only if bar is unpinned OR if fullscreen is present
     readonly property bool shouldAutoHide: {
         if (barPosition !== notchPosition) {
-            if (Config.notch?.keepHidden ?? false)
-                return true;
+            if (Config.notch?.keepHidden ?? false) return true;
             return hasWindows || activeWindowFullscreen;
         }
         return !barPinned || activeWindowFullscreen;
@@ -115,13 +112,6 @@ Item {
     // Track if mouse is over any notch-related area
     readonly property bool isMouseOverNotch: notchMouseAreaHover.hovered || notchRegionHover.hovered
 
-    readonly property real reportedNotchWidth: Math.max(notchContainer.implicitWidth ?? 0, notchContainer.width ?? 0, notchRegionContainer.width ?? 0)
-
-    onReportedNotchWidthChanged: {
-        if (root.screen && root.screen.name)
-            Visibilities.setNotchWidth(root.screen.name, reportedNotchWidth);
-    }
-
     // Reveal logic:
     readonly property bool reveal: {
         // If keepHidden is true, ONLY show on interaction
@@ -131,15 +121,14 @@ Item {
         }
 
         // If not auto-hiding (pinned and not fullscreen), always show
-        if (!shouldAutoHide)
-            return true;
-
+        if (!shouldAutoHide) return true;
+        
         // Show on interaction (hover, open, notifications)
         // This works even in fullscreen, ensuring hover always works
         if (screenNotchOpen || hasActiveNotifications || hoverActive || barHoverActive) {
             return true;
         }
-
+        
         return false;
     }
 
@@ -177,26 +166,30 @@ Item {
     }
 
     // Persistent views to avoid creation lag when opening the notch
-    LauncherView {
-        id: persistentLauncherView
-        visible: false
+    Loader {
+        id: persistentLauncherViewLoader
+        active: false
+        sourceComponent: Component { LauncherView { visible: false } }
     }
 
-    DashboardView {
-        id: persistentDashboardView
-        visible: false
+    Loader {
+        id: persistentDashboardViewLoader
+        active: false
+        sourceComponent: Component { DashboardView { visible: false } }
     }
 
     // Persistent power menu view
-    PowerMenuView {
-        id: persistentPowerMenuView
-        visible: false
+    Loader {
+        id: persistentPowerMenuViewLoader
+        active: false
+        sourceComponent: Component { PowerMenuView { visible: false } }
     }
 
     // Persistent tools menu view
-    ToolsMenuView {
-        id: persistentToolsMenuView
-        visible: false
+    Loader {
+        id: persistentToolsMenuViewLoader
+        active: false
+        sourceComponent: Component { ToolsMenuView { visible: false } }
     }
 
     // Notification view component
@@ -233,7 +226,7 @@ Item {
 
     Item {
         id: notchRegionContainer
-
+        
         width: Math.max(notchAnimationContainer.width, notificationPopupContainer.visible ? notificationPopupContainer.width : 0)
         height: notchAnimationContainer.height + (notificationPopupContainer.visible ? notificationPopupContainer.height + notificationPopupContainer.anchors.topMargin : 0)
 
@@ -269,8 +262,7 @@ Item {
             // Slide animation (slide up when hidden)
             transform: Translate {
                 y: {
-                    if (root.reveal)
-                        return 0;
+                    if (root.reveal) return 0;
                     if (root.notchPosition === "top")
                         return -(Math.max(notchContainer.height, 50) + 16);
                     else
@@ -329,7 +321,7 @@ Item {
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.topMargin: root.notchPosition === "top" ? 4 : 0
             anchors.bottomMargin: root.notchPosition === "bottom" ? 4 : 0
-
+            
             width: Math.round(popupHovered ? 420 + 48 : 320 + 48)
             height: shouldShowNotificationPopup ? (popupHovered ? notificationPopup.implicitHeight + 32 : notificationPopup.implicitHeight + 32) : 0
             clip: false
@@ -349,8 +341,7 @@ Item {
 
             transform: Translate {
                 y: {
-                    if (root.reveal)
-                        return 0;
+                    if (root.reveal) return 0;
                     if (root.notchPosition === "top")
                         return -(notchContainer.height + 16);
                     else
@@ -435,10 +426,15 @@ Item {
 
         function onLauncherChanged() {
             if (screenVisibilities.launcher) {
-                notchContainer.stackView.push(persistentLauncherView);
+                persistentLauncherViewLoader.active = true;
                 Qt.callLater(() => {
-                    if (notchContainer.stackView.currentItem) {
-                        notchContainer.stackView.currentItem.forceActiveFocus();
+                    if (persistentLauncherViewLoader.item) {
+                        notchContainer.stackView.push(persistentLauncherViewLoader.item);
+                        Qt.callLater(() => {
+                            if (notchContainer.stackView.currentItem) {
+                                notchContainer.stackView.currentItem.forceActiveFocus();
+                            }
+                        });
                     }
                 });
             } else {
@@ -452,10 +448,15 @@ Item {
 
         function onDashboardChanged() {
             if (screenVisibilities.dashboard) {
-                notchContainer.stackView.push(persistentDashboardView);
+                persistentDashboardViewLoader.active = true;
                 Qt.callLater(() => {
-                    if (notchContainer.stackView.currentItem) {
-                        notchContainer.stackView.currentItem.forceActiveFocus();
+                    if (persistentDashboardViewLoader.item) {
+                        notchContainer.stackView.push(persistentDashboardViewLoader.item);
+                        Qt.callLater(() => {
+                            if (notchContainer.stackView.currentItem) {
+                                notchContainer.stackView.currentItem.forceActiveFocus();
+                            }
+                        });
                     }
                 });
             } else {
@@ -469,10 +470,15 @@ Item {
 
         function onPowermenuChanged() {
             if (screenVisibilities.powermenu) {
-                notchContainer.stackView.push(persistentPowerMenuView);
+                persistentPowerMenuViewLoader.active = true;
                 Qt.callLater(() => {
-                    if (notchContainer.stackView.currentItem) {
-                        notchContainer.stackView.currentItem.forceActiveFocus();
+                    if (persistentPowerMenuViewLoader.item) {
+                        notchContainer.stackView.push(persistentPowerMenuViewLoader.item);
+                        Qt.callLater(() => {
+                            if (notchContainer.stackView.currentItem) {
+                                notchContainer.stackView.currentItem.forceActiveFocus();
+                            }
+                        });
                     }
                 });
             } else {
@@ -486,10 +492,15 @@ Item {
 
         function onToolsChanged() {
             if (screenVisibilities.tools) {
-                notchContainer.stackView.push(persistentToolsMenuView);
+                persistentToolsMenuViewLoader.active = true;
                 Qt.callLater(() => {
-                    if (notchContainer.stackView.currentItem) {
-                        notchContainer.stackView.currentItem.forceActiveFocus();
+                    if (persistentToolsMenuViewLoader.item) {
+                        notchContainer.stackView.push(persistentToolsMenuViewLoader.item);
+                        Qt.callLater(() => {
+                            if (notchContainer.stackView.currentItem) {
+                                notchContainer.stackView.currentItem.forceActiveFocus();
+                            }
+                        });
                     }
                 });
             } else {
@@ -504,15 +515,4 @@ Item {
 
     // Export some internal items for Visibilities
     property alias notchContainerRef: notchContainer
-    property alias notchRegionWidth: notchRegionContainer.width
-
-    Component.onCompleted: {
-        if (root.screen && root.screen.name)
-            Visibilities.setNotchWidth(root.screen.name, reportedNotchWidth);
-    }
-
-    Component.onDestruction: {
-        if (root.screen && root.screen.name)
-            Visibilities.clearNotchWidth(root.screen.name);
-    }
 }

@@ -14,9 +14,6 @@ Item {
     property bool unifiedEffectActive: false
     z: 1000
 
-    width: implicitWidth
-    height: implicitHeight
-
     property Component defaultViewComponent
     property Component launcherViewComponent
     property Component dashboardViewComponent
