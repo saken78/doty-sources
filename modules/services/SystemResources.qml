@@ -1,10 +1,10 @@
 pragma Singleton
+pragma ComponentBehavior: Bound
 import QtQuick
 import Quickshell
 import Quickshell.Io
 import qs.config
 import qs.modules.globals
-pragma ComponentBehavior: Bound
 
 /**
  * System resource monitoring service
@@ -31,7 +31,7 @@ Singleton {
     property int gpuCount: 0
     property bool gpuDetected: false
     property var gpuTemps: []
-    
+
     // Legacy single GPU properties
     property real gpuUsage: gpuUsages.length > 0 ? gpuUsages[0] : 0.0
     property string gpuVendor: gpuVendors.length > 0 ? gpuVendors[0] : "unknown"
@@ -51,27 +51,27 @@ Singleton {
     property int maxHistoryPoints: 50
     property int totalDataPoints: 0
 
-    // Update interval (passed to python or managed by restart if needed)
+    // Update interval
     property int updateInterval: 2000
 
-    // The unified monitor process
-    // Only runs when the dashboard is open to save resources.
-    // GPU polling is internally optimized in the script to avoid waking up dGPUs.
+    // Unified monitor process.
+    // Resource-efficient: only runs when dashboard is open.
+    // Optimized GPU polling avoids waking dGPUs.
     property Process monitorProcess: Process {
         id: monitorProcess
-        running: GlobalStates.dashboardOpen && GlobalStates.dashboardCurrentTab === 2 && root.validDisks.length > 0
-        
+        running: root.validDisks.length > 0
+
         command: {
             let cmd = ["python3", Quickshell.shellDir + "/scripts/system_monitor.py", root.updateInterval.toString()];
             return cmd.concat(root.validDisks);
         }
-        
+
         stdout: SplitParser {
             onRead: data => {
                 try {
                     const stats = JSON.parse(data);
-                    
-                    // Handle static info (received once at start)
+
+                    // Static info (received once at start)
                     if (stats.static) {
                         root.cpuModel = stats.static.cpu_model || root.cpuModel;
                         root.gpuNames = stats.static.gpu_names || [];
@@ -87,21 +87,22 @@ Singleton {
                         root.cpuUsage = stats.cpu.usage;
                         root.cpuTemp = stats.cpu.temp;
                     }
-                    
+
                     if (stats.ram) {
                         root.ramUsage = stats.ram.usage;
                         root.ramTotal = stats.ram.total;
                         root.ramUsed = stats.ram.used;
                         root.ramAvailable = stats.ram.available;
                     }
-                    
-                    if (stats.disk) root.diskUsage = stats.disk.usage;
-                    
+
+                    if (stats.disk)
+                        root.diskUsage = stats.disk.usage;
+
                     if (stats.gpu) {
                         root.gpuUsages = stats.gpu.usages;
                         root.gpuTemps = stats.gpu.temps;
                     }
-                    
+
                     root.updateHistory();
                 } catch (e) {
                     console.warn("SystemResources: Failed to parse monitor data: " + e);
@@ -114,18 +115,25 @@ Singleton {
 
     Connections {
         target: Config.system
-        function onDisksChanged() { root.validateDisks(); }
+        function onDisksChanged() {
+            root.validateDisks();
+        }
     }
 
     property bool configReady: Config.initialLoadComplete
-    onConfigReadyChanged: if (configReady) validateDisks()
+    onConfigReadyChanged: if (configReady)
+        validateDisks()
 
-    onValidDisksChanged: if (monitorProcess.running) restartMonitor()
-    onUpdateIntervalChanged: if (monitorProcess.running) restartMonitor()
+    onValidDisksChanged: if (monitorProcess.running)
+        restartMonitor()
+    onUpdateIntervalChanged: if (monitorProcess.running)
+        restartMonitor()
 
     function restartMonitor() {
         monitorProcess.running = false;
-        Qt.callLater(() => { monitorProcess.running = true; });
+        Qt.callLater(() => {
+            monitorProcess.running = true;
+        });
     }
 
     function validateDisks() {
@@ -137,18 +145,20 @@ Singleton {
                 newValidDisks.push(disk.trim());
             }
         }
-        if (newValidDisks.length === 0) newValidDisks = ["/"];
+        if (newValidDisks.length === 0)
+            newValidDisks = ["/"];
         validDisks = newValidDisks;
     }
 
     function updateHistory() {
         totalDataPoints++;
-        
+
         // Helper to update history arrays
         const pushHistory = (arr, val) => {
             let next = arr.slice();
             next.push(val);
-            if (next.length > maxHistoryPoints) next.shift();
+            if (next.length > maxHistoryPoints)
+                next.shift();
             return next;
         };
 
@@ -159,15 +169,17 @@ Singleton {
         if (gpuDetected && gpuCount > 0) {
             let newGpuHistories = gpuHistories.slice();
             let newGpuTempHistories = gpuTempHistories.slice();
-            
-            while (newGpuHistories.length < gpuCount) newGpuHistories.push([]);
-            while (newGpuTempHistories.length < gpuCount) newGpuTempHistories.push([]);
-            
+
+            while (newGpuHistories.length < gpuCount)
+                newGpuHistories.push([]);
+            while (newGpuTempHistories.length < gpuCount)
+                newGpuTempHistories.push([]);
+
             for (let i = 0; i < gpuCount; i++) {
                 newGpuHistories[i] = pushHistory(newGpuHistories[i], (gpuUsages[i] || 0) / 100);
                 newGpuTempHistories[i] = pushHistory(newGpuTempHistories[i], (gpuTemps[i] ?? -1));
             }
-            
+
             gpuHistories = newGpuHistories;
             gpuTempHistories = newGpuTempHistories;
         }
