@@ -43,7 +43,9 @@ StyledRect {
         color: "transparent"
 
         Image {
+            mipmap: true
             id: lockPlayerBgArt
+            sourceSize: Qt.size(64, 64)
             anchors.fill: parent
             source: (MprisController.activePlayer?.trackArtUrl ?? "") !== "" ? MprisController.activePlayer.trackArtUrl : lockPlayer.wallpaperPath
             fillMode: Image.PreserveAspectCrop
@@ -54,7 +56,8 @@ StyledRect {
         MultiEffect {
             anchors.fill: parent
             source: lockPlayerBgArt
-            blurEnabled: true
+            // Only enable blur when there's content to blur (saves GPU)
+            blurEnabled: MprisController.activePlayer || wallpaperPath !== ""
             blurMax: 32
             blur: 0.75
             opacity: (MprisController.activePlayer || wallpaperPath !== "") ? 1.0 : 0.0
@@ -76,7 +79,7 @@ StyledRect {
     }
 
     Timer {
-        running: lockPlayer.isPlaying
+        running: lockPlayer.isPlaying && lockPlayer.visible
         interval: 1000
         repeat: true
         onTriggered: {
@@ -102,30 +105,30 @@ StyledRect {
         anchors.margins: 16
         visible: !MprisController.activePlayer && wallpaperPath === ""
 
-        WavyLine {
-            id: noPlayerWavyLine
+        Loader {
+            active: noPlayerContainer.visible
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
-            frequency: 4
-            color: Colors.surfaceBright
-            amplitudeMultiplier: 4
             height: 24
-            lineWidth: 2
-            fullLength: width
-            visible: true
-            opacity: 1.0
+            sourceComponent: CarouselProgress {
+                anchors.fill: parent
+                frequency: 4
+                color: Colors.surfaceBright
+                amplitudeMultiplier: 4
+                lineWidth: 2
+                fullLength: width
+                opacity: 1.0
+                animationsEnabled: true
+                active: true
 
-            Behavior on color {
-                enabled: Config.animDuration > 0
-                ColorAnimation {
-                    duration: Config.animDuration
-                    easing.type: Easing.OutQuart
+                Behavior on color {
+                    enabled: Config.animDuration > 0
+                    ColorAnimation {
+                        duration: Config.animDuration
+                        easing.type: Easing.OutQuart
+                    }
                 }
-            }
-
-            FrameAnimation {
-                running: noPlayerWavyLine.visible
             }
         }
     }
@@ -161,7 +164,9 @@ StyledRect {
                 color: Colors.surface
 
                 Image {
+                    mipmap: true
                     id: albumArt
+                    sourceSize: Qt.size(128, 128)
                     anchors.fill: parent
                     source: (MprisController.activePlayer?.trackArtUrl ?? "") !== "" ? MprisController.activePlayer.trackArtUrl : lockPlayer.wallpaperPath
                     fillMode: Image.PreserveAspectCrop
@@ -172,7 +177,8 @@ StyledRect {
                 MultiEffect {
                     anchors.fill: parent
                     source: albumArt
-                    blurEnabled: true
+                    // Only enable blur when hovered (saves GPU)
+                    blurEnabled: playPauseHover.hovered
                     blurMax: 32
                     blur: playPauseHover.hovered ? 0.75 : 0
 

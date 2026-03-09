@@ -24,7 +24,7 @@ PanelWindow {
     color: "transparent"
 
     property string wallpaperDir: wallpaperConfig.adapter.wallPath
-    property string fallbackDir: decodeURIComponent(Qt.resolvedUrl("/home/saken/Documents/wallpapers_example").toString().replace("file://", ""))
+    property string fallbackDir: decodeURIComponent(Qt.resolvedUrl("../../../../assets/wallpapers_example").toString().replace("file://", ""))
     property var wallpaperPaths: []
     property var subfolderFilters: []
     property var allSubdirs: []
@@ -416,6 +416,9 @@ PanelWindow {
     }
 
     function updateMpvShader() {
+        if (getFileType(currentWallpaper) !== "video") {
+            return;
+        }
         if (!wallpaperAdapter.tintEnabled) {
             updateMpvRuntime(false);
             return;
@@ -1272,6 +1275,7 @@ PanelWindow {
                 }
 
                 Image {
+                    mipmap: true
                     id: rawImage
                     anchors.fill: parent
                     source: parent.sourceFile ? "file://" + parent.sourceFile : ""

@@ -19,7 +19,7 @@ import "defaults/lockscreen.js" as LockscreenDefaults
 import "defaults/prefix.js" as PrefixDefaults
 import "defaults/system.js" as SystemDefaults
 import "defaults/dock.js" as DockDefaults
-// import "defaults/ai.js" as AiDefaults
+import "defaults/ai.js" as AiDefaults
 import "ConfigValidator.js" as ConfigValidator
 
 Singleton {
@@ -38,7 +38,7 @@ Singleton {
 
     property bool pauseAutoSave: false
 
-    // Track initialization of all modules
+    // Module init status
     property bool themeReady: false
     property bool barReady: false
     property bool workspacesReady: false
@@ -52,140 +52,40 @@ Singleton {
     property bool prefixReady: false
     property bool systemReady: false
     property bool dockReady: false
-    // property bool aiReady: false
+    property bool aiReady: false
     property bool keybindsInitialLoadComplete: false
 
-    property bool initialLoadComplete: themeReady && barReady && workspacesReady && overviewReady && notchReady && hyprlandReady && performanceReady && weatherReady && desktopReady && lockscreenReady && prefixReady && systemReady && dockReady
+    property bool initialLoadComplete: themeReady && barReady && workspacesReady && overviewReady && notchReady && hyprlandReady && performanceReady && weatherReady && desktopReady && lockscreenReady && prefixReady && systemReady && dockReady && aiReady
 
-    // Aliases for backward compatibility
+    // Compatibility aliases
     property alias loader: themeLoader
     property alias keybindsLoader: keybindsLoader
 
     // ============================================
     // BATCH INITIALIZATION
     // ============================================
-    // Single process to check environment and all config files at once
+    // Ensure config directory exists (pure mkdir, no file checks)
     Process {
-        id: initConfigs
+        id: ensureConfigDir
         running: true
-        command: ["bash", "-c", `
-            mkdir -p "${root.configDir}"
-            cd "${root.configDir}"
-            MISSING=""
-            [ ! -f theme.json ] && MISSING="$MISSING theme"
-            [ ! -f bar.json ] && MISSING="$MISSING bar"
-            [ ! -f workspaces.json ] && MISSING="$MISSING workspaces"
-            [ ! -f overview.json ] && MISSING="$MISSING overview"
-            [ ! -f notch.json ] && MISSING="$MISSING notch"
-            [ ! -f hyprland.json ] && MISSING="$MISSING hyprland"
-            [ ! -f performance.json ] && MISSING="$MISSING performance"
-            [ ! -f weather.json ] && MISSING="$MISSING weather"
-            [ ! -f desktop.json ] && MISSING="$MISSING desktop"
-            [ ! -f lockscreen.json ] && MISSING="$MISSING lockscreen"
-            [ ! -f prefix.json ] && MISSING="$MISSING prefix"
-            [ ! -f system.json ] && MISSING="$MISSING system"
-            [ ! -f dock.json ] && MISSING="$MISSING dock"
-            [ ! -f ai.json ] && MISSING="$MISSING ai"
-            echo "$MISSING"
-        `]
-
-        stdout: StdioCollector {
-            onStreamFinished: {
-                const missing = text.trim().split(" ");
-                if (missing.includes("theme")) {
-                    console.log("theme.json missing, creating default...");
-                    themeRawLoader.setText(JSON.stringify(ThemeDefaults.data, null, 4));
-                    root.themeReady = true;
-                }
-                if (missing.includes("bar")) {
-                    console.log("bar.json missing, creating default...");
-                    barRawLoader.setText(JSON.stringify(BarDefaults.data, null, 4));
-                    root.barReady = true;
-                }
-                if (missing.includes("workspaces")) {
-                    console.log("workspaces.json missing, creating default...");
-                    workspacesRawLoader.setText(JSON.stringify(WorkspacesDefaults.data, null, 4));
-                    root.workspacesReady = true;
-                }
-                if (missing.includes("overview")) {
-                    console.log("overview.json missing, creating default...");
-                    overviewRawLoader.setText(JSON.stringify(OverviewDefaults.data, null, 4));
-                    root.overviewReady = true;
-                }
-                if (missing.includes("notch")) {
-                    console.log("notch.json missing, creating default...");
-                    notchRawLoader.setText(JSON.stringify(NotchDefaults.data, null, 4));
-                    root.notchReady = true;
-                }
-                if (missing.includes("hyprland")) {
-                    console.log("hyprland.json missing, creating default...");
-                    hyprlandRawLoader.setText(JSON.stringify(HyprlandDefaults.data, null, 4));
-                    root.hyprlandReady = true;
-                }
-                if (missing.includes("performance")) {
-                    console.log("performance.json missing, creating default...");
-                    performanceRawLoader.setText(JSON.stringify(PerformanceDefaults.data, null, 4));
-                    root.performanceReady = true;
-                }
-                if (missing.includes("weather")) {
-                    console.log("weather.json missing, creating default...");
-                    weatherRawLoader.setText(JSON.stringify(WeatherDefaults.data, null, 4));
-                    root.weatherReady = true;
-                }
-                if (missing.includes("desktop")) {
-                    console.log("desktop.json missing, creating default...");
-                    desktopRawLoader.setText(JSON.stringify(DesktopDefaults.data, null, 4));
-                    root.desktopReady = true;
-                }
-                if (missing.includes("lockscreen")) {
-                    console.log("lockscreen.json missing, creating default...");
-                    lockscreenRawLoader.setText(JSON.stringify(LockscreenDefaults.data, null, 4));
-                    root.lockscreenReady = true;
-                }
-                if (missing.includes("prefix")) {
-                    console.log("prefix.json missing, creating default...");
-                    prefixRawLoader.setText(JSON.stringify(PrefixDefaults.data, null, 4));
-                    root.prefixReady = true;
-                }
-                if (missing.includes("system")) {
-                    console.log("system.json missing, creating default...");
-                    systemRawLoader.setText(JSON.stringify(SystemDefaults.data, null, 4));
-                    root.systemReady = true;
-                }
-                if (missing.includes("dock")) {
-                    console.log("dock.json missing, creating default...");
-                    dockRawLoader.setText(JSON.stringify(DockDefaults.data, null, 4));
-                    root.dockReady = true;
-                }
-                // if (missing.includes("ai")) {
-                //     console.log("ai.json missing, creating default...");
-                //     aiRawLoader.setText(JSON.stringify(AiDefaults.data, null, 4));
-                //     root.aiReady = true;
-                // }
-            }
-        }
+        command: ["mkdir", "-p", root.configDir]
     }
 
     // ============================================
     // THEME MODULE
     // ============================================
     FileView {
-        id: themeRawLoader
-        path: root.configDir + "/theme.json"
-        onLoaded: {
-            if (!root.themeReady) {
-                validateModule("theme", themeRawLoader, ThemeDefaults.data, () => {
-                    root.themeReady = true;
-                });
-            }
-        }
-    }
-
-    FileView {
         id: themeLoader
         path: root.configDir + "/theme.json"
         atomicWrites: true
         watchChanges: true
+        onLoaded: {
+            if (!root.themeReady) {
+                validateModule("theme", themeLoader, ThemeDefaults.data, () => {
+                    root.themeReady = true;
+                });
+            }
+        }
         onFileChanged: {
             root.pauseAutoSave = true;
             reload();
@@ -563,22 +463,17 @@ Singleton {
     // BAR MODULE
     // ============================================
     FileView {
-        id: barRawLoader
-        path: root.configDir + "/bar.json"
-        onLoaded: {
-            if (!root.barReady) {
-                validateModule("bar", barRawLoader, BarDefaults.data, () => {
-                    root.barReady = true;
-                });
-            }
-        }
-    }
-
-    FileView {
         id: barLoader
         path: root.configDir + "/bar.json"
         atomicWrites: true
         watchChanges: true
+        onLoaded: {
+            if (!root.barReady) {
+                validateModule("bar", barLoader, BarDefaults.data, () => {
+                    root.barReady = true;
+                });
+            }
+        }
         onFileChanged: {
             root.pauseAutoSave = true;
             reload();
@@ -603,7 +498,7 @@ Singleton {
             property list<var> barColor: [["surface", 0.0]]
             property bool frameEnabled: false
             property int frameThickness: 6
-            // Auto-hide properties
+            // Auto-hide settings
             property bool pinnedOnStartup: true
             property bool hoverToReveal: true
             property int hoverRegionHeight: 8
@@ -613,12 +508,6 @@ Singleton {
             property bool containBar: false
             property bool keepBarShadow: false
             property bool keepBarBorder: false
-            property var itemsLeft: ["launcher", "workspaces", "layout", "pin"]
-            property var itemsCenter: ["dock"]
-            property var itemsRight: ["presets", "tools", "systray", "controls", "battery", "clock", "power"]
-            property var itemsLeftVertical: ["launcher", "systray", "tools", "presets"]
-            property var itemsCenterVertical: ["layout", "workspaces", "pin", "dock"]
-            property var itemsRightVertical: ["controls", "battery", "clock", "power"]
         }
     }
 
@@ -626,22 +515,17 @@ Singleton {
     // WORKSPACES MODULE
     // ============================================
     FileView {
-        id: workspacesRawLoader
-        path: root.configDir + "/workspaces.json"
-        onLoaded: {
-            if (!root.workspacesReady) {
-                validateModule("workspaces", workspacesRawLoader, WorkspacesDefaults.data, () => {
-                    root.workspacesReady = true;
-                });
-            }
-        }
-    }
-
-    FileView {
         id: workspacesLoader
         path: root.configDir + "/workspaces.json"
         atomicWrites: true
         watchChanges: true
+        onLoaded: {
+            if (!root.workspacesReady) {
+                validateModule("workspaces", workspacesLoader, WorkspacesDefaults.data, () => {
+                    root.workspacesReady = true;
+                });
+            }
+        }
         onFileChanged: {
             root.pauseAutoSave = true;
             reload();
@@ -667,22 +551,17 @@ Singleton {
     // OVERVIEW MODULE
     // ============================================
     FileView {
-        id: overviewRawLoader
-        path: root.configDir + "/overview.json"
-        onLoaded: {
-            if (!root.overviewReady) {
-                validateModule("overview", overviewRawLoader, OverviewDefaults.data, () => {
-                    root.overviewReady = true;
-                });
-            }
-        }
-    }
-
-    FileView {
         id: overviewLoader
         path: root.configDir + "/overview.json"
         atomicWrites: true
         watchChanges: true
+        onLoaded: {
+            if (!root.overviewReady) {
+                validateModule("overview", overviewLoader, OverviewDefaults.data, () => {
+                    root.overviewReady = true;
+                });
+            }
+        }
         onFileChanged: {
             root.pauseAutoSave = true;
             reload();
@@ -707,22 +586,17 @@ Singleton {
     // NOTCH MODULE
     // ============================================
     FileView {
-        id: notchRawLoader
-        path: root.configDir + "/notch.json"
-        onLoaded: {
-            if (!root.notchReady) {
-                validateModule("notch", notchRawLoader, NotchDefaults.data, () => {
-                    root.notchReady = true;
-                });
-            }
-        }
-    }
-
-    FileView {
         id: notchLoader
         path: root.configDir + "/notch.json"
         atomicWrites: true
         watchChanges: true
+        onLoaded: {
+            if (!root.notchReady) {
+                validateModule("notch", notchLoader, NotchDefaults.data, () => {
+                    root.notchReady = true;
+                });
+            }
+        }
         onFileChanged: {
             root.pauseAutoSave = true;
             reload();
@@ -740,6 +614,9 @@ Singleton {
             property string position: "top"
             property int hoverRegionHeight: 8
             property bool keepHidden: false
+            property string noMediaDisplay: "userHost"
+            property string customText: "Ambxst"
+            property bool disableHoverExpansion: true
         }
     }
 
@@ -747,22 +624,17 @@ Singleton {
     // HYPRLAND MODULE
     // ============================================
     FileView {
-        id: hyprlandRawLoader
-        path: root.configDir + "/hyprland.json"
-        onLoaded: {
-            if (!root.hyprlandReady) {
-                validateModule("hyprland", hyprlandRawLoader, HyprlandDefaults.data, () => {
-                    root.hyprlandReady = true;
-                });
-            }
-        }
-    }
-
-    FileView {
         id: hyprlandLoader
         path: root.configDir + "/hyprland.json"
         atomicWrites: true
         watchChanges: true
+        onLoaded: {
+            if (!root.hyprlandReady) {
+                validateModule("hyprland", hyprlandLoader, HyprlandDefaults.data, () => {
+                    root.hyprlandReady = true;
+                });
+            }
+        }
         onFileChanged: {
             root.pauseAutoSave = true;
             reload();
@@ -825,22 +697,17 @@ Singleton {
     // PERFORMANCE MODULE
     // ============================================
     FileView {
-        id: performanceRawLoader
-        path: root.configDir + "/performance.json"
-        onLoaded: {
-            if (!root.performanceReady) {
-                validateModule("performance", performanceRawLoader, PerformanceDefaults.data, () => {
-                    root.performanceReady = true;
-                });
-            }
-        }
-    }
-
-    FileView {
         id: performanceLoader
         path: root.configDir + "/performance.json"
         atomicWrites: true
         watchChanges: true
+        onLoaded: {
+            if (!root.performanceReady) {
+                validateModule("performance", performanceLoader, PerformanceDefaults.data, () => {
+                    root.performanceReady = true;
+                });
+            }
+        }
         onFileChanged: {
             root.pauseAutoSave = true;
             reload();
@@ -857,6 +724,7 @@ Singleton {
             property bool blurTransition: true
             property bool windowPreview: true
             property bool wavyLine: true
+            property bool rotateCoverArt: true
             property bool dashboardPersistTabs: true
             property int dashboardMaxPersistentTabs: 2
         }
@@ -866,22 +734,17 @@ Singleton {
     // WEATHER MODULE
     // ============================================
     FileView {
-        id: weatherRawLoader
-        path: root.configDir + "/weather.json"
-        onLoaded: {
-            if (!root.weatherReady) {
-                validateModule("weather", weatherRawLoader, WeatherDefaults.data, () => {
-                    root.weatherReady = true;
-                });
-            }
-        }
-    }
-
-    FileView {
         id: weatherLoader
         path: root.configDir + "/weather.json"
         atomicWrites: true
         watchChanges: true
+        onLoaded: {
+            if (!root.weatherReady) {
+                validateModule("weather", weatherLoader, WeatherDefaults.data, () => {
+                    root.weatherReady = true;
+                });
+            }
+        }
         onFileChanged: {
             root.pauseAutoSave = true;
             reload();
@@ -904,22 +767,17 @@ Singleton {
     // DESKTOP MODULE
     // ============================================
     FileView {
-        id: desktopRawLoader
-        path: root.configDir + "/desktop.json"
-        onLoaded: {
-            if (!root.desktopReady) {
-                validateModule("desktop", desktopRawLoader, DesktopDefaults.data, () => {
-                    root.desktopReady = true;
-                });
-            }
-        }
-    }
-
-    FileView {
         id: desktopLoader
         path: root.configDir + "/desktop.json"
         atomicWrites: true
         watchChanges: true
+        onLoaded: {
+            if (!root.desktopReady) {
+                validateModule("desktop", desktopLoader, DesktopDefaults.data, () => {
+                    root.desktopReady = true;
+                });
+            }
+        }
         onFileChanged: {
             root.pauseAutoSave = true;
             reload();
@@ -944,22 +802,17 @@ Singleton {
     // LOCKSCREEN MODULE
     // ============================================
     FileView {
-        id: lockscreenRawLoader
-        path: root.configDir + "/lockscreen.json"
-        onLoaded: {
-            if (!root.lockscreenReady) {
-                validateModule("lockscreen", lockscreenRawLoader, LockscreenDefaults.data, () => {
-                    root.lockscreenReady = true;
-                });
-            }
-        }
-    }
-
-    FileView {
         id: lockscreenLoader
         path: root.configDir + "/lockscreen.json"
         atomicWrites: true
         watchChanges: true
+        onLoaded: {
+            if (!root.lockscreenReady) {
+                validateModule("lockscreen", lockscreenLoader, LockscreenDefaults.data, () => {
+                    root.lockscreenReady = true;
+                });
+            }
+        }
         onFileChanged: {
             root.pauseAutoSave = true;
             reload();
@@ -981,22 +834,17 @@ Singleton {
     // PREFIX MODULE
     // ============================================
     FileView {
-        id: prefixRawLoader
-        path: root.configDir + "/prefix.json"
-        onLoaded: {
-            if (!root.prefixReady) {
-                validateModule("prefix", prefixRawLoader, PrefixDefaults.data, () => {
-                    root.prefixReady = true;
-                });
-            }
-        }
-    }
-
-    FileView {
         id: prefixLoader
         path: root.configDir + "/prefix.json"
         atomicWrites: true
         watchChanges: true
+        onLoaded: {
+            if (!root.prefixReady) {
+                validateModule("prefix", prefixLoader, PrefixDefaults.data, () => {
+                    root.prefixReady = true;
+                });
+            }
+        }
         onFileChanged: {
             root.pauseAutoSave = true;
             reload();
@@ -1022,22 +870,17 @@ Singleton {
     // SYSTEM MODULE
     // ============================================
     FileView {
-        id: systemRawLoader
-        path: root.configDir + "/system.json"
-        onLoaded: {
-            if (!root.systemReady) {
-                validateModule("system", systemRawLoader, SystemDefaults.data, () => {
-                    root.systemReady = true;
-                });
-            }
-        }
-    }
-
-    FileView {
         id: systemLoader
         path: root.configDir + "/system.json"
         atomicWrites: true
         watchChanges: true
+        onLoaded: {
+            if (!root.systemReady) {
+                validateModule("system", systemLoader, SystemDefaults.data, () => {
+                    root.systemReady = true;
+                });
+            }
+        }
         onFileChanged: {
             root.pauseAutoSave = true;
             reload();
@@ -1052,9 +895,7 @@ Singleton {
 
         adapter: JsonAdapter {
             property list<string> disks: ["/"]
-            property bool ipv6Disabled: false
-            property bool vpnDisabled: false
-            property bool updateServiceEnabled: false
+            property bool updateServiceEnabled: true
             property JsonObject idle: JsonObject {
                 property JsonObject general: JsonObject {
                     property string lock_cmd: "ambxst lock"
@@ -1084,7 +925,7 @@ Singleton {
             }
             property JsonObject ocr: JsonObject {
                 property bool eng: true
-                property bool spa: false
+                property bool spa: true
                 property bool lat: false
                 property bool jpn: false
                 property bool chi_sim: false
@@ -1104,22 +945,17 @@ Singleton {
     // DOCK MODULE
     // ============================================
     FileView {
-        id: dockRawLoader
-        path: root.configDir + "/dock.json"
-        onLoaded: {
-            if (!root.dockReady) {
-                validateModule("dock", dockRawLoader, DockDefaults.data, () => {
-                    root.dockReady = true;
-                });
-            }
-        }
-    }
-
-    FileView {
         id: dockLoader
         path: root.configDir + "/dock.json"
         atomicWrites: true
         watchChanges: true
+        onLoaded: {
+            if (!root.dockReady) {
+                validateModule("dock", dockLoader, DockDefaults.data, () => {
+                    root.dockReady = true;
+                });
+            }
+        }
         onFileChanged: {
             root.pauseAutoSave = true;
             reload();
@@ -1153,30 +989,24 @@ Singleton {
         }
     }
 
-    // ============================================
-    // PINNED APPS (stored in dataPath for per-user data)
-    // ============================================
+    // Pinned apps (per-user)
     property bool pinnedAppsReady: false
-
-    Process {
-        id: checkPinnedAppsFile
-        running: true
-        command: ["test", "-f", Quickshell.dataPath("pinnedapps.json")]
-
-        onExited: exitCode => {
-            if (exitCode !== 0) {
-                console.log("pinnedapps.json not found, creating with default values...");
-                pinnedAppsLoader.writeAdapter();
-            }
-            root.pinnedAppsReady = true;
-        }
-    }
 
     FileView {
         id: pinnedAppsLoader
         path: Quickshell.dataPath("pinnedapps.json")
         atomicWrites: true
         watchChanges: true
+        onLoaded: {
+            if (!root.pinnedAppsReady) {
+                var raw = text();
+                if (!raw || raw.trim().length === 0) {
+                    console.log("pinnedapps.json not found, creating with default values...");
+                    pinnedAppsLoader.writeAdapter();
+                }
+                root.pinnedAppsReady = true;
+            }
+        }
         onFileChanged: {
             root.pauseAutoSave = true;
             reload();
@@ -1197,86 +1027,53 @@ Singleton {
     // ============================================
     // AI MODULE
     // ============================================
-    // FileView {
-    //     id: aiRawLoader
-    //     path: root.configDir + "/ai.json"
-    //     onLoaded: {
-    //         if (!root.aiReady) {
-    //             validateModule("ai", aiRawLoader, AiDefaults.data, () => {
-    //                 root.aiReady = true;
-    //             });
-    //         }
-    //     }
-    // }
-
-    // FileView {
-    //     id: aiLoader
-    //     path: root.configDir + "/ai.json"
-    //     atomicWrites: true
-    //     watchChanges: true
-    //     onFileChanged: {
-    //         root.pauseAutoSave = true;
-    //         reload();
-    //         root.pauseAutoSave = false;
-    //     }
-    //     onPathChanged: reload()
-    //     onAdapterUpdated: {
-    //         if (root.aiReady && !root.pauseAutoSave) {
-    //             aiLoader.writeAdapter();
-    //         }
-    //     }
-
-    //     adapter: JsonAdapter {
-    //         property string systemPrompt: "You are a helpful assistant running on a Linux system. You have access to some tools to control the system."
-    //         property string tool: "none"
-    //         property list<var> extraModels: []
-    //         property string defaultModel: "gemini-pro"
-    //     }
-    // }
-
-    // ============================================
-    // KEYBINDS (kept separate as binds.json)
-    // ============================================
-    Process {
-        id: checkKeybindsFile
-        running: true
-        command: ["sh", "-c", "mkdir -p \"$(dirname '" + keybindsPath + "')\" && test -f \"" + keybindsPath + "\""]
-
-        onExited: exitCode => {
-            if (exitCode !== 0) {
-                console.log("binds.json not found, creating with default values...");
-                keybindsLoader.writeAdapter();
-            } else {
-                // File exists, check if it needs repair
-                repairKeybindsTimer.start();
+    FileView {
+        id: aiLoader
+        path: root.configDir + "/ai.json"
+        atomicWrites: true
+        watchChanges: true
+        onLoaded: {
+            if (!root.aiReady) {
+                validateModule("ai", aiLoader, AiDefaults.data, () => {
+                    root.aiReady = true;
+                });
             }
-            root.keybindsInitialLoadComplete = true;
+        }
+        onFileChanged: {
+            root.pauseAutoSave = true;
+            reload();
+            root.pauseAutoSave = false;
+        }
+        onPathChanged: reload()
+        onAdapterUpdated: {
+            if (root.aiReady && !root.pauseAutoSave) {
+                aiLoader.writeAdapter();
+            }
+        }
+
+        adapter: JsonAdapter {
+            property string systemPrompt: "You are a helpful assistant running on a Linux system. You have access to some tools to control the system."
+            property string tool: "none"
+            property list<var> extraModels: []
+            property string defaultModel: "gemini-pro"
         }
     }
 
+    // Keybinds (binds.json)
     // Timer to repair keybinds after initial load
     Timer {
         id: repairKeybindsTimer
         interval: 500
         repeat: false
         onTriggered: {
-            if (keybindsRawLoader.status === FileView.Ready) {
-                repairKeybinds();
-            }
+            repairKeybinds();
         }
     }
 
-    // Raw loader to check and repair binds.json
-    FileView {
-        id: keybindsRawLoader
-        path: keybindsPath
-    }
-
-    // Function to repair missing binds
+    // Repair missing binds
     function repairKeybinds() {
-        const raw = keybindsRawLoader.text();
-        if (!raw)
-            return;
+        const raw = keybindsLoader.text();
+        if (!raw) return;
 
         try {
             const current = JSON.parse(raw);
@@ -1288,11 +1085,11 @@ Singleton {
                 needsUpdate = true;
             }
 
-            // Migration from nested dashboard structure to flat structure
+            // Migrate nested to flat structure
             if (current.ambxst.dashboard && typeof current.ambxst.dashboard === "object" && !current.ambxst.dashboard.modifiers) {
                 console.log("Migrating nested ambxst binds to flat structure...");
                 const nested = current.ambxst.dashboard;
-
+                
                 // Map old names to new names and update arguments
                 if (nested.widgets) {
                     current.ambxst.launcher = nested.widgets;
@@ -1339,8 +1136,7 @@ Singleton {
 
             // Get default binds from adapter
             const adapter = keybindsLoader.adapter;
-            if (!adapter || !adapter.ambxst)
-                return;
+            if (!adapter || !adapter.ambxst) return;
 
             // Helper function to create clean bind object
             function createCleanBind(bindObj) {
@@ -1375,7 +1171,7 @@ Singleton {
 
             if (needsUpdate) {
                 console.log("Auto-repairing binds.json: adding missing binds");
-                keybindsRawLoader.setText(JSON.stringify(current, null, 4));
+                keybindsLoader.setText(JSON.stringify(current, null, 4));
             }
         } catch (e) {
             console.warn("Failed to repair binds.json:", e);
@@ -1387,6 +1183,19 @@ Singleton {
         path: keybindsPath
         atomicWrites: true
         watchChanges: true
+        onLoaded: {
+            if (!root.keybindsInitialLoadComplete) {
+                var raw = text();
+                if (!raw || raw.trim().length === 0) {
+                    console.log("binds.json not found, creating with default values...");
+                    keybindsLoader.writeAdapter();
+                } else {
+                    // File exists, check if it needs repair
+                    repairKeybindsTimer.start();
+                }
+                root.keybindsInitialLoadComplete = true;
+            }
+        }
         onFileChanged: {
             root.pauseAutoSave = true;
             reload();
@@ -1403,7 +1212,7 @@ Singleton {
             }
         }
 
-        // Normalize custom binds to new format with keys[], actions[] and compositor
+        // Normalize custom binds
         function normalizeCustomBinds() {
             if (!adapter || !adapter.custom)
                 return;
@@ -1606,137 +1415,29 @@ Singleton {
                     }
                 }
             }
-            // Functions to get defaults
+            // Default getters
             readonly property var defaultAmbxstBinds: {
                 "ambxst": {
-                    "launcher": {
-                        "modifiers": ["SUPER"],
-                        "key": "Super_L",
-                        "dispatcher": "exec",
-                        "argument": "ambxst run launcher",
-                        "flags": "r"
-                    },
-                    "dashboard": {
-                        "modifiers": ["SUPER"],
-                        "key": "D",
-                        "dispatcher": "exec",
-                        "argument": "ambxst run dashboard",
-                        "flags": ""
-                    },
-                    "assistant": {
-                        "modifiers": ["SUPER"],
-                        "key": "A",
-                        "dispatcher": "exec",
-                        "argument": "ambxst run assistant",
-                        "flags": ""
-                    },
-                    "clipboard": {
-                        "modifiers": ["SUPER"],
-                        "key": "V",
-                        "dispatcher": "exec",
-                        "argument": "ambxst run clipboard",
-                        "flags": ""
-                    },
-                    "emoji": {
-                        "modifiers": ["SUPER"],
-                        "key": "PERIOD",
-                        "dispatcher": "exec",
-                        "argument": "ambxst run emoji",
-                        "flags": ""
-                    },
-                    "notes": {
-                        "modifiers": ["SUPER"],
-                        "key": "N",
-                        "dispatcher": "exec",
-                        "argument": "ambxst run notes",
-                        "flags": ""
-                    },
-                    "tmux": {
-                        "modifiers": ["SUPER"],
-                        "key": "T",
-                        "dispatcher": "exec",
-                        "argument": "ambxst run tmux",
-                        "flags": ""
-                    },
-                    "wallpapers": {
-                        "modifiers": ["SUPER"],
-                        "key": "COMMA",
-                        "dispatcher": "exec",
-                        "argument": "ambxst run wallpapers",
-                        "flags": ""
-                    }
+                    "launcher": { "modifiers": ["SUPER"], "key": "Super_L", "dispatcher": "exec", "argument": "ambxst run launcher", "flags": "r" },
+                    "dashboard": { "modifiers": ["SUPER"], "key": "D", "dispatcher": "exec", "argument": "ambxst run dashboard", "flags": "" },
+                    "assistant": { "modifiers": ["SUPER"], "key": "A", "dispatcher": "exec", "argument": "ambxst run assistant", "flags": "" },
+                    "clipboard": { "modifiers": ["SUPER"], "key": "V", "dispatcher": "exec", "argument": "ambxst run clipboard", "flags": "" },
+                    "emoji": { "modifiers": ["SUPER"], "key": "PERIOD", "dispatcher": "exec", "argument": "ambxst run emoji", "flags": "" },
+                    "notes": { "modifiers": ["SUPER"], "key": "N", "dispatcher": "exec", "argument": "ambxst run notes", "flags": "" },
+                    "tmux": { "modifiers": ["SUPER"], "key": "T", "dispatcher": "exec", "argument": "ambxst run tmux", "flags": "" },
+                    "wallpapers": { "modifiers": ["SUPER"], "key": "COMMA", "dispatcher": "exec", "argument": "ambxst run wallpapers", "flags": "" }
                 },
                 "system": {
-                    "config": {
-                        "modifiers": ["SUPER", "SHIFT"],
-                        "key": "C",
-                        "dispatcher": "exec",
-                        "argument": "ambxst run config",
-                        "flags": ""
-                    },
-                    "lockscreen": {
-                        "modifiers": ["SUPER"],
-                        "key": "L",
-                        "dispatcher": "exec",
-                        "argument": "loginctl lock-session",
-                        "flags": ""
-                    },
-                    "overview": {
-                        "modifiers": ["SUPER"],
-                        "key": "TAB",
-                        "dispatcher": "exec",
-                        "argument": "ambxst run overview",
-                        "flags": ""
-                    },
-                    "powermenu": {
-                        "modifiers": ["SUPER"],
-                        "key": "ESCAPE",
-                        "dispatcher": "exec",
-                        "argument": "ambxst run powermenu",
-                        "flags": ""
-                    },
-                    "tools": {
-                        "modifiers": ["SUPER"],
-                        "key": "S",
-                        "dispatcher": "exec",
-                        "argument": "ambxst run tools",
-                        "flags": ""
-                    },
-                    "screenshot": {
-                        "modifiers": ["SUPER", "SHIFT"],
-                        "key": "S",
-                        "dispatcher": "exec",
-                        "argument": "ambxst run screenshot",
-                        "flags": ""
-                    },
-                    "screenrecord": {
-                        "modifiers": ["SUPER", "SHIFT"],
-                        "key": "R",
-                        "dispatcher": "exec",
-                        "argument": "ambxst run screenrecord",
-                        "flags": ""
-                    },
-                    "lens": {
-                        "modifiers": ["SUPER", "SHIFT"],
-                        "key": "A",
-                        "dispatcher": "exec",
-                        "argument": "ambxst run lens",
-                        "flags": ""
-                    },
-                    "reload": {
-                        "modifiers": ["SUPER", "ALT"],
-                        "key": "B",
-                        "dispatcher": "exec",
-                        "argument": "ambxst reload",
-                        "flags": ""
-                    },
-                    "quit": {
-                        "modifiers": ["SUPER", "CTRL", "ALT"],
-                        "key": "B",
-                        "dispatcher": "exec",
-                        "argument": "ambxst quit",
-                        "flags": ""
-                    }
+                    "config": { "modifiers": ["SUPER", "SHIFT"], "key": "C", "dispatcher": "exec", "argument": "ambxst run config", "flags": "" },
+                    "lockscreen": { "modifiers": ["SUPER"], "key": "L", "dispatcher": "exec", "argument": "loginctl lock-session", "flags": "" },
+                    "overview": { "modifiers": ["SUPER"], "key": "TAB", "dispatcher": "exec", "argument": "ambxst run overview", "flags": "" },
+                    "powermenu": { "modifiers": ["SUPER"], "key": "ESCAPE", "dispatcher": "exec", "argument": "ambxst run powermenu", "flags": "" },
+                    "tools": { "modifiers": ["SUPER"], "key": "S", "dispatcher": "exec", "argument": "ambxst run tools", "flags": "" },
+                    "screenshot": { "modifiers": ["SUPER", "SHIFT"], "key": "S", "dispatcher": "exec", "argument": "ambxst run screenshot", "flags": "" },
+                    "screenrecord": { "modifiers": ["SUPER", "SHIFT"], "key": "R", "dispatcher": "exec", "argument": "ambxst run screenrecord", "flags": "" },
+                    "lens": { "modifiers": ["SUPER", "SHIFT"], "key": "A", "dispatcher": "exec", "argument": "ambxst run lens", "flags": "" },
+                    "reload": { "modifiers": ["SUPER", "ALT"], "key": "B", "dispatcher": "exec", "argument": "ambxst reload", "flags": "" },
+                    "quit": { "modifiers": ["SUPER", "CTRL", "ALT"], "key": "B", "dispatcher": "exec", "argument": "ambxst quit", "flags": "" }
                 }
             }
 
@@ -1755,7 +1456,7 @@ Singleton {
             }
 
             property list<var> custom: [
-                // Window Management
+                // Window management
                 {
                     "name": "Close Window",
                     "keys": [
@@ -1778,7 +1479,7 @@ Singleton {
                     "enabled": true
                 },
 
-                // Workspace Navigation (SUPER + [0-9])
+                // Workspace navigation
                 {
                     "name": "Workspace 1",
                     "keys": [
@@ -1990,7 +1691,7 @@ Singleton {
                     "enabled": true
                 },
 
-                // Move Window to Workspace (SUPER + SHIFT + [0-9])
+                // Move window to workspace
                 {
                     "name": "Move to Workspace 1",
                     "keys": [
@@ -2202,7 +1903,7 @@ Singleton {
                     "enabled": true
                 },
 
-                // Workspace Navigation (Mouse Scroll & Keyboard)
+                // Workspace scroll/keys
                 {
                     "name": "Previous Occupied Workspace (Scroll)",
                     "keys": [
@@ -2330,7 +2031,7 @@ Singleton {
                     "enabled": true
                 },
 
-                // Window Drag/Resize (Mouse)
+                // Window drag/resize
                 {
                     "name": "Drag Window",
                     "keys": [
@@ -2374,7 +2075,7 @@ Singleton {
                     "enabled": true
                 },
 
-                // Media Player Controls
+                // Media controls
                 {
                     "name": "Play/Pause",
                     "keys": [
@@ -2481,7 +2182,7 @@ Singleton {
                     "enabled": true
                 },
 
-                // Volume Controls
+                // Volume controls
                 {
                     "name": "Volume Up",
                     "keys": [
@@ -2546,7 +2247,7 @@ Singleton {
                     "enabled": true
                 },
 
-                // Brightness Controls
+                // Brightness controls
                 {
                     "name": "Brightness Up",
                     "keys": [
@@ -2590,7 +2291,7 @@ Singleton {
                     "enabled": true
                 },
 
-                // Special Keys
+                // Special keys
                 {
                     "name": "Calculator",
                     "keys": [
@@ -2613,7 +2314,7 @@ Singleton {
                     "enabled": true
                 },
 
-                // Special Workspaces
+                // Special workspaces
                 {
                     "name": "Toggle Special Workspace",
                     "keys": [
@@ -2657,7 +2358,7 @@ Singleton {
                     "enabled": true
                 },
 
-                // Lid Switch Events
+                // Lid switch events
                 {
                     "name": "Lock on Lid Close",
                     "keys": [
@@ -2722,7 +2423,7 @@ Singleton {
                     "enabled": true
                 },
 
-                // Window Focus (Layout-aware)
+                // Window focus
                 {
                     "name": "Focus Up",
                     "keys": [
@@ -2868,7 +2569,7 @@ Singleton {
                     "enabled": true
                 },
 
-                // Window Movement (Layout-aware)
+                // Window movement
                 {
                     "name": "Move Window Left",
                     "keys": [
@@ -3006,7 +2707,7 @@ Singleton {
                     "enabled": true
                 },
 
-                // Window Resize (Layout-aware)
+                // Window resize
                 {
                     "name": "Horizontal Resize +",
                     "keys": [
@@ -3126,7 +2827,7 @@ Singleton {
                     "enabled": true
                 },
 
-                // Scrolling Layout Specific
+                // Scrolling layout
                 {
                     "name": "Promote (Scrolling)",
                     "keys": [
@@ -3241,7 +2942,7 @@ Singleton {
                     "enabled": true
                 },
 
-                // Move Column to Workspace (Scrolling Layout)
+                // Move column to workspace
                 {
                     "name": "Move Column To Workspace 1",
                     "keys": [
@@ -3456,12 +3157,13 @@ Singleton {
         }
     }
 
-    // ============================================
-    // VALIDATION HELPER
-    // ============================================
-    function validateModule(name, rawLoader, defaults, onComplete) {
-        var raw = rawLoader.text();
-        if (!raw) {
+    // Validation helper
+    function validateModule(name, loader, defaults, onComplete) {
+        var raw = loader.text();
+        if (!raw || raw.trim().length === 0) {
+            // File is missing or empty — create with defaults
+            console.log(name + ".json missing or empty, creating default...");
+            loader.setText(JSON.stringify(defaults, null, 4));
             onComplete();
             return;
         }
@@ -3472,21 +3174,18 @@ Singleton {
 
             if (JSON.stringify(current) !== JSON.stringify(validated)) {
                 console.log("Merging and updating " + name + ".json...");
-                rawLoader.setText(JSON.stringify(validated, null, 4));
+                loader.setText(JSON.stringify(validated, null, 4));
             }
             onComplete();
         } catch (e) {
             console.log("Error validating " + name + " config (invalid JSON?): " + e);
             console.log("Overwriting with defaults due to error.");
-            rawLoader.setText(JSON.stringify(defaults, null, 4));
+            loader.setText(JSON.stringify(defaults, null, 4));
             onComplete();
         }
     }
 
-    // ============================================
-    // EXPOSED PROPERTIES (backward compatibility)
-    // ============================================
-
+    // Exposed properties
     // Theme configuration
     property QtObject theme: themeLoader.adapter
     property bool oledMode: lightMode ? false : theme.oledMode
@@ -3497,7 +3196,7 @@ Singleton {
     property int animDuration: Services.GameModeService.toggled ? 0 : theme.animDuration
     property bool tintIcons: theme.tintIcons
 
-    // Detect lightMode changes and run Matugen
+    // Handle lightMode changes
     onLightModeChanged: {
         console.log("lightMode changed to:", lightMode);
         if (GlobalStates.wallpaperManager) {
@@ -3525,15 +3224,14 @@ Singleton {
     property string notchPosition: notch.position
 
     onNotchPositionChanged: {
-        if (!initialLoadComplete || !dockReady)
-            return;
+        if (!initialLoadComplete || !dockReady) return;
 
-        // If notch moves to bottom
+        // If notch moves bottom
         if (notchPosition === "bottom") {
-            // Check for conflict with Dock (if Dock is bottom)
+            // Conflict with Dock?
             if (dock.position === "bottom") {
                 console.log("Notch moved to bottom, adjusting Dock position...");
-                // Move Dock based on Bar position to avoid overcrowding
+                // Offset Dock to avoid notch
                 if (bar.position === "left") {
                     dock.position = "right";
                 } else {
@@ -3542,12 +3240,10 @@ Singleton {
                 // Trigger save
                 GlobalStates.markShellChanged();
             }
-        } else
-        // If notch moves to top
-        if (notchPosition === "top") {
-            // Optional: Move Dock back to bottom if it was displaced?
-            // User implied "change with this". A safe default is restoring to bottom
-            // if it's currently on the sides, assuming Bottom is the preferred Dock state.
+        } 
+        // If notch moves top
+        else if (notchPosition === "top") {
+            // Restore Dock if displaced
             if (dock.position === "left" || dock.position === "right") {
                 console.log("Notch moved to top, restoring Dock to bottom...");
                 dock.position = "bottom";
@@ -3590,9 +3286,9 @@ Singleton {
     property QtObject pinnedApps: pinnedAppsLoader.adapter
 
     // AI configuration
-    // property QtObject ai: aiLoader.adapter
+    property QtObject ai: aiLoader.adapter
 
-    // Save functions for modules
+    // Module save functions
     function saveBar() {
         barLoader.writeAdapter();
     }
@@ -3632,11 +3328,11 @@ Singleton {
     function savePinnedApps() {
         pinnedAppsLoader.writeAdapter();
     }
-    // function saveAi() {
-    //     aiLoader.writeAdapter();
-    // }
+    function saveAi() {
+        aiLoader.writeAdapter();
+    }
 
-    // Helper functions for color handling (HEX or named colors)
+    // Color helpers
     function isHexColor(colorValue) {
         if (!colorValue || typeof colorValue !== 'string')
             return false;
@@ -3645,24 +3341,21 @@ Singleton {
     }
 
     function resolveColor(colorValue) {
-        if (!colorValue)
-            return "transparent"; // Fallback safe color
-
+        if (!colorValue) return "transparent"; // Fallback
+        
         if (isHexColor(colorValue)) {
             return colorValue;
         }
-
-        // Check if Colors singleton is ready
-        if (typeof Colors === 'undefined' || !Colors)
-            return "transparent";
-
-        return Colors[colorValue] || "transparent";
+        
+        // Check Colors singleton
+        if (typeof Colors === 'undefined' || !Colors) return "transparent";
+        
+        return Colors[colorValue] || "transparent"; 
     }
 
     function resolveColorWithOpacity(colorValue, opacity) {
-        if (!colorValue)
-            return Qt.rgba(0, 0, 0, 0);
-
+        if (!colorValue) return Qt.rgba(0,0,0,0);
+        
         const color = isHexColor(colorValue) ? Qt.color(colorValue) : (Colors[colorValue] || Qt.color("transparent"));
         return Qt.rgba(color.r, color.g, color.b, opacity);
     }

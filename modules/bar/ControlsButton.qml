@@ -1,10 +1,11 @@
 pragma ComponentBehavior: Bound
-import QtQuick
+import QtQuick 6.10
 import QtQuick.Layouts
 import qs.modules.services
 import qs.modules.components
 import qs.modules.theme
 import qs.config
+import QtQuick.Effects
 
 Item {
     id: root
@@ -14,7 +15,7 @@ Item {
     property bool vertical: bar.orientation === "vertical"
     property bool isHovered: false
     property bool layerEnabled: true
-    
+
     property real radius: 0
     property real startRadius: radius
     property real endRadius: radius
@@ -57,14 +58,18 @@ Item {
             }
         }
 
-        Text {
+        Image {
             anchors.centerIn: parent
-            text: Icons.faders
-            font.family: Icons.font
-            font.pixelSize: 18
-            renderType: Text.QtRendering
-            antialiasing: true
-            color: root.popupOpen ? buttonBg.item : Styling.srItem("overprimary")
+            width: 18
+            height: 18
+
+            property color iconColor: root.popupOpen ? "#1D1D2D" : Styling.srItem("overprimary")
+
+            source: {
+                const color = iconColor.toString();
+                const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M16 3.937a9 9 0 1 0 5 8.063" /><path d="M11 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M19 4a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M20 4l-3.5 10l-2.5 2" /></svg>`;
+                return "data:image/svg+xml," + encodeURIComponent(svg);  // ini JS, tidak ada di QML
+            }
         }
 
         MouseArea {

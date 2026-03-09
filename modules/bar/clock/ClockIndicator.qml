@@ -7,6 +7,4 @@ Text {
     color: Colors.overBackground
     font.pixelSize: 20
     font.family: Icons.font
-    renderType: Text.QtRendering
-    antialiasing: true
 }

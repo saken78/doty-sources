@@ -142,8 +142,6 @@ StyledRect {
                         color: PowerProfile.currentProfile === modelData ? Styling.srItem("primary") : Colors.overBackground
                         font.family: Icons.font
                         font.pixelSize: 18
-                        renderType: Text.QtRendering
-                        antialiasing: true
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
 
@@ -198,8 +196,6 @@ StyledRect {
                         color: PowerProfile.currentProfile === modelData ? Styling.srItem("primary") : Colors.overBackground
                         font.family: Icons.font
                         font.pixelSize: 18
-                        renderType: Text.QtRendering
-                        antialiasing: true
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
 

@@ -71,6 +71,13 @@ Item {
     // Close expanded options when selection changes to a different item is handled in onSelectedIndexChanged
     {}
 
+    // Refresh clipboard list when tab becomes visible
+    onVisibleChanged: {
+        if (visible) {
+            ClipboardService.list();
+        }
+    }
+
     function adjustScrollForExpandedItem(index) {
         if (index < 0 || index >= itemsModel.count)
             return;
@@ -584,8 +591,13 @@ Item {
                     // Copy file URI with text/uri-list MIME type, removing carriage returns
                     copyProcess.command = ["sh", "-c", "sqlite3 '" + ClipboardService.dbPath + "' \"SELECT full_content FROM clipboard_items WHERE id = " + itemId + ";\" | tr -d '\\r' | wl-copy --type text/uri-list"];
                 } else {
-                    // Copy text as plain text
-                    copyProcess.command = ["sh", "-c", "sqlite3 '" + ClipboardService.dbPath + "' \"SELECT full_content FROM clipboard_items WHERE id = " + itemId + ";\" | wl-copy"];
+                    // Optimized path for text: use the already loaded safeCurrentContent if it matches
+                    if (root.contentMatchesSelection && root.currentItemId === itemId && root.currentFullContent) {
+                        copyProcess.command = ["sh", "-c", "printf '%s' " + ClipboardUtils.escapeShellArg(root.currentFullContent) + " | wl-copy"];
+                    } else {
+                        // Fallback: Copy text as plain text from DB
+                        copyProcess.command = ["sh", "-c", "sqlite3 '" + ClipboardService.dbPath + "' \"SELECT full_content FROM clipboard_items WHERE id = " + itemId + ";\" | wl-copy"];
+                    }
                 }
                 copyProcess.running = true;
                 break;
@@ -678,10 +690,9 @@ Item {
         running: false
 
         onExited: function (code) {
-        // No cerrar el dashboard después de copiar
-        // if (code === 0) {
-        //     root.itemSelected();
-        // }
+            if (code === 0) {
+                ClipboardService.checkClipboard();
+            }
         }
     }
 
@@ -2113,6 +2124,7 @@ Item {
 
                                 // Favicon for URLs (now outside StyledRect for independent sizing/background)
                                 Image {
+                                    mipmap: true
                                     id: faviconImage
                                     anchors.fill: parent
                                     sourceSize.width: 32
@@ -2438,6 +2450,7 @@ Item {
 
                     // Preview para imagen estática
                     Image {
+                        mipmap: true
                         id: previewImage
                         anchors.fill: parent
                         fillMode: Image.PreserveAspectFit
@@ -2663,6 +2676,7 @@ Item {
                                             property bool triedFallback: false
 
                                             Image {
+                                                mipmap: true
                                                 id: videoFaviconPrimary
                                                 anchors.fill: parent
                                                 sourceSize.width: 40
@@ -2681,6 +2695,7 @@ Item {
                                             }
 
                                             Image {
+                                                mipmap: true
                                                 id: videoFaviconFallback
                                                 anchors.fill: parent
                                                 sourceSize.width: 40
@@ -2714,6 +2729,7 @@ Item {
                                         visible: root.linkPreviewData && root.linkPreviewData.image
 
                                         Image {
+                                            mipmap: true
                                             id: videoThumbnail
                                             anchors.fill: parent
                                             source: root.linkPreviewData && root.linkPreviewData.image ? root.linkPreviewData.image : ""
@@ -2834,6 +2850,7 @@ Item {
                                                 property bool triedFallback: false
 
                                                 Image {
+                                                    mipmap: true
                                                     id: linkFaviconPrimary
                                                     anchors.fill: parent
                                                     sourceSize.width: 40
@@ -2852,6 +2869,7 @@ Item {
                                                 }
 
                                                 Image {
+                                                    mipmap: true
                                                     id: linkFaviconFallback
                                                     anchors.fill: parent
                                                     sourceSize.width: 40
@@ -2914,6 +2932,7 @@ Item {
                                         anchors.verticalCenter: parent.verticalCenter
 
                                         Image {
+                                            mipmap: true
                                             anchors.fill: parent
                                             source: root.linkPreviewData && root.linkPreviewData.image ? root.linkPreviewData.image : ""
                                             fillMode: Image.PreserveAspectCrop
@@ -3027,6 +3046,7 @@ Item {
                                             radius: Styling.radius(-4)
 
                                             Image {
+                                                mipmap: true
                                                 id: previewFavicon
                                                 anchors.centerIn: parent
                                                 width: 24

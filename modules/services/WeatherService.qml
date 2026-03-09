@@ -23,16 +23,16 @@ Singleton {
     property var forecast: []
 
     // Sun position data
-    property string sunrise: ""  // HH:MM format
-    property string sunset: ""   // HH:MM format
-    property real sunProgress: 0.0  // 0.0-1.0 position on the arc
+    property string sunrise: ""  // HH:MM
+    property string sunset: ""   // HH:MM
+    property real sunProgress: 0.0  // Arc position (0.0-1.0)
     property bool isDay: true
     property string timeOfDay: "Day"  // "Day", "Evening", "Night"
     property string weatherDescription: ""
 
     // Debug mode
     property bool debugMode: false
-    property real debugHour: 12.0  // 0-24 hour format (e.g., 14.5 = 2:30 PM)
+    property real debugHour: 12.0  // 0-24 hour (e.g. 14.5 = 2:30 PM)
     property int debugWeatherCode: 0
 
     // Script path
@@ -50,13 +50,11 @@ Singleton {
                 root.wasCancelled = true;
                 weatherProcess.running = false;
             }
-            if (retryTimer)
-                retryTimer.stop();
+            if (retryTimer) retryTimer.stop();
         }
         function onWakingUp() {
             // Delay refresh on wake to allow network to stabilize
-            if (wakeRefreshTimer)
-                wakeRefreshTimer.restart();
+            if (wakeRefreshTimer) wakeRefreshTimer.restart();
         }
     }
 
@@ -87,7 +85,7 @@ Singleton {
         onTriggered: root.updateWeather()
     }
 
-    // Parse "HH:MM" to hours as decimal (e.g., "14:30" -> 14.5)
+    // Convert "HH:MM" to decimal hours
     function parseTime(timeStr) {
         if (!timeStr)
             return 0;
@@ -433,13 +431,13 @@ Singleton {
                             var forecastData = [];
                             var dayCount = Math.min(7, daily.time ? daily.time.length : 0);
                             for (var i = 0; i < dayCount; i++) {
-                                // Parse date string manually to avoid timezone issues with UTC midnight
-                                // Format is "YYYY-MM-DD"
+                                // Manual date parse to avoid UTC midnight issues
+                                // "YYYY-MM-DD"
                                 var dateParts = daily.time[i].split("-");
                                 var year = parseInt(dateParts[0]);
-                                var month = parseInt(dateParts[1]) - 1; // Months are 0-indexed
+                                var month = parseInt(dateParts[1]) - 1; // 0-indexed months
                                 var day = parseInt(dateParts[2]);
-
+                                
                                 var dayDate = new Date(year, month, day);
                                 var rawDayName = i === 0 ? "Today" : dayDate.toLocaleDateString(Qt.locale(), "ddd");
                                 var dayName = rawDayName.charAt(0).toUpperCase() + rawDayName.slice(1);
@@ -479,7 +477,7 @@ Singleton {
         }
 
         onExited: function (code) {
-            // Code 15 = SIGTERM, means we cancelled the process intentionally
+            // SIGTERM (15) = intentional cancellation
             if (code !== 0 && code !== 15) {
                 console.warn("WeatherService: Script exited with code", code);
                 root.dataAvailable = false;
@@ -497,16 +495,14 @@ Singleton {
     property bool _initialized: false
 
     onConfigLocationChanged: {
-        if (!_initialized)
-            return;
+        if (!_initialized) return;
         console.log("WeatherService: Location changed to '" + configLocation + "'");
-        updateWeather();
+        Qt.callLater(() => { updateWeather(); });
     }
     onConfigUnitChanged: {
-        if (!_initialized)
-            return;
+        if (!_initialized) return;
         console.log("WeatherService: Unit changed to '" + configUnit + "'");
-        updateWeather();
+        Qt.callLater(() => { updateWeather(); });
     }
 
     function updateWeather() {
@@ -527,20 +523,23 @@ Singleton {
 
         var locationStr = Config.weather.location || "";
         var location = locationStr.trim();
-
-        if (weatherProcess.running) {
-            console.log("WeatherService: Fetching weather for '" + location + "'");
-        }
-        console.log("WeatherService: disabled");
-
+        
+        console.log("WeatherService: Fetching weather for '" + location + "'");
+        
         weatherProcess.command = [scriptPath, location];
-        weatherProcess.running = false;
+        weatherProcess.running = true;
+    }
+
+    Timer {
+        id: startupDelay
+        interval: 2000
+        running: true
+        onTriggered: updateWeather()
     }
 
     Component.onCompleted: {
         var now = new Date();
         currentHour = now.getHours() + now.getMinutes() / 60;
         _initialized = true;
-        updateWeather();
     }
 }

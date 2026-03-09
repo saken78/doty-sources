@@ -15,7 +15,7 @@ Rectangle {
     color: "transparent"
     implicitWidth: 400
     implicitHeight: 300
-    // 0: Network, 1: Bluetooth, 2: Mixer, 3: Network Protocols, 4: Theme, 5: Binds, 6: System, 7: Compositor, 8: Shell
+    // 0: Network, 1: Bluetooth, 2: Mixer, 3: Effects, 4: Theme, 5: Binds, 6: System, 7: Shell
 
     property int currentSection: 0
     property int selectedIndex: 0
@@ -209,7 +209,7 @@ Rectangle {
         },
         {
             icon: Icons.waveform,
-            label: "Network",
+            label: "Effects",
             section: 3,
             isIcon: true
         },
@@ -552,7 +552,7 @@ Rectangle {
                     section: 2
                 },
                 {
-                    component: "NetworkProtocolPanel.qml",
+                    component: "EasyEffectsPanel.qml",
                     section: 3
                 },
                 {

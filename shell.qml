@@ -15,17 +15,18 @@ import qs.modules.widgets.dashboard.wallpapers
 import qs.modules.notch
 import qs.modules.widgets.overview
 import qs.modules.widgets.presets
+import qs.modules.widgets.quotes
 import qs.modules.services
 import qs.modules.corners
 import qs.modules.frame
 import qs.modules.components
 import qs.modules.desktop
-// import qs.modules.lockscreen
-// import qs.modules.dock
+import qs.modules.lockscreen
+import qs.modules.dock
 import qs.modules.globals
 import qs.modules.shell
 import qs.config
-// import qs.modules.shell.osd
+import qs.modules.shell.osd
 import "modules/tools"
 
 ShellRoot {
@@ -63,7 +64,7 @@ ShellRoot {
         }
     }
 
-    // Unified Visual Panel and Reservation Windows
+    // Visual panel & reservations
     Variants {
         model: Quickshell.screens
 
@@ -71,24 +72,27 @@ ShellRoot {
             id: screenShellContainer
             required property ShellScreen modelData
 
-            // Unified Visual Panel (Bar, Notch, Dock, Frame, Corners)
+            // Panel components (Bar, Notch, Dock, Frame, Corners)
             UnifiedShellPanel {
                 id: unifiedPanel
                 targetScreen: screenShellContainer.modelData
             }
 
-            ScreenCorners {
-                screen: screenShellContainer.modelData
+            Loader {
+                active: Config.theme.enableCorners && Config.roundness > 0
+                sourceComponent: ScreenCorners {
+                    screen: screenShellContainer.modelData
+                }
             }
 
-            // Reservation Windows for Exclusive Zones
+            // Exclusive zone reservations
             ReservationWindows {
                 screen: screenShellContainer.modelData
 
                 // Bar status for reservations
                 barEnabled: {
-                    const list = Config.bar.screenList;
-                    return (!list || list.length === 0 || list.includes(screen.name));
+                    const list = Config.bar?.screenList ?? [];
+                    return (!list || list.length === 0 || list.indexOf(screen.name) !== -1);
                 }
                 barPosition: unifiedPanel.barPosition
                 barPinned: unifiedPanel.pinned
@@ -103,7 +107,7 @@ ShellRoot {
                     const list = Config.dock?.screenList ?? [];
                     if (!list || list.length === 0)
                         return true;
-                    return list.includes(screenShellContainer.modelData.name);
+                    return list.indexOf(screenShellContainer.modelData.name) !== -1;
                 }
                 dockPosition: unifiedPanel.dockPosition
                 dockPinned: unifiedPanel.dockPinned
@@ -116,19 +120,19 @@ ShellRoot {
         }
     }
 
-    // Overview popup window (separate from notch)
+    // Overview popup
     Variants {
         model: {
             const screens = Quickshell.screens;
-            const list = Config.bar.screenList;
+            const list = Config.bar?.screenList ?? [];
             if (!list || list.length === 0)
                 return screens;
-            return screens.filter(screen => list.includes(screen.name));
+            return screens.filter(screen => list.indexOf(screen.name) !== -1);
         }
 
         Loader {
             id: overviewLoader
-            active: (Config.overview?.enabled ?? true) && SuspendManager.wakeReady
+            active: (Config.overview?.enabled ?? true) && SuspendManager.wakeReady && (Visibilities.getForScreen(modelData.name) ? Visibilities.getForScreen(modelData.name).overview : false)
             required property ShellScreen modelData
             sourceComponent: OverviewPopup {
                 screen: overviewLoader.modelData
@@ -136,19 +140,19 @@ ShellRoot {
         }
     }
 
-    // Presets popup window
+    // Presets popup
     Variants {
         model: {
             const screens = Quickshell.screens;
-            const list = Config.bar.screenList;
+            const list = Config.bar?.screenList ?? [];
             if (!list || list.length === 0)
                 return screens;
-            return screens.filter(screen => list.includes(screen.name));
+            return screens.filter(screen => list.indexOf(screen.name) !== -1);
         }
 
         Loader {
             id: presetsLoader
-            active: SuspendManager.wakeReady
+            active: SuspendManager.wakeReady && (Visibilities.getForScreen(modelData.name) ? Visibilities.getForScreen(modelData.name).presets : false)
             required property ShellScreen modelData
             sourceComponent: PresetsPopup {
                 screen: presetsLoader.modelData
@@ -156,14 +160,34 @@ ShellRoot {
         }
     }
 
-    // // Secure lockscreen using WlSessionLock
-    // WlSessionLock {
-    //     id: sessionLock
-    //     locked: GlobalStates.lockscreenVisible
+    // Quotes popup
+    Variants {
+        model: {
+            const screens = Quickshell.screens;
+            const list = Config.bar?.screenList ?? [];
+            if (!list || list.length === 0)
+                return screens;
+            return screens.filter(screen => list.indexOf(screen.name) !== -1);
+        }
 
-    //     // WlSessionLockSurface creates automatically for each screen
-    //     LockScreen {}
-    // }
+        Loader {
+            id: quotesLoader
+            active: SuspendManager.wakeReady && (Visibilities.getForScreen(modelData.name) ? Visibilities.getForScreen(modelData.name).quotes : false)
+            required property ShellScreen modelData
+            sourceComponent: QuotesPopup {
+                screen: quotesLoader.modelData
+            }
+        }
+    }
+
+    // Secure WlSessionLock lockscreen
+    WlSessionLock {
+        id: sessionLock
+        locked: GlobalStates.lockscreenVisible
+
+        // Surface auto-created per screen
+        LockScreen {}
+    }
 
     HyprlandConfig {
         id: hyprlandConfig
@@ -173,7 +197,7 @@ ShellRoot {
         id: hyprlandKeybinds
     }
 
-    // Screenshot Tool
+    // Screenshot tool
     Variants {
         model: Quickshell.screens
 
@@ -187,7 +211,7 @@ ShellRoot {
         }
     }
 
-    // Screenshot Overlay (Preview)
+    // Screenshot preview overlay
     Variants {
         model: Quickshell.screens
 
@@ -201,11 +225,17 @@ ShellRoot {
         }
     }
 
-    // Screen Record Tool
+    // Screen recording tool
     Loader {
         id: screenRecordLoader
-        active: SuspendManager.wakeReady
+        active: SuspendManager.wakeReady && GlobalStates.screenRecordToolVisible
         source: "modules/tools/ScreenrecordTool.qml"
+
+        onLoaded: {
+            if (GlobalStates.screenRecordToolVisible && item) {
+                item.open();
+            }
+        }
 
         Connections {
             target: GlobalStates
@@ -231,30 +261,35 @@ ShellRoot {
         }
     }
 
-    // Mirror Tool
+    // Mirror tool
     Loader {
         id: mirrorLoader
-        active: SuspendManager.wakeReady
+        active: SuspendManager.wakeReady && GlobalStates.mirrorWindowVisible
         source: "modules/tools/MirrorWindow.qml"
     }
 
-    // Settings Window
+    // Settings
     Loader {
         id: settingsWindowLoader
-        active: SuspendManager.wakeReady
+        active: SuspendManager.wakeReady && GlobalStates.settingsWindowVisible
         source: "modules/widgets/config/SettingsWindow.qml"
     }
 
-    // OSD
-    // Variants {
-    //     model: Quickshell.screens
+    // On-screen display
+    Variants {
+        model: Quickshell.screens
 
-    //     OSD {
-    //         targetScreen: modelData
-    //     }
-    // }
+        Loader {
+            id: osdLoader
+            active: SuspendManager.wakeReady
+            required property ShellScreen modelData
+            sourceComponent: OSD {
+                targetScreen: osdLoader.modelData
+            }
+        }
+    }
 
-    // Initialize clipboard service at startup to ensure clipboard watching starts immediately
+    // Init clipboard service
     Connections {
         target: ClipboardService
         function onListCompleted() {
@@ -262,17 +297,28 @@ ShellRoot {
         }
     }
 
-    // Force initialization of control services at startup
+    // Force service init at startup but defer it slightly so it doesn't block the UI
     QtObject {
         id: serviceInitializer
 
         Component.onCompleted: {
-            // Reference the services to force their creation
+            // Critical services — init immediately (next tick)
+            Qt.callLater(() => {
+                let _ = CaffeineService.inhibit;
+                _ = IdleService.lockCmd; // Force init
+                _ = GlobalShortcuts.appId; // Force init (IPC pipe listener)
+            });
+        }
+
+    }
+
+    // Non-critical services — defer 2s after startup
+    Timer {
+        interval: 2000
+        running: true
+        onTriggered: {
             let _ = NightLightService.active;
             _ = GameModeService.toggled;
-            _ = CaffeineService.inhibit;
-            _ = IdleService.lockCmd; // Force init
-            _ = GlobalShortcuts.appId; // Force init
         }
     }
 }

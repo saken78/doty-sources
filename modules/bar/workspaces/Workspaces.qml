@@ -23,12 +23,12 @@ Item {
     property list<bool> workspaceOccupied: []
     property list<int> dynamicWorkspaceIds: []
     property int effectiveWorkspaceCount: Config.workspaces.dynamic ? dynamicWorkspaceIds.length : Config.workspaces.shown
-    property int widgetPadding: 3
+    property int widgetPadding: 4
     property real radius: Styling.radius(0)
     property real startRadius: radius
     property real endRadius: radius
-
-    property int baseSize: 30
+    
+    property int baseSize: 36
     property int workspaceButtonSize: baseSize - widgetPadding * 2
     property int workspaceButtonWidth: workspaceButtonSize
     property real workspaceIconSize: Math.round(workspaceButtonWidth * 0.6)
@@ -158,12 +158,14 @@ Item {
     implicitWidth: orientation === "vertical" ? baseSize : workspaceButtonSize * effectiveWorkspaceCount + widgetPadding * 2
     implicitHeight: orientation === "vertical" ? workspaceButtonSize * effectiveWorkspaceCount + widgetPadding * 2 : baseSize
 
+    readonly property bool effectiveContainBar: Config.bar.containBar && (Config.bar.frameEnabled ?? false)
+
     StyledRect {
         id: bgRect
         variant: "bg"
         anchors.fill: parent
-        enableShadow: Config.showBackground
-
+        enableShadow: Config.showBackground && (!effectiveContainBar || Config.bar.keepBarShadow)
+        
         topLeftRadius: orientation === "vertical" ? workspacesWidget.startRadius : workspacesWidget.startRadius
         topRightRadius: orientation === "vertical" ? workspacesWidget.startRadius : workspacesWidget.endRadius
         bottomLeftRadius: orientation === "vertical" ? workspacesWidget.endRadius : workspacesWidget.startRadius
@@ -298,29 +300,49 @@ Item {
         variant: "primary"
         visible: orientation === "horizontal"
         z: 2
+        property real activeWorkspaceMargin: 4
         // Two animated indices to create a stretchy transition effect
         property real idx1: workspaceIndexInGroup
         property real idx2: workspaceIndexInGroup
 
-        width: Math.abs(idx1 - idx2) * workspaceButtonWidth + workspaceButtonWidth
-        height: workspaceButtonWidth
+        implicitWidth: Math.abs(idx1 - idx2) * workspaceButtonWidth + workspaceButtonWidth - activeWorkspaceMargin * 2
+        implicitHeight: workspaceButtonWidth - activeWorkspaceMargin * 2
 
-        radius: workspacesWidget.startRadius > 0 ? Math.max(workspacesWidget.startRadius - widgetPadding, 0) : 0
+        radius: {
+            const activeWorkspaceId = monitor?.activeWorkspace?.id || 1;
+            const currentWorkspaceHasWindows = HyprlandData.workspaceOccupationMap[activeWorkspaceId];
+            if (workspacesWidget.radius === 0)
+                return 0;
+            return currentWorkspaceHasWindows ? workspacesWidget.radius > 0 ? Math.max(workspacesWidget.radius - parent.widgetPadding - activeWorkspaceMargin, 0) : 0 : implicitHeight / 2;
+        }
 
         anchors.verticalCenter: parent.verticalCenter
-        anchors.margins: widgetPadding
 
-        x: Math.min(idx1, idx2) * workspaceButtonWidth + widgetPadding
+        x: Math.min(idx1, idx2) * workspaceButtonWidth + activeWorkspaceMargin + widgetPadding
+        y: parent.height / 2 - implicitHeight / 2
 
-        Behavior on x {
+        Behavior on activeWorkspaceMargin {
+
             enabled: Config.animDuration > 0
+
             NumberAnimation {
-                duration: Config.animDuration
+                duration: Config.animDuration / 2
+                easing.type: Easing.OutQuad
+            }
+        }
+        Behavior on idx1 {
+
+            enabled: Config.animDuration > 0
+
+            NumberAnimation {
+                duration: Config.animDuration / 3
                 easing.type: Easing.OutSine
             }
         }
-        Behavior on width {
+        Behavior on idx2 {
+
             enabled: Config.animDuration > 0
+
             NumberAnimation {
                 duration: Config.animDuration
                 easing.type: Easing.OutSine
@@ -334,29 +356,49 @@ Item {
         variant: "primary"
         visible: orientation === "vertical"
         z: 2
+        property real activeWorkspaceMargin: 4
         // Two animated indices to create a stretchy transition effect
         property real idx1: workspaceIndexInGroup
         property real idx2: workspaceIndexInGroup
 
-        width: workspaceButtonWidth
-        height: Math.abs(idx1 - idx2) * workspaceButtonWidth + workspaceButtonWidth
+        implicitWidth: workspaceButtonWidth - activeWorkspaceMargin * 2
+        implicitHeight: Math.abs(idx1 - idx2) * workspaceButtonWidth + workspaceButtonWidth - activeWorkspaceMargin * 2
 
-        radius: workspacesWidget.startRadius > 0 ? Math.max(workspacesWidget.startRadius - widgetPadding, 0) : 0
+        radius: {
+            const activeWorkspaceId = monitor?.activeWorkspace?.id || 1;
+            const currentWorkspaceHasWindows = HyprlandData.workspaceOccupationMap[activeWorkspaceId];
+            if (workspacesWidget.radius === 0)
+                return 0;
+            return currentWorkspaceHasWindows ? workspacesWidget.radius > 0 ? Math.max(workspacesWidget.radius - parent.widgetPadding - activeWorkspaceMargin, 0) : 0 : implicitWidth / 2;
+        }
 
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.margins: widgetPadding
 
-        y: Math.min(idx1, idx2) * workspaceButtonWidth + widgetPadding
+        x: parent.width / 2 - implicitWidth / 2
+        y: Math.min(idx1, idx2) * workspaceButtonWidth + activeWorkspaceMargin + widgetPadding
 
-        Behavior on y {
+        Behavior on activeWorkspaceMargin {
+
             enabled: Config.animDuration > 0
+
             NumberAnimation {
-                duration: Config.animDuration
+                duration: Config.animDuration / 2
+                easing.type: Easing.OutQuad
+            }
+        }
+        Behavior on idx1 {
+
+            enabled: Config.animDuration > 0
+
+            NumberAnimation {
+                duration: Config.animDuration / 3
                 easing.type: Easing.OutSine
             }
         }
-        Behavior on height {
+        Behavior on idx2 {
+
             enabled: Config.animDuration > 0
+
             NumberAnimation {
                 duration: Config.animDuration
                 easing.type: Easing.OutSine
@@ -402,24 +444,18 @@ Item {
                     property var mainAppIconSource: Quickshell.iconPath(AppSearch.getCachedIcon(focusedWindow?.class), "image-missing")
 
                     Text {
-                        opacity: {
-                            const shouldShow = Config.workspaces.alwaysShowNumbers || ((Config.workspaces.showNumbers && (!Config.workspaces.showAppIcons || !workspaceButtonBackground.focusedWindow || Config.workspaces.alwaysShowNumbers)) || (Config.workspaces.alwaysShowNumbers && !Config.workspaces.showAppIcons));
-                            if (!shouldShow)
-                                return 0;
-                            // Full opacity untuk active dan hover, redup untuk inactive
-                            return (monitor?.activeWorkspace?.id == button.workspaceValue) ? 1 : (button.hovered ? 1 : 0.5);
-                        }
+                        opacity: Config.workspaces.alwaysShowNumbers || ((Config.workspaces.showNumbers && (!Config.workspaces.showAppIcons || !workspaceButtonBackground.focusedWindow || Config.workspaces.alwaysShowNumbers)) || (Config.workspaces.alwaysShowNumbers && !Config.workspaces.showAppIcons)) ? 1 : 0
                         z: 3
 
                         anchors.centerIn: parent
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
                         font.family: Config.theme.font
-                        font.pixelSize: Config.theme.fontSize
+                        font.pixelSize: workspaceLabelFontSize(text)
                         font.weight: Font.Bold
                         text: `${button.workspaceValue}`
                         elide: Text.ElideRight
-                        color: (monitor?.activeWorkspace?.id == button.workspaceValue) ? Styling.srItem("primary") : (button.hovered ? Styling.srItem("primary") : Colors.overBackground)
+                        color: (monitor?.activeWorkspace?.id == button.workspaceValue) ? Styling.srItem("primary") : (workspaceOccupied[index] ? Colors.overBackground : Colors.overSecondaryFixedVariant)
 
                         Behavior on opacity {
                             enabled: Config.animDuration > 0
@@ -429,25 +465,6 @@ Item {
                             }
                         }
                     }
-
-                    Rectangle {
-                        id: hoverBg
-                        anchors.fill: parent
-                        radius: 6
-                        opacity: button.hovered ? 1 : 0
-                        color: Styling.srItem("surface")
-                        border.color: Styling.srItem("primary")
-                        border.width: 1
-
-                        Behavior on opacity {
-                            enabled: Config.animDuration > 0
-                            NumberAnimation {
-                                duration: 150
-                                easing.type: Easing.OutQuad
-                            }
-                        }
-                    }
-
                     Rectangle {
                         opacity: (Config.workspaces.showNumbers || Config.workspaces.alwaysShowNumbers || (Config.workspaces.showAppIcons && workspaceButtonBackground.focusedWindow)) ? 0 : ((monitor?.activeWorkspace?.id == button.workspaceValue) || workspaceOccupied[index] ? 1 : 0.5)
                         visible: opacity > 0
@@ -480,7 +497,6 @@ Item {
 
                             source: workspaceButtonBackground.mainAppIconSource
                             implicitSize: (!Config.workspaces.alwaysShowNumbers && Config.workspaces.showAppIcons) ? workspaceIconSize : workspaceIconSizeShrinked
-                            visible: !Config.tintIcons
 
                             Behavior on opacity {
                                 enabled: Config.animDuration > 0
@@ -560,24 +576,18 @@ Item {
                     property var mainAppIconSource: Quickshell.iconPath(AppSearch.getCachedIcon(focusedWindow?.class), "image-missing")
 
                     Text {
-                        opacity: {
-                            const shouldShow = Config.workspaces.alwaysShowNumbers || ((Config.workspaces.showNumbers && (!Config.workspaces.showAppIcons || !workspaceButtonBackgroundVert.focusedWindow || Config.workspaces.alwaysShowNumbers)) || (Config.workspaces.alwaysShowNumbers && !Config.workspaces.showAppIcons));
-                            if (!shouldShow)
-                                return 0;
-                            // Full opacity untuk active dan hover, redup untuk inactive
-                            return (monitor?.activeWorkspace?.id == buttonVert.workspaceValue) ? 1 : (buttonVert.hovered ? 1 : 0.5);
-                        }
+                        opacity: Config.workspaces.alwaysShowNumbers || ((Config.workspaces.showNumbers && (!Config.workspaces.showAppIcons || !workspaceButtonBackgroundVert.focusedWindow || Config.workspaces.alwaysShowNumbers)) || (Config.workspaces.alwaysShowNumbers && !Config.workspaces.showAppIcons)) ? 1 : 0
                         z: 3
 
                         anchors.centerIn: parent
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
                         font.family: Config.theme.font
-                        font.pixelSize: Config.theme.fontSize
+                        font.pixelSize: workspaceLabelFontSize(text)
                         font.weight: Font.Bold
                         text: `${buttonVert.workspaceValue}`
                         elide: Text.ElideRight
-                        color: (monitor?.activeWorkspace?.id == buttonVert.workspaceValue) ? Styling.srItem("primary") : (buttonVert.hovered ? Styling.srItem("primary") : Colors.overBackground)
+                        color: (monitor?.activeWorkspace?.id == buttonVert.workspaceValue) ? Styling.srItem("primary") : (workspaceOccupied[index] ? Colors.overBackground : Colors.overSecondaryFixedVariant)
 
                         Behavior on opacity {
                             enabled: Config.animDuration > 0
@@ -587,24 +597,6 @@ Item {
                             }
                         }
                     }
-
-                    Rectangle {
-                        anchors.fill: parent
-                        radius: 6
-                        opacity: buttonVert.hovered ? 1 : 0
-                        color: Styling.srItem("surface")
-                        border.color: Styling.srItem("primary")
-                        border.width: 1
-
-                        Behavior on opacity {
-                            enabled: Config.animDuration > 0
-                            NumberAnimation {
-                                duration: 150
-                                easing.type: Easing.OutQuad
-                            }
-                        }
-                    }
-
                     Rectangle {
                         opacity: (Config.workspaces.showNumbers || Config.workspaces.alwaysShowNumbers || (Config.workspaces.showAppIcons && workspaceButtonBackgroundVert.focusedWindow)) ? 0 : ((monitor?.activeWorkspace?.id == buttonVert.workspaceValue) || workspaceOccupied[index] ? 1 : 0.5)
                         visible: opacity > 0
@@ -637,7 +629,6 @@ Item {
 
                             source: workspaceButtonBackgroundVert.mainAppIconSource
                             implicitSize: (!Config.workspaces.alwaysShowNumbers && Config.workspaces.showAppIcons) ? workspaceIconSize : workspaceIconSizeShrinked
-                            visible: !Config.tintIcons
 
                             Behavior on opacity {
                                 enabled: Config.animDuration > 0

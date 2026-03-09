@@ -5,7 +5,7 @@ import qs.modules.services
 
 ToggleButton {
     id: powerButton
-    buttonIcon: Icons.shutdown
+    buttonIcon: Icons.pokerface
     tooltipText: "Power Menu"
     onToggle: function () {
         if (Visibilities.currentActiveModule === "powermenu") {

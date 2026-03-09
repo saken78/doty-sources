@@ -1,0 +1,2 @@
+module qs.modules.widgets.stats
+StatsButton 1.0 StatsButton.qml
